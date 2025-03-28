@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>¡Acceso Permitido!</h1>
+        <h1>¡Acceso Permitido, disfruta!</h1>
         <p>Bienvenido al sistema.</p>
     </div>
 </body>
