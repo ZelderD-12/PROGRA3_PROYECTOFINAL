@@ -1,0 +1,146 @@
+/* ========== VARIABLES ========== */
+:root {
+    --primary-color: #4CAF50;
+    --primary-hover: #45a049;
+    --error-color: #d9534f;
+    --text-color: #333;
+    --border-color: #ddd;
+    --shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s ease;
+  }
+  
+  /* ========== ESTILOS GENERALES ========== */
+  body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: url('../imagenes/fondo1.png') no-repeat fixed center/cover;
+    color: var(--text-color);
+  }
+  
+  /* ========== CONTENEDOR PRINCIPAL ========== */
+  .container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    border: 3px solid black;
+    width: 350px;
+    position: relative;
+    margin-top: 60px;
+  }
+  
+  /* ========== ENCABEZADO ========== */
+  .header {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  
+  .logo {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+  
+  /* ========== FORMULARIO ========== */
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: var(--text-color);
+  }
+  
+  .input-field {
+    margin: 0.8rem 0;
+    padding: 0.8rem;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  
+  .input-field:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+  }
+  
+  /* ========== BOTÓN ========== */
+  .btn {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--primary-color);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  
+  .btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+  }
+  
+  /* ========== MENSAJES DE ERROR ========== */
+  .error-message {
+    color: var(--error-color);
+    margin: 0.8rem 0;
+    padding: 0.5rem;
+    font-weight: bold;
+    background-color: rgba(217, 83, 79, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid var(--error-color);
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .hidden {
+    display: none;
+    opacity: 0;
+  }
+  
+  /* ========== ANIMACIONES ========== */
+  @keyframes fadeIn {
+    0% { 
+      opacity: 0; 
+      transform: translateY(-10px); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 480px) {
+    .container {
+      width: 90%;
+      padding: 1.5rem;
+      margin-top: 50px;
+    }
+    
+    .header {
+      top: -50px;
+    }
+    
+    .logo {
+      width: 80px;
+    }
+  }
