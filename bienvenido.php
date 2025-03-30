@@ -9,7 +9,7 @@
         // Verificar autenticación
         document.addEventListener('DOMContentLoaded', function() {
             if (!sessionStorage.getItem('loggedIn')) {
-                window.location.href = "index.html";
+                window.location.href = "index.php";
                 return;
             }
 
@@ -28,7 +28,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        window.location.href = "index.html";
+                        window.location.href = "index.php";
                     });
             }
         });

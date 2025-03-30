@@ -1,3 +1,4 @@
+<?php include 'PHP/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,7 +19,7 @@
             <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="Registro.html" class="register-link">Registro</a>
+        <a href="Registro.php" class="register-link">Registro</a>
                 
         <h2><span id="login-title">Inicio de Sesión</span></h2>
                 

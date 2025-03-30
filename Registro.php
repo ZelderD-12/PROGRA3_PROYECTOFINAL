@@ -1,3 +1,4 @@
+<?php include 'PHP/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -43,21 +44,40 @@
                 
         <form id="register-form" action="PHP/operaciones.php" method="POST">
             <div class="form-grid">
-                <input type="text" name="carnet" placeholder="Carnet" required class="input-field">
-                <input type="text" name="nombres" placeholder="Nombre" required class="input-field">
-                <input type="text" name="apellidos" placeholder="Apellido" required class="input-field">
-                <input type="password" name="password" placeholder="Contraseña" required class="input-field">
-                <input type="tel" name="celular" placeholder="Celular" required class="input-field">
-                <input type="email" name="email" placeholder="Email" required class="input-field">
-                <input type="text" name="foto" placeholder="URL de Foto" class="input-field">
-                <select name="tipouser" required class="input-field">
-                    <option value="" disabled selected>Tipo de Usuario</option>
-                    <option value="estudiante">Estudiante</option>
-                    <option value="profesor">Profesor</option>
-                    <option value="admin">Administrador</option>
-                </select>
-                <input type="text" name="carrera" placeholder="Carrera" class="input-field">
-                <input type="text" name="seccion" placeholder="Sección" class="input-field">
+                <input type="text" name="carnet" placeholder="Carnet" required class="input-field" >
+                <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
+                <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" >
+                <input type="password" name="password" placeholder="Contraseña" required class="input-field" >
+                <input type="tel" name="celular" placeholder="Celular" required class="input-field" >
+                <input type="email" name="email" placeholder="Email" required class="input-field" >
+                <input type="text" name="foto" placeholder="URL de Foto" class="input-field" >
+                <select name="tipouser" required class="input-field" >
+                    <option value="" disabled selected>Seleccione un tipo de usuario</option>
+                    <?php
+                    if (!empty($tipos_usuario)) {
+                        foreach ($tipos_usuario as $tipo) {
+                            echo "<option value='" . strtolower($tipo) . "'>" . $tipo . "</option>";
+                        }
+                    } else {
+                        echo "<option value='' disabled>No se encontraron tipos de usuario</option>";
+                    }
+                    ?>
+        </select>
+
+        <select name="carrera" required class="input-field" >
+                    <option value="" disabled selected>Seleccione una carrera</option>
+                    <?php
+                    if (!empty($carreras)) {
+                        foreach ($carreras as $carreer) {
+                            echo "<option value='" . strtolower($carreer) . "'>" . $carreer . "</option>";
+                        }
+                    } else {
+                        echo "<option value='' disabled>No se encontraron carreras</option>";
+                    }
+                    ?>
+        </select>
+
+                <input type="text" name="seccion" placeholder="Sección" class="input-field" >
             </div>
             
             <div class="form-actions">

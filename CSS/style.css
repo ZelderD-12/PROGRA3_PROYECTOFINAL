@@ -1054,10 +1054,6 @@ h2::after {
 }
 
 /* Ajustes para select */
-.input-field[type="text"],
-.input-field[type="password"],
-.input-field[type="email"],
-.input-field[type="tel"],
 .input-field select {
   -webkit-appearance: none;
   appearance: none;

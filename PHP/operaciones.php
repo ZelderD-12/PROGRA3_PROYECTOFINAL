@@ -2,6 +2,42 @@
 include 'bdconexion.php';
 session_start();
 
+if (!isset($_SESSION['tipos_usuario'])) {
+    $query = "CALL ObtenerTiposDeUsuarios();";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        $tipos_usuario = [];
+        while ($row = $result->fetch_assoc()) {
+            $tipos_usuario[] = $row['Tipo_De_Usuario'];
+        }
+        $_SESSION['tipos_usuario'] = $tipos_usuario;
+    } else {
+        echo "<script>console.log('Error en la ejecución del SP: " . $conexion->error . "');</script>";
+    }
+} else {
+    $tipos_usuario = $_SESSION['tipos_usuario'];
+}
+
+
+if (!isset($_SESSION['carreras'])) {
+    $query = "CALL ObtenerCarreras();";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        $carreras = [];
+        while ($row = $result->fetch_assoc()) {
+            $carreras[] = $row['Nombre_Carrera'];
+        }
+        $_SESSION['carreras'] = $carreras;
+    } else {
+        echo "<script>console.log('Error en la ejecución del SP: " . $conexion->error . "');</script>";
+    }
+} else {
+    $carreras = $_SESSION['carreras'];
+}
+
+
 // Procesar Login
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
