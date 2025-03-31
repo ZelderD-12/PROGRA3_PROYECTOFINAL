@@ -83,18 +83,18 @@ if (isset($_POST['login'])) {
             echo "<script>
                 sessionStorage.setItem('loggedIn', 'true');
                 sessionStorage.setItem('usuario', JSON.stringify(".json_encode($usuario)."));
-                window.location.href = '../bienvenido.php';
+                window.location.href = '../Pantalla Principal/bienvenido.php';
             </script>";
             
             exit();
         } else {
-            header("Location: ../index.php?error=".urlencode("Credenciales incorrectas"));
+            header("Location: ../../index.php?error=".urlencode("Credenciales incorrectas"));
             exit();
         }
         
         $stmt->close();
     } else {
-        header("Location: ../index.php?error=".urlencode("Por favor complete todos los campos"));
+        header("Location: ../../index.php?error=".urlencode("Por favor complete todos los campos"));
         exit();
     }
 }
