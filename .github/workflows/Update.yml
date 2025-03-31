@@ -1,0 +1,80 @@
+name: Auto Merge COMBINADA to Multiple Branches
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Ejecuta el job a las 3 AM UTC cada día
+  workflow_dispatch:  # Permite ejecutarlo manualmente si es necesario
+
+jobs:
+  merge_branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Obtiene todo el historial del repo
+
+      - name: Configurar usuario de Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions Bot"
+
+      - name: Verificar si la rama COMBINADA existe
+        run: |
+          git fetch --prune --all
+          if git show-ref --verify --quiet refs/remotes/origin/COMBINADA; then
+            echo "✅ La rama COMBINADA existe, continuando..."
+          else
+            echo "❌ Error: La rama COMBINADA no existe en el remoto."
+            exit 1
+          fi
+
+      - name: Actualizar COMBINADA
+        run: |
+          git checkout COMBINADA
+          git pull origin COMBINADA
+
+      - name: Merge a múltiples ramas
+        run: |
+          BRANCHES=("RAMA_DIEGO" "RAMA_GUSTAVO" "RAMA_ABIGAIL" "RAMA_WILIAM" "RAMA_JUSTIN")
+
+          for BRANCH in "${BRANCHES[@]}"; do
+            echo "🔄 Procesando rama: $BRANCH"
+
+            # Verificar si la rama existe en remoto antes de continuar
+            if ! git ls-remote --exit-code --heads origin $BRANCH >/dev/null; then
+              echo "⚠️ La rama $BRANCH no existe en el repositorio. Se omite el merge."
+              continue
+            fi
+
+            # Obtener cambios de la rama destino
+            git fetch origin $BRANCH
+
+            # Manejar checkout seguro
+            if git rev-parse --verify $BRANCH >/dev/null 2>&1; then
+              git checkout $BRANCH
+              git pull origin $BRANCH
+            else
+              git checkout -B $BRANCH origin/$BRANCH
+            fi
+
+            # Verificar si hay cambios pendientes
+            if ! git diff --quiet HEAD; then
+              echo "⚠️ La rama $BRANCH tiene cambios pendientes. Se omite el merge."
+              continue
+            fi
+
+            # Intentar merge con COMBINADA
+            if ! git merge --no-ff COMBINADA -m "Merge automático de COMBINADA a $BRANCH"; then
+              echo "❌ Conflictos detectados en $BRANCH. Se requiere intervención manual."
+              continue
+            fi
+
+            # Subir cambios si el merge fue exitoso
+            if ! git push origin $BRANCH; then
+              echo "❌ No se pudo hacer push en $BRANCH. Revisar manualmente."
+              continue
+            fi
+
+            echo "✅ Merge completado exitosamente en $BRANCH"
+          done
