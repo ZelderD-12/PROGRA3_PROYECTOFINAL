@@ -2,7 +2,7 @@
 include 'bdconexion.php';
 session_start();
 
-if (!isset($_SESSION['tipos_usuario'])) {
+if (!isset($_SESSION['tipos_usuario']) || !isset($_SESSION['id_tipos_usuario'])) {
     $query = "CALL ObtenerTiposDeUsuarios();";
     $result = $conexion->query($query);
     while ($conexion->more_results()) {
@@ -10,19 +10,23 @@ if (!isset($_SESSION['tipos_usuario'])) {
     }
     if ($result) {
         $tipos_usuario = [];
+        $idtiposusuario = [];
         while ($row = $result->fetch_assoc()) {
             $tipos_usuario[] = $row['Tipo_De_Usuario'];
+            $idtiposusuario[] = $row['Id_Tipo_Usuario'];
         }
         $_SESSION['tipos_usuario'] = $tipos_usuario;
+        $_SESSION['id_tipos_usuario'] = $idtiposusuario;
     } else {
         echo "<script>console.log('Error en la ejecución del SP: " . $conexion->error . "');</script>";
     }
 } else {
     $tipos_usuario = $_SESSION['tipos_usuario'];
+    $idtiposusuario = $_SESSION['id_tipos_usuario'];
 }
 
 
-if (!isset($_SESSION['carreras'])) {
+if (!isset($_SESSION['carreras']) || !isset($_SESSION['id_carreras'])) {
     $query = "CALL ObtenerCarreras();";
     $result = $conexion->query($query);
     while ($conexion->more_results()) {
@@ -30,15 +34,19 @@ if (!isset($_SESSION['carreras'])) {
     }
     if ($result) {
         $carreras = [];
+        $idcarreras = [];
         while ($row = $result->fetch_assoc()) {
             $carreras[] = $row['Nombre_Carrera'];
+            $idcarreras[] = $row['Id_Carrera'];
         }
         $_SESSION['carreras'] = $carreras;
+        $_SESSION['id_carreras'] = $idcarreras;
     } else {
         echo "<script>console.log('Error en la ejecución del SP: " . $conexion->error . "');</script>";
     }
 } else {
     $carreras = $_SESSION['carreras'];
+    $idcarreras = $_SESSION['id_carreras'];
 }
 
 
@@ -92,31 +100,54 @@ if (isset($_POST['login'])) {
 }
 
 if (isset($_POST['registrar'])) {
-    $carnet = $_POST['carnet'];
-    $nombres = $_POST['nombres'];
-    $apellidos = $_POST['apellidos'];
-    $password = $_POST['password'];
-    $celular = $_POST['celular'];
-    $email = $_POST['email'];
-    $foto = $_POST['foto'];
-    $tipouser = (int) $_POST['tipouser'];
-    $carrera = (int) $_POST['carrera'];
-    $seccion = $_POST['seccion'];
+    $carnet = trim($_POST['carnet']);
+    $nombres = trim($_POST['nombres']);
+    $apellidos = trim($_POST['apellidos']);
+    $password = trim($_POST['password']);
+    $celular = trim($_POST['celular']);
+    $email = trim($_POST['email']);
+    $foto = trim($_POST['foto']);
+    $seccion = trim($_POST['seccion']);
 
-    // Verificar que el campo no esté vacío
-    if (!empty($nombres) && !empty($apellidos) && !empty($password) && !empty($celular) && !empty($email)
-        && !empty($foto) && !empty($tipouser) && !empty($carrera) && !empty($seccion) && !empty($carnet)) { 
-        $user_id = 1;
-        $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssiis", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $tipouser, $carrera, $seccion);
-        $stmt->execute();
+
+    $tipouser = array_search($_POST['tipouser'], $tipos_usuario);
+    $carrera = array_search($_POST['carrera'], $carreras);
+
+    if ($tipouser === false || $carrera === false) {
+        die("❌ Error: Tipo de usuario o carrera no válidos.");
+    }
+
+    $indicetipouser = $idtiposusuario[$tipouser];
+    $indicecarrera = $idcarreras[$carrera];
+
+    // Verificar que los campos no estén vacíos
+    if (
+        !empty($carnet) && !empty($nombres) && !empty($apellidos) && !empty($password) &&
+        !empty($celular) && !empty($email) && !empty($foto) &&
+        isset($indicetipouser) && isset($indicecarrera) && !empty($seccion)
+    ) {
+        $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        if (!$stmt) {
+            die("❌ Error en la preparación de la consulta: " . $conexion->error);
+        }
+        $actividad=1;
+        $stmt->bind_param("sssssssiisi", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $indicetipouser, $indicecarrera, $seccion, $actividad);
+       
+        try {
+            if ($stmt->execute()) {
+                echo "✅ Usuario insertado correctamente.";
+            } else {
+                throw new Exception("Error en la ejecución: " . $stmt->error);
+            }
+        } catch (Exception $e) {
+            echo "❌ Error al registrar usuario: " . $stmt->error;
+        }
 
         // Cerrar conexión
         $stmt->close();
-
-        echo "Usuario insertado correctamente.";
     } else {
-        echo "Por favor, rellenar todos los campos.";
+        echo "⚠️ Por favor, rellena todos los campos.";
     }
 }
 
