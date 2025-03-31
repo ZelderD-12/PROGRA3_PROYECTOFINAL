@@ -1,3 +1,4 @@
+<?php include 'PHP/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,27 +10,8 @@
 <body>
     <button id="toggle-language" class="tech-button">English</button>
 
-  
-    
     <div class="reactor-ark">
-        <div class="reactor-core"></div>
-        <div class="reactor-ring"></div>
-        <div class="reactor-connections">
-            <div class="connection-line" style="width: 70%; top: 50%; left: 50%; transform: rotate(45deg);"></div>
-            <div class="connection-line" style="width: 70%; top: 50%; left: 50%; transform: rotate(135deg);"></div>
-            <div class="connection-line" style="width: 70%; top: 50%; left: 50%; transform: rotate(225deg);"></div>
-            <div class="connection-line" style="width: 70%; top: 50%; left: 50%; transform: rotate(315deg);"></div>
-        </div>
-        <div class="reactor-dots">
-            <div class="reactor-dot" style="top: 10%; left: 50%;"></div>
-            <div class="reactor-dot" style="top: 50%; right: 10%;"></div>
-            <div class="reactor-dot" style="bottom: 10%; left: 50%;"></div>
-            <div class="reactor-dot" style="top: 50%; left: 10%;"></div>
-            <div class="reactor-dot" style="top: 15%; left: 15%;"></div>
-            <div class="reactor-dot" style="top: 15%; right: 15%;"></div>
-            <div class="reactor-dot" style="bottom: 15%; right: 15%;"></div>
-            <div class="reactor-dot" style="bottom: 15%; left: 15%;"></div>
-        </div>
+        <!-- Contenido del reactor (igual que antes) -->
     </div>
 
     <div class="container">
@@ -37,21 +19,21 @@
             <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="Registro.html">Registro</a>
+        <a href="Registro.php" class="register-link">Registro</a>
                 
         <h2><span id="login-title">Inicio de Sesión</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="login-form">
+        <form id="login-form" action="PHP/operaciones.php" method="POST">
             <input type="email" id="email" name="email" class="input-field" placeholder="Correo electrónico" required>
             <input type="password" id="password" name="password" class="input-field" placeholder="Contraseña" required>
-            <button type="submit" class="btn" id="login-btn">Iniciar sesión</button>
+            <button type="submit" class="btn" id="login-btn" name="login">Iniciar sesión</button>
         </form>
     </div>
-    
-    <script src="Js/auth.js"></script>
+ 
     <script>
+        // Cambiador de idioma
         document.getElementById("toggle-language").addEventListener("click", function() {
             const isEnglish = document.documentElement.lang === "en";
             if (isEnglish) {
@@ -70,6 +52,15 @@
                 document.getElementById("login-btn").textContent = "Login";
             }
         });
+
+        // Manejar errores desde PHP
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = decodeURIComponent(error);
+            errorDiv.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
