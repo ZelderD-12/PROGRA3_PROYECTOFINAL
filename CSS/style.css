@@ -1,0 +1,1075 @@
+/* ========== VARIABLES NEO-TECH ========== */
+:root {
+  --deep-space: #0a0e17;
+  --tech-gray: #1a1d2b;
+  --light-void: #252a3f;
+  --neon-blue: #00f0ff;
+  --neon-purple: #7b2dff;
+  --neon-accent: #00c8d0;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a8c0;
+  --transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  --border-glow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* ========== ESTILOS BASE ========== */
+body {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--deep-space);
+  color: var(--text-primary);
+  padding: 20px;
+  box-sizing: border-box;
+  line-height: 1.6;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========== REACTOR ARK PERFECTO ========== */
+.reactor-ark {
+  position: fixed;
+  width: 280px;
+  height: 280px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.reactor-core {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, 
+    var(--neon-accent) 0%, 
+    rgba(0, 200, 208, 0.5) 40%, 
+    transparent 80%);
+  animation: corePulse 4s infinite ease-in-out;
+  filter: blur(12px);
+}
+
+.reactor-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-image: linear-gradient(to right, 
+    transparent 20%, 
+    var(--neon-accent) 50%, 
+    transparent 80%) 1;
+  border-radius: 50%;
+  animation: rotate 30s linear infinite;
+}
+
+.reactor-ring::before,
+.reactor-ring::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--neon-accent);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 8px var(--neon-accent),
+    0 0 16px var(--neon-accent);
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: nodePulse 3s infinite alternate;
+}
+
+.reactor-ring::after {
+  top: auto;
+  bottom: -8px;
+  animation-delay: 0.5s;
+}
+
+.reactor-dots {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.reactor-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--neon-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 5px var(--neon-accent);
+  animation: dotPulse 2s infinite alternate;
+}
+
+/* ========== CONTENEDOR NEO-TECH ========== */
+.container {
+  background: rgba(26, 29, 43, 0.9);
+  padding: 2.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--light-void);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 380px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out forwards;
+  transform: translateY(20px);
+  opacity: 0;
+  z-index: 1;
+  backdrop-filter: blur(6px);
+}
+
+/* Efecto de borde neón sutil */
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid transparent;
+  border-image: linear-gradient(135deg, 
+    transparent 20%, 
+    var(--neon-accent) 50%, 
+    transparent 80%) 1;
+  pointer-events: none;
+  animation: borderPulse 6s infinite linear;
+}
+
+/* ========== ENCABEZADO TECNOLÓGICO ========== */
+.header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-align: left;
+}
+
+.logo {
+  width: 80px;
+  height: auto;
+  transition: var(--transition);
+  filter: brightness(1.2);
+  animation: logoEntrance 1s ease-out forwards;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 6px var(--neon-accent));
+}
+
+/* ========== TÍTULO CON ACENTO NEÓN ========== */
+h2 {
+  margin: 60px 0 1.5rem 0;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  position: relative;
+  animation: slideInRight 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+h2 span {
+  color: var(--neon-accent);
+  font-weight: 700;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: var(--transition);
+}
+
+/* ========== INPUTS TECNOLÓGICOS ========== */
+.input-field {
+  margin: 1rem 0;
+  padding: 1rem 1.2rem;
+  width: 100%;
+  border: 1px solid var(--light-void);
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: rgba(26, 29, 43, 0.8);
+  color: var(--text-primary);
+  animation: slideInLeft 0.6s ease-out 0.4s forwards;
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.input-field::placeholder {
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.input-field:focus {
+  border-color: var(--neon-accent);
+  outline: none;
+  box-shadow: var(--border-glow);
+  background: rgba(26, 29, 43, 0.9);
+}
+
+/* ========== BOTÓN NEO-TECH ========== */
+.btn {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: none;
+  color: var(--deep-space);
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: linear-gradient(135deg, var(--neon-accent), var(--neon-blue));
+  font-weight: 600;
+  animation: slideInUp 0.6s ease-out 0.5s forwards;
+  opacity: 0;
+  transform: translateY(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  transition: 0.6s;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 200, 208, 0.4);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* ========== MENSAJES DE ERROR ========== */
+.error-message {
+  color: #ff6b6b;
+  margin: 1rem 0;
+  padding: 0.8rem;
+  font-weight: 500;
+  background: rgba(255, 107, 107, 0.1);
+  border-left: 3px solid #ff6b6b;
+  border-radius: 2px;
+  text-align: left;
+  animation: 
+    fadeIn 0.4s ease-out forwards,
+    errorPulse 2s infinite alternate;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ========== ANIMACIONES ========== */
+@keyframes corePulse {
+  0%, 100% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes nodePulse {
+  0% { opacity: 0.6; transform: translateX(-50%) scale(0.9); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes borderPulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(-10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(10px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoEntrance {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes errorPulse {
+  0% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+/* Posicionamiento preciso de los puntos */
+.reactor-dot:nth-child(1) { top: 10%; left: 50%; animation-delay: 0s; }
+.reactor-dot:nth-child(2) { top: 50%; right: 10%; animation-delay: 0.2s; }
+.reactor-dot:nth-child(3) { bottom: 10%; left: 50%; animation-delay: 0.4s; }
+.reactor-dot:nth-child(4) { top: 50%; left: 10%; animation-delay: 0.6s; }
+.reactor-dot:nth-child(5) { top: 15%; left: 15%; animation-delay: 0.1s; }
+.reactor-dot:nth-child(6) { top: 15%; right: 15%; animation-delay: 0.3s; }
+.reactor-dot:nth-child(7) { bottom: 15%; right: 15%; animation-delay: 0.5s; }
+.reactor-dot:nth-child(8) { bottom: 15%; left: 15%; animation-delay: 0.7s; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    padding: 2rem 1.5rem;
+  }
+  
+  .header {
+    top: 15px;
+    left: 15px;
+  }
+  
+  .logo {
+    width: 60px;
+  }
+  
+  h2 {
+    margin-top: 50px;
+    font-size: 1.6rem;
+  }
+  
+  .input-field {
+    padding: 0.9rem;
+  }
+
+  .reactor-ark {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+@media (max-width: 320px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .header {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .logo {
+    width: 50px;
+  }
+  
+  h2 {
+    margin-top: 40px;
+    font-size: 1.4rem;
+  }
+  
+  .input-field, .btn {
+    padding: 0.8rem;
+  }
+
+  .reactor-ark {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: 420px;
+    padding: 3rem;
+  }
+  
+  .logo {
+    width: 90px;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+
+  .reactor-ark {
+    width: 320px;
+    height: 320px;
+  }
+}
+  /* ========== VARIABLES NEO-TECH ========== */
+        :root {
+          --deep-space: #0a0e17;
+          --tech-gray: #1a1d2b;
+          --light-void: #252a3f;
+          --neon-blue: #00f0ff;
+          --neon-purple: #7b2dff;
+          --neon-accent: #00c8d0;
+          --text-primary: #e0e0e0;
+          --text-secondary: #a0a8c0;
+          --transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+          --border-glow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        /* ========== ESTILOS BASE ========== */
+        body {
+          font-family: 'Inter', 'Helvetica Neue', sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          background-color: var(--deep-space);
+          color: var(--text-primary);
+          padding: 20px;
+          box-sizing: border-box;
+          line-height: 1.6;
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* ========== REACTOR ARK CON LÍNEAS CONECTIVAS ========== */
+        .reactor-ark {
+          position: fixed;
+          width: 320px;
+          height: 320px;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 0;
+          pointer-events: none;
+          opacity: 0;
+          animation: fadeIn 1.5s ease-out 0.5s forwards;
+        }
+
+        .reactor-core {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: radial-gradient(circle, 
+            var(--neon-accent) 0%, 
+            rgba(0, 200, 208, 0.5) 40%, 
+            transparent 80%);
+          animation: 
+            corePulse 4s infinite ease-in-out,
+            coreEntrance 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          filter: blur(12px);
+          transform: scale(0);
+        }
+
+        .reactor-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border: 2px solid transparent;
+          border-image: linear-gradient(to right, 
+            transparent 20%, 
+            var(--neon-accent) 50%, 
+            transparent 80%) 1;
+          border-radius: 50%;
+          animation: 
+            rotate 30s linear infinite,
+            ringEntrance 1s ease-out 0.8s forwards;
+          opacity: 0;
+          transform: scale(0.5);
+        }
+
+        .reactor-ring::before,
+        .reactor-ring::after {
+          content: '';
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: var(--neon-accent);
+          border-radius: 50%;
+          box-shadow: 
+            0 0 8px var(--neon-accent),
+            0 0 16px var(--neon-accent);
+          top: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          animation: nodePulse 3s infinite alternate;
+        }
+
+        .reactor-ring::after {
+          top: auto;
+          bottom: -8px;
+          animation-delay: 0.5s;
+        }
+
+        /* Líneas conectivas entre puntos */
+        .reactor-connections {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+
+        .connection-line {
+          position: absolute;
+          background: linear-gradient(to right, 
+            transparent 0%, 
+            var(--neon-accent) 50%, 
+            transparent 100%);
+          height: 1px;
+          transform-origin: left center;
+          animation: lineEntrance 1.2s ease-out 1s forwards;
+          opacity: 0;
+        }
+
+        /* Puntos de conexión */
+        .reactor-dots {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+
+        .reactor-dot {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          background: var(--neon-accent);
+          border-radius: 50%;
+          box-shadow: 0 0 8px var(--neon-accent);
+          animation: 
+            dotPulse 2s infinite alternate,
+            dotEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          transform: scale(0);
+        }
+
+        /* ========== CONTENEDOR NEO-TECH ========== */
+        .container {
+          background: rgba(26, 29, 43, 0.9);
+          padding: 2.5rem;
+          border-radius: 4px;
+          border: 1px solid var(--light-void);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          text-align: center;
+          width: 380px;
+          position: relative;
+          overflow: hidden;
+          animation: 
+            fadeInUp 0.8s ease-out forwards,
+            containerGlow 3s infinite alternate;
+          transform: translateY(20px);
+          opacity: 0;
+          z-index: 1;
+          backdrop-filter: blur(6px);
+        }
+
+        /* Efecto de borde neón sutil */
+        .container::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border: 1px solid transparent;
+          border-image: linear-gradient(135deg, 
+            transparent 20%, 
+            var(--neon-accent) 50%, 
+            transparent 80%) 1;
+          pointer-events: none;
+          animation: borderPulse 6s infinite linear;
+        }
+
+        /* ========== ENCABEZADO TECNOLÓGICO ========== */
+        .header {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          text-align: left;
+          animation: slideInLeft 0.6s ease-out 0.4s forwards;
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+
+        .logo {
+          width: 80px;
+          height: auto;
+          transition: var(--transition);
+          filter: brightness(1.2);
+          animation: logoEntrance 1s ease-out 0.6s forwards;
+          opacity: 0;
+          transform: scale(0.8) rotate(-15deg);
+        }
+
+        .logo:hover {
+          filter: drop-shadow(0 0 6px var(--neon-accent));
+          transform: scale(1.05) rotate(0deg);
+        }
+
+        /* ========== TÍTULO CON ACENTO NEÓN ========== */
+        h2 {
+          margin: 60px 0 1.5rem 0;
+          font-size: 1.8rem;
+          color: var(--text-primary);
+          font-weight: 600;
+          position: relative;
+          animation: 
+            slideInRight 0.6s ease-out 0.3s forwards,
+            textGlow 3s infinite alternate;
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+
+        h2 span {
+          color: var(--neon-accent);
+          font-weight: 700;
+        }
+
+        h2::after {
+          content: '';
+          position: absolute;
+          width: 60px;
+          height: 2px;
+          background: linear-gradient(90deg, var(--neon-blue), transparent);
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          transition: var(--transition);
+          animation: lineExpand 0.8s ease-out 0.8s forwards;
+          transform-origin: left center;
+          transform: scaleX(0);
+        }
+
+        /* ========== ANIMACIONES MEJORADAS ========== */
+        @keyframes coreEntrance {
+          0% { transform: scale(0); opacity: 0; }
+          80% { transform: scale(1.1); opacity: 0.8; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes ringEntrance {
+          0% { transform: scale(0.5); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes dotEntrance {
+          0% { transform: scale(0); }
+          70% { transform: scale(1.2); }
+          100% { transform: scale(1); }
+        }
+
+        @keyframes lineEntrance {
+          0% { opacity: 0; transform: scaleX(0); }
+          100% { opacity: 0.3; transform: scaleX(1); }
+        }
+
+        @keyframes containerGlow {
+          0%, 100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+          50% { box-shadow: 0 10px 30px rgba(0, 200, 208, 0.2); }
+        }
+
+        @keyframes textGlow {
+          0%, 100% { text-shadow: 0 0 0 transparent; }
+          50% { text-shadow: 0 0 8px var(--neon-accent); }
+        }
+
+        @keyframes lineExpand {
+          0% { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
+        }
+          /* ========== VARIABLES NEO-TECH ========== */
+          :root {
+            --deep-space: #0a0e17;
+            --tech-gray: #1a1d2b;
+            --light-void: #252a3f;
+            --neon-blue: #00f0ff;
+            --neon-purple: #7b2dff;
+            --neon-accent: #00c8d0;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a8c0;
+            --transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+            --border-glow: 0 0 8px rgba(0, 240, 255, 0.4);
+          }
+  
+          /* ========== ESTILOS BASE ========== */
+          body {
+            font-family: 'Inter', 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--deep-space);
+            color: var(--text-primary);
+            padding: 20px;
+            box-sizing: border-box;
+            line-height: 1.6;
+            position: relative;
+            overflow: hidden;
+          }
+  
+          /* ========== REACTOR ARK CON LÍNEAS CONECTIVAS ========== */
+          .reactor-ark {
+            position: fixed;
+            width: 320px;
+            height: 320px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 0.5s forwards;
+          }
+  
+          .reactor-core {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+              var(--neon-accent) 0%, 
+              rgba(0, 200, 208, 0.5) 40%, 
+              transparent 80%);
+            animation: 
+              corePulse 4s infinite ease-in-out,
+              coreEntrance 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            filter: blur(12px);
+            transform: scale(0);
+          }
+  
+          .reactor-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-image: linear-gradient(to right, 
+              transparent 20%, 
+              var(--neon-accent) 50%, 
+              transparent 80%) 1;
+            border-radius: 50%;
+            animation: 
+              rotate 30s linear infinite,
+              ringEntrance 1s ease-out 0.8s forwards;
+            opacity: 0;
+            transform: scale(0.5);
+          }
+  
+          .reactor-ring::before,
+          .reactor-ring::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--neon-accent);
+            border-radius: 50%;
+            box-shadow: 
+              0 0 8px var(--neon-accent),
+              0 0 16px var(--neon-accent);
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: nodePulse 3s infinite alternate;
+          }
+  
+          .reactor-ring::after {
+            top: auto;
+            bottom: -8px;
+            animation-delay: 0.5s;
+          }
+  
+          /* Líneas conectivas entre puntos */
+          .reactor-connections {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+          }
+  
+          .connection-line {
+            position: absolute;
+            background: linear-gradient(to right, 
+              transparent 0%, 
+              var(--neon-accent) 50%, 
+              transparent 100%);
+            height: 1px;
+            transform-origin: left center;
+            animation: lineEntrance 1.2s ease-out 1s forwards;
+            opacity: 0;
+          }
+  
+          /* Puntos de conexión */
+          .reactor-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+          }
+  
+          .reactor-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--neon-accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-accent);
+            animation: 
+              dotPulse 2s infinite alternate,
+              dotEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            transform: scale(0);
+          }
+  
+          /* ========== CONTENEDOR NEO-TECH ========== */
+          .container {
+            background: rgba(26, 29, 43, 0.9);
+            padding: 2.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--light-void);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 380px;
+            position: relative;
+            overflow: hidden;
+            animation: 
+              fadeInUp 0.8s ease-out forwards,
+              containerGlow 3s infinite alternate;
+            transform: translateY(20px);
+            opacity: 0;
+            z-index: 1;
+            backdrop-filter: blur(6px);
+          }
+  
+          /* Efecto de borde neón sutil */
+          .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid transparent;
+            border-image: linear-gradient(135deg, 
+              transparent 20%, 
+              var(--neon-accent) 50%, 
+              transparent 80%) 1;
+            pointer-events: none;
+            animation: borderPulse 6s infinite linear;
+          }
+  
+          /* ========== ENCABEZADO TECNOLÓGICO ========== */
+          .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-align: left;
+            animation: slideInLeft 0.6s ease-out 0.4s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+  
+          .logo {
+            width: 80px;
+            height: auto;
+            transition: var(--transition);
+            filter: brightness(1.2);
+            animation: logoEntrance 1s ease-out 0.6s forwards;
+            opacity: 0;
+            transform: scale(0.8) rotate(-15deg);
+          }
+  
+          .logo:hover {
+            filter: drop-shadow(0 0 6px var(--neon-accent));
+            transform: scale(1.05) rotate(0deg);
+          }
+  
+          /* ========== TÍTULO CON ACENTO NEÓN ========== */
+          h2 {
+            margin: 60px 0 1.5rem 0;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            position: relative;
+            animation: 
+              slideInRight 0.6s ease-out 0.3s forwards,
+              textGlow 3s infinite alternate;
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+  
+          h2 span {
+            color: var(--neon-accent);
+            font-weight: 700;
+          }
+  
+          h2::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), transparent);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: var(--transition);
+            animation: lineExpand 0.8s ease-out 0.8s forwards;
+            transform-origin: left center;
+            transform: scaleX(0);
+          }
+  
+          /* ========== ANIMACIONES MEJORADAS ========== */
+          @keyframes coreEntrance {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+  
+          @keyframes ringEntrance {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+  
+          @keyframes dotEntrance {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+          }
+  
+          @keyframes lineEntrance {
+            0% { opacity: 0; transform: scaleX(0); }
+            100% { opacity: 0.3; transform: scaleX(1); }
+          }
+  
+          @keyframes containerGlow {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+            50% { box-shadow: 0 10px 30px rgba(0, 200, 208, 0.2); }
+          }
+  
+          @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 0 transparent; }
+            50% { text-shadow: 0 0 8px var(--neon-accent); }
+          }
+  
+          @keyframes lineExpand {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+          }
+          .tech-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #00f0ff, #0088ff);
+            color: #000;
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 15px #00f0ff;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .tech-button:hover {
+            background: #000;
+            color: #00f0ff;
+            box-shadow: 0 0 25px #00f0ff;
+        }
+
+        /* ========== ESTILOS ESPECÍFICOS PARA REGISTRO ========== */
+.back-link {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  color: var(--neon-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.back-link:hover {
+  text-shadow: 0 0 8px var(--neon-accent);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--light-void), var(--tech-gray)) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--neon-accent);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void)) !important;
+  box-shadow: 0 0 15px rgba(0, 200, 208, 0.3) !important;
+}
+
+/* Ajustes para select */
+.input-field select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8d0'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid {
+      grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+      flex-direction: column;
+  }
+}
