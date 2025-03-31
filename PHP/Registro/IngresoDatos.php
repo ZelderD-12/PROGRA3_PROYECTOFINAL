@@ -1,4 +1,4 @@
-<?php include 'PHP/operaciones.php'; ?>
+<?php include '../Base de Datos/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
     
-    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="../../CSS/style.css">
 </head>
 <body>
     <button id="toggle-language" class="tech-button">English</button>
@@ -34,16 +34,16 @@
 
     <div class="container">
         <div class="header">
-            <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
+            <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="index.html" class="back-link">← Volver al login</a>
+        <a href="../../index.html" class="back-link">← Volver al login</a>
                 
         <h2><span id="register-title">Registro</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="register-form" action="PHP/operaciones.php" method="POST">
+        <form id="register-form" action="../Base de Datos/operaciones.php" method="POST">
             <div class="form-grid">
                 <input type="number" name="carnet" placeholder="Carnet" required class="input-field" >
                 <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenido</title>
-    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="../../CSS/style.css">
     <script>
         // Verificar autenticación
         document.addEventListener('DOMContentLoaded', function() {
             if (!sessionStorage.getItem('loggedIn')) {
-                window.location.href = "index.php";
+                window.location.href = "../../index.php";
                 return;
             }
 
@@ -20,7 +20,7 @@
                 
             } else {
                 // Si no hay datos en sessionStorage, obtenerlos del servidor
-                fetch('PHP/get_user.php')
+                fetch('get_user.php')
                     .then(response => response.json())
                     .then(data => {
                         if (data.error) throw new Error(data.error);
@@ -29,7 +29,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        window.location.href = "index.php";
+                        window.location.href = "../../index.php";
                     });
             }
         });
@@ -38,7 +38,7 @@
 <body>
     <div class="container">
         <h1>Bienvenido <span id="nombre-usuario"></span></h1>
-        <a href="PHP/logout.php" class="btn">Cerrar sesión</a>
+        <a href="logout.php" class="btn">Cerrar sesión</a>
     </div>
 </body>
 </html>
