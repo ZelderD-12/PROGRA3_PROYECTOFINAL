@@ -37,13 +37,13 @@
             <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="../../index.html" class="back-link">← Volver al login</a>
+        <a href="TomaFoto.php" class="back-link">← Volver al login</a>
                 
-        <h2><span id="register-title">Registro</span></h2>
+        <h2><span id="register-title">Datos del nuevo usuario</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="register-form" action="TomaFoto.php" method="POST">
+        <form id="register-form" action="../Base de Datos/operaciones.php" method="POST">
             <div class="form-grid">
                 <input type="number" name="carnet" placeholder="Carnet" required class="input-field" >
                 <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
