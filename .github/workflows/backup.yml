@@ -59,7 +59,8 @@ jobs:
 
       - name: Subir cambios a master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          git push origin master || { echo "No se pudo hacer push, verificar manualmente."; exit 1; }
+          git push https://ZelderD-12:${{ secrets.PAT_TOKEN }}@github.com/ZelderD-12/PROGRA3_PROYECTOFINAL.git master || { echo "No se pudo hacer push, verificar manualmente."; exit 1; }
+
 
