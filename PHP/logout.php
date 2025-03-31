@@ -8,7 +8,7 @@ session_destroy();
 // Limpiar sessionStorage y redirigir
 echo "<script>
     sessionStorage.clear();
-    window.location.href = '../index.html';
+    window.location.href = '../index.php';
 </script>";
 exit();
 ?>

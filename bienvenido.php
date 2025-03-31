@@ -17,6 +17,7 @@
             const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
             if (usuario.Nombres_Usuario) {
                 document.getElementById('nombre-usuario').textContent = usuario.Nombres_Usuario;
+                
             } else {
                 // Si no hay datos en sessionStorage, obtenerlos del servidor
                 fetch('PHP/get_user.php')

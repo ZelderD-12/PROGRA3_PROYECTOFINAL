@@ -5,7 +5,9 @@ session_start();
 if (!isset($_SESSION['tipos_usuario'])) {
     $query = "CALL ObtenerTiposDeUsuarios();";
     $result = $conexion->query($query);
-
+    while ($conexion->more_results()) {
+        $conexion->next_result(); 
+    }
     if ($result) {
         $tipos_usuario = [];
         while ($row = $result->fetch_assoc()) {
@@ -23,7 +25,9 @@ if (!isset($_SESSION['tipos_usuario'])) {
 if (!isset($_SESSION['carreras'])) {
     $query = "CALL ObtenerCarreras();";
     $result = $conexion->query($query);
-
+    while ($conexion->more_results()) {
+        $conexion->next_result(); 
+    }
     if ($result) {
         $carreras = [];
         while ($row = $result->fetch_assoc()) {
@@ -53,22 +57,36 @@ if (isset($_POST['login'])) {
         if ($result->num_rows > 0) {
             $usuario = $result->fetch_assoc();
             $_SESSION['usuario'] = $usuario;
+
+            $_SESSION['idusuario'] = $usuario['Id_Usuario'];
+            $_SESSION['carnetusuario'] = $usuario['Carnet_Usuario'];
+            $_SESSION['nombresusuario'] = $usuario['Nombres_Usuario'];
+            $_SESSION['apellidosusuario'] = $usuario['Apellidos_Usuario'];
+            $_SESSION['contrausuario'] = $usuario['Password__Usuario'];
+            $_SESSION['celusuario'] = $usuario['Numero_De_Telefono_Usuario'];
+            $_SESSION['emailusuario'] = $usuario['Correo_Electronico_Usuario'];
+            $_SESSION['fotousuario'] = $usuario['Foto_Usuario'];
+            $_SESSION['idtipousuario'] = $usuario['Id_Tipo_Usuario'];
+            $_SESSION['idcarrerausuario'] = $usuario['Id_Carrera_Usuario'];
+            $_SESSION['seccionusuario'] = $usuario['Seccion_Usuario'];
+            $_SESSION['usuarioactivo'] = $usuario['Activo'];
             
             // Guardar también en sessionStorage para JavaScript
             echo "<script>
                 sessionStorage.setItem('loggedIn', 'true');
                 sessionStorage.setItem('usuario', JSON.stringify(".json_encode($usuario)."));
-                window.location.href = '../bienvenido.html';
+                window.location.href = '../bienvenido.php';
             </script>";
+            
             exit();
         } else {
-            header("Location: ../index.html?error=".urlencode("Credenciales incorrectas"));
+            header("Location: ../index.php?error=".urlencode("Credenciales incorrectas"));
             exit();
         }
         
         $stmt->close();
     } else {
-        header("Location: ../index.html?error=".urlencode("Por favor complete todos los campos"));
+        header("Location: ../index.php?error=".urlencode("Por favor complete todos los campos"));
         exit();
     }
 }

@@ -31,7 +31,7 @@
             <button type="submit" class="btn" id="login-btn" name="login">Iniciar sesión</button>
         </form>
     </div>
-    
+ 
     <script>
         // Cambiador de idioma
         document.getElementById("toggle-language").addEventListener("click", function() {
