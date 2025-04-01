@@ -1012,4 +1012,64 @@ h2::after {
             color: #00f0ff;
             box-shadow: 0 0 25px #00f0ff;
         }
-        
+
+        /* ========== ESTILOS ESPECÍFICOS PARA REGISTRO ========== */
+.back-link {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  color: var(--neon-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.back-link:hover {
+  text-shadow: 0 0 8px var(--neon-accent);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--light-void), var(--tech-gray)) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--neon-accent);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void)) !important;
+  box-shadow: 0 0 15px rgba(0, 200, 208, 0.3) !important;
+}
+
+/* Ajustes para select */
+.input-field select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8d0'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-grid {
+      grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+      flex-direction: column;
+  }
+}

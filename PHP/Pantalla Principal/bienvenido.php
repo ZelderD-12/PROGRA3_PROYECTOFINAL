@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido</title>
+    <link rel="stylesheet" href="../../CSS/style.css">
+    <script>
+        // Verificar autenticación
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('loggedIn')) {
+                window.location.href = "../../index.php";
+                return;
+            }
+
+            // Mostrar datos del usuario
+            const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+            if (usuario.Nombres_Usuario) {
+                document.getElementById('nombre-usuario').textContent = usuario.Nombres_Usuario;
+                
+            } else {
+                // Si no hay datos en sessionStorage, obtenerlos del servidor
+                fetch('get_user.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        document.getElementById('nombre-usuario').textContent = data.Nombres_Usuario;
+                        sessionStorage.setItem('usuario', JSON.stringify(data));
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        window.location.href = "../../index.php";
+                    });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido <span id="nombre-usuario"></span></h1>
+        <a href="logout.php" class="btn">Cerrar sesión</a>
+    </div>
+</body>
+</html>
