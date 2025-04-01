@@ -1,11 +1,12 @@
-<?php include 'PHP/operaciones.php'; ?>
+<?php include '../Base de Datos/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
-    <link rel="stylesheet" href="CSS/style.css">
+    
+    <link rel="stylesheet" href="../../CSS/style.css">
 </head>
 <body>
     <button id="toggle-language" class="tech-button">English</button>
@@ -33,22 +34,22 @@
 
     <div class="container">
         <div class="header">
-            <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
+            <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="index.html" class="back-link">← Volver al login</a>
+        <a href="../../index.html" class="back-link">← Volver al login</a>
                 
         <h2><span id="register-title">Registro</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="register-form" action="PHP/operaciones.php" method="POST">
+        <form id="register-form" action="TomaFoto.php" method="POST">
             <div class="form-grid">
-                <input type="text" name="carnet" placeholder="Carnet" required class="input-field" >
+                <input type="number" name="carnet" placeholder="Carnet" required class="input-field" >
                 <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
                 <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" >
                 <input type="password" name="password" placeholder="Contraseña" required class="input-field" >
-                <input type="tel" name="celular" placeholder="Celular" required class="input-field" >
+                <input type="number" name="celular" placeholder="Celular" required class="input-field" >
                 <input type="email" name="email" placeholder="Email" required class="input-field" >
                 <input type="text" name="foto" placeholder="URL de Foto" class="input-field" >
                 <select name="tipouser" required class="input-field" >
@@ -56,7 +57,7 @@
                     <?php
                     if (!empty($tipos_usuario)) {
                         foreach ($tipos_usuario as $tipo) {
-                            echo "<option value='" . strtolower($tipo) . "'>" . $tipo . "</option>";
+                            echo "<option value='" . $tipo . "'>" . $tipo . "</option>";
                         }
                     } else {
                         echo "<option value='' disabled>No se encontraron tipos de usuario</option>";
@@ -69,7 +70,7 @@
                     <?php
                     if (!empty($carreras)) {
                         foreach ($carreras as $carreer) {
-                            echo "<option value='" . strtolower($carreer) . "'>" . $carreer . "</option>";
+                            echo "<option value='" . $carreer . "'>" . $carreer . "</option>";
                         }
                     } else {
                         echo "<option value='' disabled>No se encontraron carreras</option>";

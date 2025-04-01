@@ -1,4 +1,4 @@
-<?php include 'PHP/operaciones.php'; ?>
+<?php include 'PHP/Base de Datos/operaciones.php'; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,13 +19,13 @@
             <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="Registro.php" class="register-link">Registro</a>
+        <a href="PHP/Registro/IngresoDatos.php" class="register-link">Registro</a>
                 
         <h2><span id="login-title">Inicio de Sesión</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="login-form" action="PHP/operaciones.php" method="POST">
+        <form id="login-form" action="PHP/Base de Datos/operaciones.php" method="POST">
             <input type="email" id="email" name="email" class="input-field" placeholder="Correo electrónico" required>
             <input type="password" id="password" name="password" class="input-field" placeholder="Contraseña" required>
             <button type="submit" class="btn" id="login-btn" name="login">Iniciar sesión</button>
