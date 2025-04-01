@@ -1,0 +1,222 @@
+/* CONTENEDOR PRINCIPAL */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* PANEL IZQUIERDO - BOTONES */
+.panel-botones {
+    width: 350px;
+    background: linear-gradient(160deg, #1a2980 0%, #26d0ce 100%);
+    padding: 30px 20px;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.panel-botones h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+}
+
+.botones-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ESTILOS DE BOTONES */
+.btn-dev {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    width: 100%;
+    text-align: left;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-dev:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-dev i {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+
+/* DROPDOWNS */
+.dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-btn {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: left;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-content {
+    display: none;
+    background: rgba(0, 40, 80, 0.9);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    margin-top: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-item {
+    color: white;
+    padding: 12px 20px 12px 50px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    padding-left: 55px;
+}
+
+.dropdown-item i {
+    font-size: 0.9rem;
+}
+
+/* PANEL DERECHO - INFORMACIÓN */
+.panel-info {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-header {
+    margin-bottom: 30px;
+}
+
+.info-header h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.mensaje-tipo {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    color: #2c3e50;
+    font-size: 1rem;
+    border-left: 4px solid #26d0ce;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    flex: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.info-placeholder {
+    text-align: center;
+    color: #7f8c8d;
+}
+
+.info-placeholder i {
+    font-size: 3rem;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.info-placeholder p {
+    font-size: 1.1rem;
+    margin-top: 15px;
+}
+
+/* ANIMACIONES */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* BOTÓN CERRAR SESIÓN */
+.logout-container {
+    margin-top: 30px;
+    text-align: right;
+}
+
+.btn {
+    background: #1a2980;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background: #26d0ce;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
