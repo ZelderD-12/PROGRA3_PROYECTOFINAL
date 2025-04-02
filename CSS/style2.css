@@ -1,222 +1,278 @@
-/* CONTENEDOR PRINCIPAL */
-.container {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f5f7fa;
+/* Variables para colores */
+:root {
+    --primary-blue: #2c5282;
+    --secondary-blue: #3182ce;
+    --light-blue: #ebf8ff;
+    --white: #ffffff;
+    --light-cream: #f9f7f3;
+    --text-dark: #2d3748;
+    --text-light: #4a5568;
+    --hover-blue: #1a365d;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* PANEL IZQUIERDO - BOTONES */
+body {
+    background-color: var(--light-blue);
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Panel izquierdo con botones */
 .panel-botones {
-    width: 350px;
-    background: linear-gradient(160deg, #1a2980 0%, #26d0ce 100%);
-    padding: 30px 20px;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    background-color: var(--primary-blue);
+    padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: var(--white);
+    box-shadow: 2px 0 10px var(--shadow-color);
 }
 
 .panel-botones h3 {
-    color: white;
+    margin-bottom: 1.5rem;
     font-size: 1.5rem;
-    margin-bottom: 30px;
-    text-align: center;
     font-weight: 600;
-    padding-bottom: 15px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    width: 100%;
+    text-align: center;
+    color: var(--white);
 }
 
 .botones-container {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    align-items: center;
+    gap: 0.8rem;
 }
 
-/* ESTILOS DE BOTONES */
-.btn-dev {
-    background: rgba(255, 255, 255, 0.12);
-    color: white;
+/* Estilos de botones */
+.btn-dev, .dropdown-btn {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
     border: none;
-    padding: 14px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--secondary-blue);
+    color: var(--white);
+    font-size: 0.9rem;
     font-weight: 500;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    width: 100%;
+    justify-content: flex-start;
+    gap: 0.8rem;
     text-align: left;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
 }
 
-.btn-dev:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-dev i {
-    font-size: 1.1rem;
-    width: 24px;
-    text-align: center;
-}
-
-/* DROPDOWNS */
-.dropdown {
-    position: relative;
-    width: 100%;
+.btn-dev:hover, .dropdown-btn:hover {
+    background-color: var(--hover-blue);
 }
 
 .dropdown-btn {
-    background: rgba(255, 255, 255, 0.12);
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    transition: all 0.3s ease;
-    width: 100%;
-    text-align: left;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.dropdown-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+.dropdown-btn span {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* Estilo para contenido de dropdown */
+.dropdown {
+    width: 100%;
+    position: relative;
+    margin-bottom: 0.2rem;
 }
 
 .dropdown-content {
     display: none;
-    background: rgba(0, 40, 80, 0.9);
-    border-radius: 0 0 8px 8px;
-    overflow: hidden;
-    margin-top: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: none;
-    animation: fadeIn 0.25s ease-out;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--white);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    z-index: 10;
+    padding: 0.5rem;
+    flex-direction: row;  /* Cambio para display horizontal */
+    flex-wrap: wrap;      /* Permite ajustar cuando hay muchos items */
+    justify-content: space-between;
+    gap: 0.5rem;
+    overflow-x: auto;    /* Permite scroll horizontal si hay muchos items */
 }
 
 .dropdown-content.show {
-    display: block;
+    display: flex;       /* Muestra como flex para layout horizontal */
 }
 
 .dropdown-item {
-    color: white;
-    padding: 12px 20px 12px 50px;
+    flex: 1 1 auto;      /* Flexible width */
+    color: var(--text-dark);
+    text-decoration: none;
+    padding: 0.7rem 1rem;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 0.85rem;
+    min-width: max-content;  /* No deja que el texto se rompa */
+    background-color: var(--light-blue);
     transition: all 0.2s ease;
-    font-size: 0.95rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: nowrap;    /* Evita saltos de línea en los textos */
 }
 
 .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    padding-left: 55px;
+    background-color: var(--light-cream);
 }
 
-.dropdown-item i {
-    font-size: 0.9rem;
-}
-
-/* PANEL DERECHO - INFORMACIÓN */
+/* Panel de información (derecha) */
 .panel-info {
     flex: 1;
-    background: #f9f9f9;
-    padding: 40px;
+    background-color: var(--light-cream);
+    padding: 2rem;
+    position: relative;
     display: flex;
     flex-direction: column;
 }
 
 .info-header {
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
 }
 
 .info-header h1 {
-    color: #2c3e50;
-    font-size: 2rem;
-    margin-bottom: 15px;
+    font-size: 1.8rem;
     font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
 }
 
 .mensaje-tipo {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    color: #2c3e50;
-    font-size: 1rem;
-    border-left: 4px solid #26d0ce;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: var(--text-light);
+    font-size: 1.1rem;
 }
 
 .info-content {
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
     flex: 1;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    background-color: var(--white);
+    border-radius: 0.8rem;
+    padding: 2rem;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    overflow: auto;
 }
 
 .info-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-light);
     text-align: center;
-    color: #7f8c8d;
 }
 
 .info-placeholder i {
     font-size: 3rem;
-    color: #bdc3c7;
-    margin-bottom: 20px;
+    color: var(--secondary-blue);
 }
 
-.info-placeholder p {
-    font-size: 1.1rem;
-    margin-top: 15px;
-}
-
-/* ANIMACIONES */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* BOTÓN CERRAR SESIÓN */
+/* Botón de cerrar sesión */
 .logout-container {
-    margin-top: 30px;
-    text-align: right;
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
 }
 
 .btn {
-    background: #1a2980;
-    color: white;
+    background-color: var(--primary-blue);
+    color: var(--white);
     border: none;
-    padding: 12px 25px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 0.5rem;
     font-weight: 500;
-    transition: all 0.3s ease;
+    cursor: pointer;
     text-decoration: none;
-    display: inline-block;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .btn:hover {
-    background: #26d0ce;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: var(--hover-blue);
+}
+
+/* Animación para los elementos cargados */
+.animated-load {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para tablas en el contenido */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+th, td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: var(--light-blue);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .panel-botones {
+        width: 100%;
+        padding: 1.5rem 1rem;
+    }
+    
+    .panel-info {
+        padding: 1.5rem 1rem;
+    }
+    
+    .dropdown-content {
+        position: static;
+        margin-top: 0.5rem;
+    }
 }
