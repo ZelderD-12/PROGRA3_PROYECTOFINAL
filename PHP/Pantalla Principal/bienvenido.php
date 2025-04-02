@@ -29,153 +29,365 @@
                 const panelBotones = document.getElementById('panel-botones');
                 
                 switch(tipoUsuario) {
-                    case 1: // Administrador
-                        mensajeDiv.innerHTML = "<strong>Eres un Administrador</strong>. Tienes acceso completo al sistema.";
-                        panelBotones.innerHTML = `
-                            <h3>Panel de Administrador</h3>
-                            <div class="botones-container">
-                                <div class="dropdown">
-                                    <button class="dropdown-btn" onclick="toggleDropdown('gestorUsuarios')">
-                                        <span><i class="fas fa-users-cog"></i> Gestor de Usuarios</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </button>
-                                    <div id="gestorUsuarios" class="dropdown-content">
-                                        <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
-                                            <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
-                                            <i class="fas fa-user-graduate"></i> Estudiantes
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administrador')">
-                                            <i class="fas fa-user-shield"></i> Administrador
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Desarrolladores')">
-                                            <i class="fas fa-code"></i> Desarrolladores
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Servicios')">
-                                            <i class="fas fa-cogs"></i> Servicios
-                                        </a>
-                                    </div>
-                                </div>
-                                <button onclick="generarPDFAdmin()" class="btn-dev">
-                                    <i class="fas fa-file-pdf"></i> Generar PDF
-                                </button>
-                            </div>
-                        `;
-                        break;
-                        
-                    case 2: // Docente
-                        mensajeDiv.innerHTML = "<strong>Eres un Docente</strong>. Puedes gestionar cursos y calificaciones.";
-                        mensajeDiv.style.borderLeftColor = "#007bff"; // Azul
-                        document.body.style.backgroundColor = "#FFD1DC"; // Rosa claro
-                        
-                        // Mostrar el panel de botones para docente
-                        panelBotones.classList.remove('hidden');
-                        panelBotones.classList.add('docente');
-                        panelBotones.innerHTML = `
-                            <h3>Panel de Docente</h3>
-                            <div class="botones-container">
-                                <button onclick="mostrarCursosAsignados()" class="btn-dev animated-load">
-                                    <i class="fas fa-book"></i> Cursos Asignados
-                                </button>
-                                
-                                <div id="botones-cursos" class="botones-ocultos">
-                                    <button onclick="confirmarAsistencia()" class="btn-dev animated-load">
-                                        <i class="fas fa-clipboard-check"></i> Confirmar Asistencia
-                                    </button>
-                                    <button onclick="generarPDFDocente()" class="btn-dev animated-load">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </button>
-                                </div>
-                                
-                                <div class="dropdown animated-load">
-                                    <button class="dropdown-btn" onclick="toggleDropdown('generadorReportes')">
-                                        <span><i class="fas fa-chart-line"></i> Generador de Reportes</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </button>
-                                    <div id="generadorReportes" class="dropdown-content">
-                                        <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                            <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                            <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                            <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                            <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                    case 3: // Estudiante
-                        mensajeDiv.innerHTML = "<strong>Eres un Estudiante</strong>. Accede a tus cursos y horarios.";
-                        panelBotones.innerHTML = `
-                            <h3>Panel de Estudiante</h3>
-                            <div class="botones-container">
-                                <button onclick="tomarAsistencia()" class="btn-dev">
-                                    <i class="fas fa-user-check"></i> Tomar Asistencia
-                                </button>
-                                <button onclick="verAsistencia()" class="btn-dev">
-                                    <i class="fas fa-clipboard-list"></i> Ver Asistencia
-                                </button>
-                                <button onclick="generarPDFEstudiante()" class="btn-dev">
-                                    <i class="fas fa-file-pdf"></i> Generar PDF
-                                </button>
-                            </div>
-                        `;
-                        break;
-                        
-                    case 4: // Desarrollador
-                        mensajeDiv.innerHTML = "<strong>Eres un Desarrollador</strong>. Gestiona matrículas y documentos.";
-                        panelBotones.innerHTML = `
-                            <h3>Panel de Desarrollador</h3>
-                            <div class="botones-container">
-                                <div class="dropdown">
-                                    <button class="dropdown-btn" onclick="toggleDropdown('gestorUsuariosDesarrollador')">
-                                        <span><i class="fas fa-users-cog"></i> Gestor de Usuarios</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </button>
-                                    <div id="gestorUsuariosDesarrollador" class="dropdown-content">
-                                        <a href="#" class="dropdown-item" onclick="gestionarUsuarios('visualizacion')">
-                                            <i class="fas fa-eye"></i> Visualización
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
-                                            <i class="fas fa-trash-alt"></i> Eliminar
-                                        </a>
-                                        <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
-                                            <i class="fas fa-user-plus"></i> Agregar
-                                        </a>
-                                    </div>
-                                </div>
-                                <button onclick="abrirRegistroGeneral()" class="btn-dev registro">
-                                    <i class="fas fa-clipboard-list"></i> Registro General
-                                </button>
-                                <button onclick="abrirAsistenciasGenerales()" class="btn-dev asistencias">
-                                    <i class="fas fa-user-check"></i> Asistencias Generales
-                                </button>
-                                <button onclick="abrirEstadisticas()" class="btn-dev estadisticas">
-                                    <i class="fas fa-chart-bar"></i> Estadísticas
-                                </button>
-                            </div>
-                        `;
-                        break;
-                        
-
-                    case 5: // Servicios
-                        mensajeDiv.innerHTML = "<strong>Eres un invitado de servicio</strong>. Acceso limitado al sistema.";
-                        panelBotones.innerHTML = `
-                            <h3>Panel de Servicios</h3>
-                            <div class="botones-container">
-                                <button onclick="visualizarCredenciales()" class="btn-dev">
-                                    <i class="fas fa-id-card"></i> Visualización de Credenciales
-                                </button>
-                            </div>
-                        `;
-                        break;
+        case 1: // Administrador
+            mensajeDiv.innerHTML = "<strong>Eres un Administrador</strong>. Tienes acceso completo al sistema.";
+            panelBotones.innerHTML = `
+                <h3>Panel de Administrador</h3>
+                <div class="botones-container">
+                    <!-- Gestor de Usuarios (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('gestorUsuarios')">
+                            <span><i class="fas fa-users-cog"></i> Gestor de Usuarios</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="gestorUsuarios" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
+                                <i class="fas fa-user-graduate"></i> Vista Estudiantes
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administrador')">
+                                <i class="fas fa-user-shield"></i> Vista Administradores
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Desarrolladores')">
+                                <i class="fas fa-code"></i> Vista Desarrolladores
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Servicios')">
+                                <i class="fas fa-cogs"></i> Vista Servicios
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Administrar Usuarios (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('administrarUsuarios')">
+                            <span><i class="fas fa-user-edit"></i> Administrar Usuarios</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="administrarUsuarios" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                                <i class="fas fa-user-plus"></i> Agregar
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
+                                <i class="fas fa-search"></i> Buscar
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Cursos Asignados -->
+                    <button onclick="mostrarCursosAsignados()" class="btn-dev">
+                        <i class="fas fa-book"></i> Cursos Asignados
+                    </button>
+                    
+                    <!-- Asistencias Generales -->
+                    <button onclick="abrirAsistenciasGenerales()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Asistencias Generales
+                    </button>
+                    
+                    <!-- Estadísticas -->
+                    <button onclick="abrirEstadisticas()" class="btn-dev">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </button>
+                    
+                    <!-- Reportes (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('generadorReportes')">
+                            <span><i class="fas fa-chart-line"></i> Reportes</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="generadorReportes" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
+                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
+                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
+                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
+                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Imprimir PDF -->
+                    <button onclick="generarPDFAdmin()" class="btn-dev">
+                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    </button>
+                    
+                    <!-- Configuración (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
+                                <i class="fas fa-language"></i> Cambiar Idioma
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
+                                <i class="fas fa-palette"></i> Color de Pantalla
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
+                                <i class="fas fa-user-edit"></i> Datos Usuario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+            
+        case 2: // Docente
+            mensajeDiv.innerHTML = "<strong>Eres un Docente</strong>. Puedes gestionar cursos y calificaciones.";
+            panelBotones.innerHTML = `
+                <h3>Panel de Docente</h3>
+                <div class="botones-container">
+                    <!-- Cursos Asignados (misma función que en Administrador) -->
+                    <button onclick="mostrarCursosAsignados()" class="btn-dev">
+                        <i class="fas fa-book"></i> Cursos Asignados
+                    </button>
+                    
+                    <!-- Confirmar Asistencia -->
+                    <button onclick="confirmarAsistencia()" class="btn-dev">
+                        <i class="fas fa-clipboard-check"></i> Confirmar Asistencia
+                    </button>
+                    
+                    <!-- Reportes (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('generadorReportes')">
+                            <span><i class="fas fa-chart-line"></i> Reportes</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="generadorReportes" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
+                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
+                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
+                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
+                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Generar PDF (misma función que en Administrador) -->
+                    <button onclick="generarPDFAdmin()" class="btn-dev">
+                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    </button>
+                    
+                    <!-- Configuración (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
+                                <i class="fas fa-language"></i> Cambiar Idioma
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
+                                <i class="fas fa-palette"></i> Color de Pantalla
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
+                                <i class="fas fa-user-edit"></i> Datos Usuario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+            
+        case 3: // Estudiante
+            mensajeDiv.innerHTML = "<strong>Eres un Estudiante</strong>. Accede a tus cursos y horarios.";
+            panelBotones.innerHTML = `
+                <h3>Panel de Estudiante</h3>
+                <div class="botones-container">
+                    <!-- Tomar Asistencia -->
+                    <button onclick="tomarAsistencia()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Tomar Asistencia
+                    </button>
+                    
+                    <!-- Generar PDF (misma función que en Administrador) -->
+                    <button onclick="generarPDFAdmin()" class="btn-dev">
+                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    </button>
+                    
+                    <!-- Configuración (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
+                                <i class="fas fa-language"></i> Cambiar Idioma
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
+                                <i class="fas fa-palette"></i> Color de Pantalla
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
+                                <i class="fas fa-user-edit"></i> Datos Usuario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+            
+        case 4: // Desarrollador
+            mensajeDiv.innerHTML = "<strong>Eres un Desarrollador</strong>. Gestiona matrículas y documentos.";
+            panelBotones.innerHTML = `
+                <h3>Panel de Desarrollador</h3>
+                <div class="botones-container">
+                    <!-- Gestor de Usuarios (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('gestorUsuarios')">
+                            <span><i class="fas fa-users-cog"></i> Gestor de Usuarios</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="gestorUsuarios" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
+                                <i class="fas fa-user-graduate"></i> Vista Estudiantes
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administrador')">
+                                <i class="fas fa-user-shield"></i> Vista Administradores
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Desarrolladores')">
+                                <i class="fas fa-code"></i> Vista Desarrolladores
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Servicios')">
+                                <i class="fas fa-cogs"></i> Vista Servicios
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Administrar Usuarios (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('administrarUsuarios')">
+                            <span><i class="fas fa-user-edit"></i> Administrar Usuarios</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="administrarUsuarios" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                                <i class="fas fa-user-plus"></i> Agregar
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
+                                <i class="fas fa-search"></i> Buscar
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Reportes (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('generadorReportes')">
+                            <span><i class="fas fa-chart-line"></i> Reportes</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="generadorReportes" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
+                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
+                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
+                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
+                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Asistencias Generales (misma función que en Administrador) -->
+                    <button onclick="abrirAsistenciasGenerales()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Asistencias Generales
+                    </button>
+                    
+                    <!-- Estadísticas (misma función que en Administrador) -->
+                    <button onclick="abrirEstadisticas()" class="btn-dev">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </button>
+                    
+                    <!-- Imprimir PDF (misma función que en Administrador) -->
+                    <button onclick="generarPDFAdmin()" class="btn-dev">
+                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    </button>
+                    
+                    <!-- Configuración (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
+                                <i class="fas fa-language"></i> Cambiar Idioma
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
+                                <i class="fas fa-palette"></i> Color de Pantalla
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
+                                <i class="fas fa-user-edit"></i> Datos Usuario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+            
+        case 5: // Servicios
+            mensajeDiv.innerHTML = "<strong>Eres un invitado de servicio</strong>. Acceso limitado al sistema.";
+            panelBotones.innerHTML = `
+                <h3>Panel de Servicios</h3>
+                <div class="botones-container">
+                    <!-- Mismos botones que estudiante -->
+                    <!-- Tomar Asistencia -->
+                    <button onclick="tomarAsistencia()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Tomar Asistencia
+                    </button>
+                    
+                    <!-- Generar PDF (misma función que en Administrador) -->
+                    <button onclick="generarPDFAdmin()" class="btn-dev">
+                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    </button>
+                    
+                    <!-- Configuración (misma función que en Administrador) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
+                                <i class="fas fa-language"></i> Cambiar Idioma
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
+                                <i class="fas fa-palette"></i> Color de Pantalla
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
+                                <i class="fas fa-user-edit"></i> Datos Usuario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
                         
                     default:
                         mensajeDiv.innerHTML = "<strong>Tipo de usuario no reconocido</strong>. Contacta al administrador.";
@@ -200,94 +412,134 @@
             }
         });
         
-        // Funciones para los botones (simuladas)
-        function toggleDropdown(id) {
-            const dropdown = document.getElementById(id);
-            dropdown.classList.toggle('show');
-        }
-        
-        function mostrarInformacionAdmin(tipo) {
+        // Función para la configuración (nueva)
+function cambiarConfiguracion(tipo) {
+    switch(tipo) {
+        case 'idioma':
             document.getElementById('info-content').innerHTML = `
-                <h3>Información de ${tipo}</h3>
-                <p>Aquí se mostraría la información específica para ${tipo}.</p>
+                <h3>Cambiar Idioma</h3>
+                <p>Opciones de idioma disponibles.</p>
             `;
-        }
-        
-        function generarPDFAdmin() {
-            alert('Generando PDF para administrador...');
-        }
-        
-        function mostrarCursosAsignados() {
+            break;
+        case 'color':
             document.getElementById('info-content').innerHTML = `
-                <h3>Cursos Asignados</h3>
-                <p>Listado de cursos asignados al docente.</p>
+                <h3>Color de Pantalla</h3>
+                <p>Seleccione un esquema de color para la interfaz.</p>
             `;
-        }
-        
-        function confirmarAsistencia() {
-            alert('Confirmando asistencia...');
-        }
-        
-        function generarPDFDocente() {
-            alert('Generando PDF para docente...');
-        }
-        
-        function mostrarReporte(tipo) {
+            break;
+        case 'datos':
             document.getElementById('info-content').innerHTML = `
-                <h3>Reporte: ${tipo}</h3>
-                <p>Datos del reporte seleccionado.</p>
+                <h3>Datos Usuario</h3>
+                <p>Actualice sus datos personales.</p>
             `;
-        }
-        
-        function tomarAsistencia() {
-            alert('Tomando asistencia...');
-        }
-        
-        function verAsistencia() {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Asistencia del Estudiante</h3>
-                <p>Historial de asistencia del estudiante.</p>
-            `;
-        }
-        
-        function generarPDFEstudiante() {
-            alert('Generando PDF para estudiante...');
-        }
-        
-        function gestionarUsuarios(accion) {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Gestor de Usuarios - ${accion}</h3>
-                <p>Realizando acción: ${accion}.</p>
-            `;
-        }
-        
-        function abrirRegistroGeneral() {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Registro General</h3>
-                <p>Información completa del registro general.</p>
-            `;
-        }
-        
-        function abrirAsistenciasGenerales() {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Asistencias Generales</h3>
-                <p>Resumen de todas las asistencias.</p>
-            `;
-        }
-        
-        function abrirEstadisticas() {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Estadísticas</h3>
-                <p>Datos estadísticos del sistema.</p>
-            `;
-        }
-        
-        function visualizarCredenciales() {
-            document.getElementById('info-content').innerHTML = `
-                <h3>Credenciales</h3>
-                <p>Visualización de credenciales de servicio.</p>
-            `;
-        }
+            break;
+    }
+    
+}
+
+// Cerrar todos los dropdowns
+function closeAllDropdowns() {
+    const dropdowns = document.querySelectorAll('.dropdown-content');
+    dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('show');
+    });
+}
+
+// Función para mostrar/ocultar menús desplegables
+function toggleDropdown(id) {
+    const dropdown = document.getElementById(id);
+    
+    // Si el dropdown actual ya está visible, solo lo cerramos
+    if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+    } else {
+        // Primero cerramos todos los dropdowns
+        closeAllDropdowns();
+        // Luego abrimos el actual
+        dropdown.classList.add('show');
+    }
+}
+
+ 
+
+function mostrarInformacionAdmin(tipo) {
+    // Muestra información específica para administradores
+    document.getElementById('info-content').innerHTML = `
+        <h3>Información de ${tipo}</h3>
+        <p>Aquí se mostraría la información específica para ${tipo}.</p>
+    `;
+}
+
+function generarPDFAdmin() {
+    // Función para generar PDF que comparten todos los tipos de usuario
+    alert('Generando PDF...');
+}
+
+function mostrarCursosAsignados() {
+    // Función para mostrar cursos asignados (compartida entre admin y docente)
+    document.getElementById('info-content').innerHTML = `
+        <h3>Cursos Asignados</h3>
+        <p>Listado de cursos asignados.</p>
+    `;
+}
+
+function confirmarAsistencia() {
+    // Función específica para docentes
+    alert('Confirmando asistencia...');
+}
+
+function mostrarReporte(tipo) {
+    // Función para mostrar reportes (compartida entre varios roles)
+    document.getElementById('info-content').innerHTML = `
+        <h3>Reporte: ${tipo}</h3>
+        <p>Datos del reporte seleccionado.</p>
+    `;
+}
+
+function tomarAsistencia() {
+    // Función para tomar asistencia (compartida entre estudiante y servicios)
+    alert('Tomando asistencia...');
+}
+
+function verAsistencia() {
+    // Muestra el historial de asistencia
+    document.getElementById('info-content').innerHTML = `
+        <h3>Asistencia</h3>
+        <p>Historial de asistencia.</p>
+    `;
+}
+
+function gestionarUsuarios(accion) {
+    // Función para gestionar usuarios (compartida entre admin y desarrollador)
+    document.getElementById('info-content').innerHTML = `
+        <h3>Gestor de Usuarios - ${accion}</h3>
+        <p>Realizando acción: ${accion}.</p>
+    `;
+}
+
+function abrirRegistroGeneral() {
+    // Muestra el registro general
+    document.getElementById('info-content').innerHTML = `
+        <h3>Registro General</h3>
+        <p>Información completa del registro general.</p>
+    `;
+}
+
+function abrirAsistenciasGenerales() {
+    // Función para mostrar todas las asistencias (compartida entre admin y desarrollador)
+    document.getElementById('info-content').innerHTML = `
+        <h3>Asistencias Generales</h3>
+        <p>Resumen de todas las asistencias.</p>
+    `;
+}
+
+function abrirEstadisticas() {
+    // Función para mostrar estadísticas (compartida entre admin y desarrollador)
+    document.getElementById('info-content').innerHTML = `
+        <h3>Estadísticas</h3>
+        <p>Datos estadísticos del sistema.</p>
+    `;
+}
     </script>
 </head>
 <body>
