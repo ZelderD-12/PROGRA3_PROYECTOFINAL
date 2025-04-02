@@ -2,7 +2,7 @@ name: Auto Merge to Master
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Ejecuta el job a las 2 AM UTC cada día
+    - cron: '0 8 * * *'  # Ejecuta el job a las 8 AM UTC cada día
   workflow_dispatch:  # Permite ejecutarlo manualmente si es necesario
 
 jobs:
