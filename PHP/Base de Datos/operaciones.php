@@ -78,6 +78,15 @@ if (isset($_POST['login'])) {
             $_SESSION['idcarrerausuario'] = $usuario['Id_Carrera_Usuario'];
             $_SESSION['seccionusuario'] = $usuario['Seccion_Usuario'];
             $_SESSION['usuarioactivo'] = $usuario['Activo'];
+
+            $pagina_destino = '../Pantalla Principal/bienvenido.php'; // Ruta base ajustada a tu estructura
+            switch($_SESSION['idtipousuario']) {
+                case 1: $pagina_destino = '../admin/dashboard.php'; break;
+                case 2: $pagina_destino = '../docente/panel.php'; break;
+                case 3: $pagina_destino = '../estudiante/inicio.php'; break;
+                case 4: $pagina_destino = '../Desarrolladores/panel.php'; break;
+                case 5: $pagina_destino = '../Servicios/inicio.php'; break;
+            }   
             
             // Guardar también en sessionStorage para JavaScript
             echo "<script>
