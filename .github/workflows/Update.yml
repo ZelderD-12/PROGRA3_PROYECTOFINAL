@@ -2,7 +2,7 @@ name: Auto Merge COMBINADA to Multiple Branches
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # Ejecuta el job a las 3 AM UTC cada día
+    - cron: '0 9 * * *'  # Ejecuta el job a las 3 AM UTC cada día
   workflow_dispatch:  # Permite ejecutarlo manualmente si es necesario
 
 jobs:
