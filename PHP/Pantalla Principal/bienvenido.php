@@ -489,12 +489,290 @@ function confirmarAsistencia() {
 }
 
 function mostrarReporte(tipo) {
-    // Función para mostrar reportes (compartida entre varios roles)
-    document.getElementById('info-content').innerHTML = `
-        <h3>Reporte: ${tipo}</h3>
-        <p>Datos del reporte seleccionado.</p>
-    `;
+    // Definir las rutas base de los archivos
+    // Rutas corregidas (ajustadas a tu estructura de proyecto)
+const baseCSSPath = '../../CSS/avl-tree.css';
+const baseJSPath = '../../Javascript/avl-tree.js';
+    
+    let contenido = '';
+    switch (tipo) {
+        case 'historicoEntrada':
+            contenido = `
+                <h3>Reporte Histórico de Ingresos</h3>
+                <p>Visualización del árbol AVL con datos históricos de ingresos.</p>
+                <div id="avl-tree-historico" class="avl-tree-container"></div>
+            `;
+            // Cargar recursos con rutas correctas
+            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+                initAVLTree('avl-tree-historico');
+                dibujarArbolAVL('avl-tree-historico', obtenerDatosHistorico(), 'historicoEntrada');
+            });
+            break;
+
+        case 'fechaEntrada':
+            contenido = `
+                <h3>Reporte por Fecha de Ingresos</h3>
+                <p>Visualización del árbol AVL con datos por fecha de ingresos.</p>
+                <div id="avl-tree-fecha" class="avl-tree-container"></div>
+            `;
+            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+                initAVLTree('avl-tree-fecha');
+                dibujarArbolAVL('avl-tree-fecha', obtenerDatosPorFecha(), 'fechaEntrada');
+            });
+            break;
+
+        case 'historicoSalon':
+            contenido = `
+                <h3>Reporte Histórico por Salón</h3>
+                <p>Visualización del árbol AVL con datos históricos por salón.</p>
+                <div id="avl-tree-salon-historico" class="avl-tree-container"></div>
+            `;
+            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+                initAVLTree('avl-tree-salon-historico');
+                dibujarArbolAVL('avl-tree-salon-historico', obtenerDatosSalonHistorico(), 'historicoSalon');
+            });
+            break;
+
+        case 'fechaSalon':
+            contenido = `
+                <h3>Reporte por Fecha y Salón</h3>
+                <p>Visualización del árbol AVL con datos por fecha y salón.</p>
+                <div id="avl-tree-salon-fecha" class="avl-tree-container"></div>
+            `;
+            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+                initAVLTree('avl-tree-salon-fecha');
+                dibujarArbolAVL('avl-tree-salon-fecha', obtenerDatosSalonPorFecha(), 'fechaSalon');
+            });
+            break;
+
+        default:
+            contenido = `
+                <h3>Reporte no encontrado</h3>
+                <p>El tipo de reporte solicitado no está disponible.</p>
+            `;
+            break;
+    }
+
+    document.getElementById('info-content').innerHTML = contenido;
 }
+
+function cargarRecursosAVL(cssPath, jsPath, callback) {
+    let cssLoaded = false;
+    let jsLoaded = false;
+
+    function verificarCarga() {
+        if (cssLoaded && jsLoaded) {
+            callback();
+        }
+    }
+
+    // Cargar CSS
+    if (!document.querySelector(`link[href="${cssPath}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = cssPath;
+        link.onload = () => {
+            cssLoaded = true;
+            verificarCarga();
+        };
+        link.onerror = () => {
+            console.error(`Error al cargar CSS: ${cssPath}`);
+            cssLoaded = true; // Continuar aunque falle el CSS
+            verificarCarga();
+        };
+        document.head.appendChild(link);
+    } else {
+        cssLoaded = true;
+        verificarCarga();
+    }
+
+    // Cargar JS
+    if (!document.querySelector(`script[src="${jsPath}"]`)) {
+        const script = document.createElement('script');
+        script.src = jsPath;
+        script.onload = () => {
+            jsLoaded = true;
+            verificarCarga();
+        };
+        script.onerror = () => {
+            console.error(`Error al cargar JS: ${jsPath}`);
+            // Mostrar mensaje de error en el contenedor
+            const container = document.getElementById('info-content');
+            if (container) {
+                container.innerHTML += `
+                    <div class="error-message">
+                        <p>No se pudo cargar la visualización del árbol AVL.</p>
+                        <p>El archivo JavaScript no se encontró en: ${jsPath}</p>
+                    </div>
+                `;
+            }
+        };
+        document.body.appendChild(script);
+    } else {
+        jsLoaded = true;
+        verificarCarga();
+    }
+}
+// Funciones para obtener datos (actualizadas)
+function obtenerDatosHistorico() {
+    // Datos de ejemplo para el reporte histórico
+    return [
+        {
+            instalacion: "Edificio A",
+            puerta: "Principal",
+            fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
+        },
+        {
+            instalacion: "Edificio B",
+            puerta: "Secundaria",
+            fechas: ["2023-05-01", "2023-05-04"]
+        }
+    ];
+}
+
+function obtenerDatosPorFecha() {
+    // Datos de ejemplo para reporte por fecha
+    return [
+        {
+            instalacion: "Edificio A",
+            puerta: "Principal",
+            fecha: "2023-05-01",
+            registros: [
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    correo: "juan@example.com", 
+                    foto: "img/users/user1.jpg", 
+                    asistencia: true 
+                },
+                { 
+                    id: 2, 
+                    nombre: "María García", 
+                    correo: "maria@example.com", 
+                    foto: "img/users/user2.jpg", 
+                    asistencia: false 
+                }
+            ]
+        }
+    ];
+}
+
+function obtenerDatosSalonHistorico() {
+    // Datos de ejemplo para reporte histórico por salón
+    return [
+        {
+            instalacion: "Edificio A",
+            nivel: "1",
+            salon: "101",
+            estudiantes: [
+                { id: 1, nombre: "Juan Pérez", tipo: "estudiante" },
+                { id: 2, nombre: "Prof. Rodríguez", tipo: "catedrático" }
+            ]
+        }
+    ];
+}
+
+function obtenerDatosSalonPorFecha() {
+    // Datos de ejemplo para reporte por fecha y salón
+    return [
+        {
+            instalacion: "Edificio A",
+            nivel: "1",
+            salon: "101",
+            fecha: "2023-05-01",
+            registros: [
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    correo: "juan@example.com", 
+                    foto: "img/users/user1.jpg", 
+                    asistencia: true, 
+                    tipo: "estudiante" 
+                },
+                { 
+                    id: 2, 
+                    nombre: "Prof. Rodríguez", 
+                    correo: "prof@example.com", 
+                    foto: "img/users/prof1.jpg", 
+                    asistencia: true, 
+                    tipo: "catedrático" 
+                }
+            ]
+        }
+    ];
+}
+
+// Función para dibujar el árbol AVL (mejorada)
+function dibujarArbolAVL(containerId, data, tipoReporte) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Limpiar el contenedor
+    container.innerHTML = '';
+
+    // Crear canvas para el árbol
+    const canvas = document.createElement('canvas');
+    canvas.width = container.offsetWidth;
+    canvas.height = 600; // Altura fija para el árbol
+    container.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+
+    // Dibujar el árbol AVL
+    function dibujarNodo(x, y, texto, nivel) {
+        const radio = 20; // Radio del nodo
+        ctx.beginPath();
+        ctx.arc(x, y, radio, 0, 2 * Math.PI); // Dibujar el círculo
+        ctx.fillStyle = '#4CAF50';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        ctx.fillStyle = '#FFF';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(texto, x, y); // Dibujar el texto dentro del nodo
+    }
+
+    function dibujarLinea(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+    }
+
+    function dibujarArbol(data, x, y, nivel, offsetX) {
+        if (!data) return;
+
+        // Dibujar el nodo actual
+        dibujarNodo(x, y, data.valor, nivel);
+
+        // Dibujar las conexiones y los nodos hijos
+        const nextY = y + 80; // Distancia vertical entre niveles
+        if (data.izquierda) {
+            const nextXIzquierda = x - offsetX / 2;
+            dibujarLinea(x, y + 20, nextXIzquierda, nextY - 20);
+            dibujarArbol(data.izquierda, nextXIzquierda, nextY, nivel + 1, offsetX / 2);
+        }
+        if (data.derecha) {
+            const nextXDerecha = x + offsetX / 2;
+            dibujarLinea(x, y + 20, nextXDerecha, nextY - 20);
+            dibujarArbol(data.derecha, nextXDerecha, nextY, nivel + 1, offsetX / 2);
+        }
+    }
+
+    // Calcular el punto inicial para el nodo raíz
+    const rootX = canvas.width / 2;
+    const rootY = 50;
+    const offsetX = canvas.width / 4; // Separación horizontal inicial
+
+    // Dibujar el árbol AVL
+    dibujarArbol(data, rootX, rootY, 0, offsetX);
+
+    console.log('Árbol AVL dibujado:', { containerId, data, tipoReporte });
+}
+
 
 function tomarAsistencia() {
     // Función para tomar asistencia (compartida entre estudiante y servicios)
