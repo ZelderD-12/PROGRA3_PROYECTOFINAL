@@ -487,135 +487,414 @@ function confirmarAsistencia() {
     // Función específica para docentes
     alert('Confirmando asistencia...');
 }
-
+//----------------------------------------------------------------------------------------------------------------
+// Función principal para mostrar reportes
 function mostrarReporte(tipo) {
-    // Definir las rutas base de los archivos
-    // Rutas corregidas (ajustadas a tu estructura de proyecto)
-const baseCSSPath = '../../CSS/avl-tree.css';
-const baseJSPath = '../../Javascript/avl-tree.js';
+    const baseCSSPath = '../../CSS/avl-tree.css';
+    const baseJSPath = '../../Javascript/avl-tree.js';
     
     let contenido = '';
+    let containerId = '';
+    
     switch (tipo) {
         case 'historicoEntrada':
+            containerId = 'avl-tree-historico';
             contenido = `
                 <h3>Reporte Histórico de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos históricos de ingresos.</p>
-                <div id="avl-tree-historico" class="avl-tree-container"></div>
+                <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            // Cargar recursos con rutas correctas
-            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-                initAVLTree('avl-tree-historico');
-                dibujarArbolAVL('avl-tree-historico', obtenerDatosHistorico(), 'historicoEntrada');
-            });
             break;
-
         case 'fechaEntrada':
+            containerId = 'avl-tree-fecha';
             contenido = `
                 <h3>Reporte por Fecha de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos por fecha de ingresos.</p>
-                <div id="avl-tree-fecha" class="avl-tree-container"></div>
+                <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-                initAVLTree('avl-tree-fecha');
-                dibujarArbolAVL('avl-tree-fecha', obtenerDatosPorFecha(), 'fechaEntrada');
-            });
             break;
-
         case 'historicoSalon':
+            containerId = 'avl-tree-salon-historico';
             contenido = `
                 <h3>Reporte Histórico por Salón</h3>
                 <p>Visualización del árbol AVL con datos históricos por salón.</p>
-                <div id="avl-tree-salon-historico" class="avl-tree-container"></div>
+                <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-                initAVLTree('avl-tree-salon-historico');
-                dibujarArbolAVL('avl-tree-salon-historico', obtenerDatosSalonHistorico(), 'historicoSalon');
-            });
             break;
-
         case 'fechaSalon':
+            containerId = 'avl-tree-salon-fecha';
             contenido = `
                 <h3>Reporte por Fecha y Salón</h3>
                 <p>Visualización del árbol AVL con datos por fecha y salón.</p>
-                <div id="avl-tree-salon-fecha" class="avl-tree-container"></div>
+                <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-                initAVLTree('avl-tree-salon-fecha');
-                dibujarArbolAVL('avl-tree-salon-fecha', obtenerDatosSalonPorFecha(), 'fechaSalon');
-            });
             break;
-
         default:
-            contenido = `
-                <h3>Reporte no encontrado</h3>
-                <p>El tipo de reporte solicitado no está disponible.</p>
-            `;
+            contenido = `<h3>Reporte no encontrado</h3><p>El tipo de reporte solicitado no está disponible.</p>`;
             break;
     }
 
     document.getElementById('info-content').innerHTML = contenido;
+    
+    if (containerId) {
+        cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+            // Obtener datos según el tipo de reporte
+            const datos = obtenerDatosParaReporte(tipo);
+            
+            // Convertir datos a estructura de árbol AVL
+            const arbol = construirArbolDesdeDatos(datos, tipo);
+            
+            // Dibujar el árbol en el contenedor
+            dibujarArbolAVLCompleto(containerId, arbol);
+        });
+    }
 }
 
+// Función mejorada para cargar recursos
 function cargarRecursosAVL(cssPath, jsPath, callback) {
-    let cssLoaded = false;
-    let jsLoaded = false;
+    let recursosCargados = 0;
+    const totalRecursos = 2; // CSS y JS
 
-    function verificarCarga() {
-        if (cssLoaded && jsLoaded) {
+    function recursoCargado() {
+        recursosCargados++;
+        if (recursosCargados === totalRecursos) {
             callback();
         }
     }
 
     // Cargar CSS
-    if (!document.querySelector(`link[href="${cssPath}"]`)) {
+    const linkExistente = document.querySelector(`link[href="${cssPath}"]`);
+    if (!linkExistente) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = cssPath;
-        link.onload = () => {
-            cssLoaded = true;
-            verificarCarga();
-        };
+        link.onload = recursoCargado;
         link.onerror = () => {
             console.error(`Error al cargar CSS: ${cssPath}`);
-            cssLoaded = true; // Continuar aunque falle el CSS
-            verificarCarga();
+            recursoCargado();
         };
         document.head.appendChild(link);
     } else {
-        cssLoaded = true;
-        verificarCarga();
+        recursoCargado();
     }
 
     // Cargar JS
-    if (!document.querySelector(`script[src="${jsPath}"]`)) {
+    const scriptExistente = document.querySelector(`script[src="${jsPath}"]`);
+    if (!scriptExistente) {
         const script = document.createElement('script');
         script.src = jsPath;
-        script.onload = () => {
-            jsLoaded = true;
-            verificarCarga();
-        };
+        script.onload = recursoCargado;
         script.onerror = () => {
             console.error(`Error al cargar JS: ${jsPath}`);
-            // Mostrar mensaje de error en el contenedor
-            const container = document.getElementById('info-content');
-            if (container) {
-                container.innerHTML += `
-                    <div class="error-message">
-                        <p>No se pudo cargar la visualización del árbol AVL.</p>
-                        <p>El archivo JavaScript no se encontró en: ${jsPath}</p>
-                    </div>
-                `;
-            }
+            document.getElementById('info-content').innerHTML += `
+                <div class="error-message">
+                    <p>No se pudo cargar la visualización del árbol AVL.</p>
+                    <p>El archivo JavaScript no se encontró en: ${jsPath}</p>
+                </div>
+            `;
+            recursoCargado();
         };
         document.body.appendChild(script);
     } else {
-        jsLoaded = true;
-        verificarCarga();
+        recursoCargado();
     }
 }
-// Funciones para obtener datos (actualizadas)
+
+// Función para obtener datos según el tipo de reporte
+function obtenerDatosParaReporte(tipo) {
+    switch (tipo) {
+        case 'historicoEntrada': return obtenerDatosHistorico();
+        case 'fechaEntrada': return obtenerDatosPorFecha();
+        case 'historicoSalon': return obtenerDatosSalonHistorico();
+        case 'fechaSalon': return obtenerDatosSalonPorFecha();
+        default: return [];
+    }
+}
+
+// Función para construir la estructura del árbol desde los datos
+function construirArbolDesdeDatos(datos, tipo) {
+    // Esta función transforma los datos en una estructura de árbol
+    // que puede ser dibujada por dibujarArbolAVLCompleto
+    
+    const nodoRaiz = {
+        valor: "Raíz",
+        nivel: 0,
+        hijos: []
+    };
+
+    switch (tipo) {
+        case 'historicoEntrada':
+            datos.forEach(entrada => {
+                const nodoInstalacion = {
+                    valor: entrada.instalacion,
+                    nivel: 1,
+                    hijos: []
+                };
+                
+                const nodoPuerta = {
+                    valor: entrada.puerta,
+                    nivel: 2,
+                    hijos: []
+                };
+                
+                entrada.fechas.forEach(fecha => {
+                    nodoPuerta.hijos.push({
+                        valor: fecha,
+                        nivel: 3,
+                        hijos: []
+                    });
+                });
+                
+                nodoInstalacion.hijos.push(nodoPuerta);
+                nodoRaiz.hijos.push(nodoInstalacion);
+            });
+            break;
+            
+        case 'fechaEntrada':
+            datos.forEach(entrada => {
+                const nodoInstalacion = {
+                    valor: entrada.instalacion,
+                    nivel: 1,
+                    hijos: []
+                };
+                
+                const nodoFecha = {
+                    valor: entrada.fecha,
+                    nivel: 2,
+                    hijos: []
+                };
+                
+                entrada.registros.forEach(registro => {
+                    nodoFecha.hijos.push({
+                        valor: registro.nombre,
+                        nivel: 3,
+                        data: registro,
+                        hijos: []
+                    });
+                });
+                
+                nodoInstalacion.hijos.push(nodoFecha);
+                nodoRaiz.hijos.push(nodoInstalacion);
+            });
+            break;
+            
+        case 'historicoSalon':
+            datos.forEach(salon => {
+                const nodoInstalacion = {
+                    valor: salon.instalacion,
+                    nivel: 1,
+                    hijos: []
+                };
+                
+                const nodoNivel = {
+                    valor: `Nivel ${salon.nivel}`,
+                    nivel: 2,
+                    hijos: []
+                };
+                
+                const nodoSalon = {
+                    valor: `Salón ${salon.salon}`,
+                    nivel: 3,
+                    hijos: []
+                };
+                
+                salon.estudiantes.forEach(est => {
+                    nodoSalon.hijos.push({
+                        valor: `${est.nombre} (${est.tipo})`,
+                        nivel: 4,
+                        data: est,
+                        hijos: []
+                    });
+                });
+                
+                nodoNivel.hijos.push(nodoSalon);
+                nodoInstalacion.hijos.push(nodoNivel);
+                nodoRaiz.hijos.push(nodoInstalacion);
+            });
+            break;
+            
+        case 'fechaSalon':
+            datos.forEach(salon => {
+                const nodoInstalacion = {
+                    valor: salon.instalacion,
+                    nivel: 1,
+                    hijos: []
+                };
+                
+                const nodoNivel = {
+                    valor: `Nivel ${salon.nivel}`,
+                    nivel: 2,
+                    hijos: []
+                };
+                
+                const nodoSalon = {
+                    valor: `Salón ${salon.salon}`,
+                    nivel: 3,
+                    hijos: []
+                };
+                
+                const nodoFecha = {
+                    valor: salon.fecha,
+                    nivel: 4,
+                    hijos: []
+                };
+                
+                salon.registros.forEach(reg => {
+                    nodoFecha.hijos.push({
+                        valor: `${reg.nombre} (${reg.tipo})`,
+                        nivel: 5,
+                        data: reg,
+                        hijos: []
+                    });
+                });
+                
+                nodoSalon.hijos.push(nodoFecha);
+                nodoNivel.hijos.push(nodoSalon);
+                nodoInstalacion.hijos.push(nodoNivel);
+                nodoRaiz.hijos.push(nodoInstalacion);
+            });
+            break;
+    }
+    
+    return nodoRaiz;
+}
+
+function dibujarArbolAVLCompleto(containerId, arbol) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Contenedor ${containerId} no encontrado`);
+        return;
+    }
+
+    // Limpiar el contenedor
+    container.innerHTML = '';
+
+    // Crear elemento SVG para el árbol
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '600');
+    svg.style.display = 'block';
+    svg.style.margin = '0 auto';
+
+    // Grupo principal
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', 'translate(0, 50)');
+    svg.appendChild(g);
+    container.appendChild(svg);
+
+    // Configuración de dibujo
+    const verticalSpacing = 80; // Espaciado vertical entre niveles
+    const minHorizontalSpacing = 2; // Espaciado mínimo entre nodos hijos
+
+    // Función para calcular posiciones
+    function calcularPosiciones(nodo, nivel, posX, espacioDisponible) {
+        if (!nodo) return;
+
+        const posY = nivel * verticalSpacing;
+        nodo.x = posX;
+        nodo.y = posY;
+
+        if (nodo.hijos && nodo.hijos.length > 0) {
+            const totalHijos = nodo.hijos.length;
+            const espacioRequerido = Math.max(minHorizontalSpacing * (totalHijos - 1), espacioDisponible / totalHijos);
+
+            const startX = posX - (espacioRequerido * (totalHijos - 1)) / 2;
+
+            nodo.hijos.forEach((hijo, index) => {
+                const childX = startX + index * espacioRequerido;
+                calcularPosiciones(hijo, nivel + 1, childX, espacioRequerido);
+            });
+        }
+    }
+
+    // Calcular posiciones comenzando desde el centro
+    calcularPosiciones(arbol, 0, container.offsetWidth / 2, container.offsetWidth);
+
+    // Dibujar conexiones
+    function dibujarConexiones(nodo, g) {
+        if (!nodo || !nodo.hijos) return;
+
+        nodo.hijos.forEach(hijo => {
+            if (hijo.x !== undefined && hijo.y !== undefined) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', nodo.x);
+                line.setAttribute('y1', nodo.y + 15); // Ajuste para la mitad del nodo
+                line.setAttribute('x2', hijo.x);
+                line.setAttribute('y2', hijo.y - 15); // Ajuste para la mitad del nodo
+                line.setAttribute('stroke', '#555');
+                line.setAttribute('stroke-width', '2');
+                g.appendChild(line);
+                dibujarConexiones(hijo, g);
+            }
+        });
+    }
+
+    dibujarConexiones(arbol, g);
+
+    // Dibujar nodos
+    function dibujarNodos(nodo, g) {
+        if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
+
+        // Crear un elemento temporal para medir el texto
+        const tempText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tempText.setAttribute('font-size', '14px');
+        tempText.setAttribute('font-family', 'Arial');
+        tempText.textContent = nodo.valor;
+        g.appendChild(tempText);
+
+        const textBBox = tempText.getBBox();
+        const nodeWidth = textBBox.width * 1.05; // 5% más ancho que el texto
+        const nodeHeight = textBBox.height * 1.5; // 50% más alto que el texto
+
+        g.removeChild(tempText); // Eliminar el elemento temporal
+
+        // Dibujar el nodo (rectángulo)
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', nodo.x - nodeWidth / 2);
+        rect.setAttribute('y', nodo.y - nodeHeight / 2);
+        rect.setAttribute('width', nodeWidth);
+        rect.setAttribute('height', nodeHeight);
+        rect.setAttribute('rx', 5); // Bordes redondeados
+        rect.setAttribute('fill', '#4CAF50');
+        rect.setAttribute('stroke', '#388E3C');
+        rect.setAttribute('stroke-width', '2');
+
+        // Dibujar el texto dentro del nodo
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', nodo.x);
+        text.setAttribute('y', nodo.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('fill', 'white');
+        text.setAttribute('font-size', '14px');
+        text.setAttribute('font-family', 'Arial');
+        text.textContent = nodo.valor;
+
+        g.appendChild(rect);
+        g.appendChild(text);
+
+        // Dibujar los hijos
+        if (nodo.hijos) {
+            nodo.hijos.forEach(hijo => {
+                dibujarNodos(hijo, g);
+            });
+        }
+    }
+
+    dibujarNodos(arbol, g);
+
+    // Ajustar el tamaño del SVG correctamente
+    const bbox = g.getBBox();
+    const containerWidth = container.offsetWidth;
+
+    // Usar el mayor entre el ancho calculado y el ancho del contenedor
+    const svgWidth = Math.max(bbox.width + 100, containerWidth);
+
+    svg.setAttribute('width', svgWidth + 'px');
+    svg.setAttribute('height', (bbox.height + 100) + 'px');
+}
+// Funciones para obtener datos (se mantienen iguales)
 function obtenerDatosHistorico() {
-    // Datos de ejemplo para el reporte histórico
     return [
         {
             instalacion: "Edificio A",
@@ -626,39 +905,58 @@ function obtenerDatosHistorico() {
             instalacion: "Edificio B",
             puerta: "Secundaria",
             fechas: ["2023-05-01", "2023-05-04"]
+        },
+        {
+            instalacion: "Edificio C",
+            puerta: "Emergencia",
+            fechas: ["2023-05-02", "2023-05-03"]
+        },
+        {
+            instalacion: "Edificio D",
+            puerta: "Principal",
+            fechas: ["2023-05-01", "2023-05-02"]
+        },
+        {
+            instalacion: "Edificio E",
+            puerta: "Lateral",
+            fechas: ["2023-05-03", "2023-05-05"]
         }
     ];
 }
 
 function obtenerDatosPorFecha() {
-    // Datos de ejemplo para reporte por fecha
     return [
         {
             instalacion: "Edificio A",
             puerta: "Principal",
             fecha: "2023-05-01",
             registros: [
-                { 
-                    id: 1, 
-                    nombre: "Juan Pérez", 
-                    correo: "juan@example.com", 
-                    foto: "img/users/user1.jpg", 
-                    asistencia: true 
-                },
-                { 
-                    id: 2, 
-                    nombre: "María García", 
-                    correo: "maria@example.com", 
-                    foto: "img/users/user2.jpg", 
-                    asistencia: false 
-                }
+                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true },
+                { id: 2, nombre: "María García", correo: "maria@example.com", foto: "img/users/user2.jpg", asistencia: false }
+            ]
+        },
+        {
+            instalacion: "Edificio B",
+            puerta: "Secundaria",
+            fecha: "2023-05-02",
+            registros: [
+                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true },
+                { id: 4, nombre: "Ana Torres", correo: "ana@example.com", foto: "img/users/user4.jpg", asistencia: true }
+            ]
+        },
+        {
+            instalacion: "Edificio C",
+            puerta: "Emergencia",
+            fecha: "2023-05-03",
+            registros: [
+                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false },
+                { id: 6, nombre: "Sofía Martínez", correo: "sofia@example.com", foto: "img/users/user6.jpg", asistencia: true }
             ]
         }
     ];
 }
 
 function obtenerDatosSalonHistorico() {
-    // Datos de ejemplo para reporte histórico por salón
     return [
         {
             instalacion: "Edificio A",
@@ -668,12 +966,29 @@ function obtenerDatosSalonHistorico() {
                 { id: 1, nombre: "Juan Pérez", tipo: "estudiante" },
                 { id: 2, nombre: "Prof. Rodríguez", tipo: "catedrático" }
             ]
+        },
+        {
+            instalacion: "Edificio B",
+            nivel: "2",
+            salon: "202",
+            estudiantes: [
+                { id: 3, nombre: "Carlos López", tipo: "estudiante" },
+                { id: 4, nombre: "Prof. García", tipo: "catedrático" }
+            ]
+        },
+        {
+            instalacion: "Edificio C",
+            nivel: "3",
+            salon: "303",
+            estudiantes: [
+                { id: 5, nombre: "Luis Gómez", tipo: "estudiante" },
+                { id: 6, nombre: "Prof. Martínez", tipo: "catedrático" }
+            ]
         }
     ];
 }
 
 function obtenerDatosSalonPorFecha() {
-    // Datos de ejemplo para reporte por fecha y salón
     return [
         {
             instalacion: "Edificio A",
@@ -681,99 +996,34 @@ function obtenerDatosSalonPorFecha() {
             salon: "101",
             fecha: "2023-05-01",
             registros: [
-                { 
-                    id: 1, 
-                    nombre: "Juan Pérez", 
-                    correo: "juan@example.com", 
-                    foto: "img/users/user1.jpg", 
-                    asistencia: true, 
-                    tipo: "estudiante" 
-                },
-                { 
-                    id: 2, 
-                    nombre: "Prof. Rodríguez", 
-                    correo: "prof@example.com", 
-                    foto: "img/users/prof1.jpg", 
-                    asistencia: true, 
-                    tipo: "catedrático" 
-                }
+                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true, tipo: "estudiante" },
+                { id: 2, nombre: "Prof. Rodríguez", correo: "prof@example.com", foto: "img/users/prof1.jpg", asistencia: true, tipo: "catedrático" }
+            ]
+        },
+        {
+            instalacion: "Edificio B",
+            nivel: "2",
+            salon: "202",
+            fecha: "2023-05-02",
+            registros: [
+                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true, tipo: "estudiante" },
+                { id: 4, nombre: "Prof. García", correo: "prof@example.com", foto: "img/users/prof2.jpg", asistencia: false, tipo: "catedrático" }
+            ]
+        },
+        {
+            instalacion: "Edificio C",
+            nivel: "3",
+            salon: "303",
+            fecha: "2023-05-03",
+            registros: [
+                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false, tipo: "estudiante" },
+                { id: 6, nombre: "Prof. Martínez", correo: "prof@example.com", foto: "img/users/prof3.jpg", asistencia: true, tipo: "catedrático" }
             ]
         }
     ];
 }
 
-// Función para dibujar el árbol AVL (mejorada)
-function dibujarArbolAVL(containerId, data, tipoReporte) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    // Limpiar el contenedor
-    container.innerHTML = '';
-
-    // Crear canvas para el árbol
-    const canvas = document.createElement('canvas');
-    canvas.width = container.offsetWidth;
-    canvas.height = 600; // Altura fija para el árbol
-    container.appendChild(canvas);
-
-    const ctx = canvas.getContext('2d');
-
-    // Dibujar el árbol AVL
-    function dibujarNodo(x, y, texto, nivel) {
-        const radio = 20; // Radio del nodo
-        ctx.beginPath();
-        ctx.arc(x, y, radio, 0, 2 * Math.PI); // Dibujar el círculo
-        ctx.fillStyle = '#4CAF50';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.stroke();
-        ctx.fillStyle = '#FFF';
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(texto, x, y); // Dibujar el texto dentro del nodo
-    }
-
-    function dibujarLinea(x1, y1, x2, y2) {
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = '#000';
-        ctx.stroke();
-    }
-
-    function dibujarArbol(data, x, y, nivel, offsetX) {
-        if (!data) return;
-
-        // Dibujar el nodo actual
-        dibujarNodo(x, y, data.valor, nivel);
-
-        // Dibujar las conexiones y los nodos hijos
-        const nextY = y + 80; // Distancia vertical entre niveles
-        if (data.izquierda) {
-            const nextXIzquierda = x - offsetX / 2;
-            dibujarLinea(x, y + 20, nextXIzquierda, nextY - 20);
-            dibujarArbol(data.izquierda, nextXIzquierda, nextY, nivel + 1, offsetX / 2);
-        }
-        if (data.derecha) {
-            const nextXDerecha = x + offsetX / 2;
-            dibujarLinea(x, y + 20, nextXDerecha, nextY - 20);
-            dibujarArbol(data.derecha, nextXDerecha, nextY, nivel + 1, offsetX / 2);
-        }
-    }
-
-    // Calcular el punto inicial para el nodo raíz
-    const rootX = canvas.width / 2;
-    const rootY = 50;
-    const offsetX = canvas.width / 4; // Separación horizontal inicial
-
-    // Dibujar el árbol AVL
-    dibujarArbol(data, rootX, rootY, 0, offsetX);
-
-    console.log('Árbol AVL dibujado:', { containerId, data, tipoReporte });
-}
-
-
+//----------------------------------------------------------------------------------------------------------------
 function tomarAsistencia() {
     // Función para tomar asistencia (compartida entre estudiante y servicios)
     alert('Tomando asistencia...');

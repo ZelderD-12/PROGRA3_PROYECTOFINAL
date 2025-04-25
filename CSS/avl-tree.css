@@ -1,15 +1,45 @@
 /* AVL Tree Visualization Styles */
 .avl-tree-container {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    overflow: auto;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.avl-tree-container h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.avl-tree-container h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .avl-tree-visualization {
-    background-color: #f5f5f5;
-    border-radius: 8px;
-    padding: 20px;
-    min-height: 500px;
+    width: 100%;
+    height: 500px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+.node {
+    fill: #4CAF50;
+    stroke: #388E3C;
+    stroke-width: 2;
+}
+
+.link {
+    stroke: #999;
+    stroke-width: 2;
+    fill: none;
 }
 
 .avl-node-container {
@@ -23,7 +53,7 @@
     padding: 10px 15px;
     border-radius: 5px;
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 5px;
@@ -34,7 +64,7 @@
 
 .avl-node:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .avl-children {
@@ -91,7 +121,8 @@
     font-weight: bold;
 }
 
-.node-puerta, .node-nivel {
+.node-puerta,
+.node-nivel {
     background-color: #6b8cae !important;
     color: white !important;
 }
@@ -130,29 +161,6 @@
     object-fit: cover;
 }
 
-.avl-tree-container {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 15px 0;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.avl-tree-container h4 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.avl-tree-container canvas {
-    display: block;
-    margin: 0 auto;
-    background-color: white;
-    border: 1px solid #eee;
-    border-radius: 4px;
-}
-
 .avl-node-container > .avl-node::before {
     content: '';
     position: absolute;
@@ -170,75 +178,14 @@
         flex-direction: column;
         align-items: center;
     }
-    
+
     .avl-children::before {
         display: none;
     }
-    
+
     .avl-node-container > .avl-node::before {
         display: none;
     }
-}
-.avl-tree-container {
-    padding: 20px;
-    margin: 15px 0;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #f8f9fa;
-}
-
-.avl-tree-container h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-.avl-tree-visualization {
-    width: 100%;
-    height: 500px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: auto;
-}
-
-.node {
-    fill: #4CAF50;
-    stroke: #388E3C;
-    stroke-width: 2;
-}
-
-.link {
-    stroke: #999;
-    stroke-width: 2;
-    fill: none;
-}
-.avl-tree-container {
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-
-.avl-tree-visualization {
-    width: 100%;
-    height: 500px;
-    background-color: white;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    overflow: auto;
-}
-
-.node {
-    fill: #4CAF50;
-    stroke: #388E3C;
-    stroke-width: 2;
-}
-
-.link {
-    stroke: #999;
-    stroke-width: 2;
-    fill: none;
 }
 
 .error-message {

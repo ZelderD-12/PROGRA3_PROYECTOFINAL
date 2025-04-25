@@ -14,22 +14,20 @@ class AVLTree {
         this.root = null;
     }
 
-    // Helper function to get height of a node
+    // Helper functions
     getHeight(node) {
         return node ? node.height : 0;
     }
 
-    // Helper function to update height of a node
     updateHeight(node) {
         node.height = Math.max(this.getHeight(node.left), this.getHeight(node.right)) + 1;
     }
 
-    // Helper function to get balance factor
     getBalanceFactor(node) {
         return this.getHeight(node.left) - this.getHeight(node.right);
     }
 
-    // Right rotation
+    // Rotations
     rotateRight(y) {
         const x = y.left;
         const T2 = x.right;
@@ -43,7 +41,6 @@ class AVLTree {
         return x;
     }
 
-    // Left rotation
     rotateLeft(x) {
         const y = x.right;
         const T2 = y.left;
@@ -70,31 +67,20 @@ class AVLTree {
         } else if (value > node.value) {
             node.right = this._insert(node.right, value, data);
         } else {
-            // Duplicate values not allowed (or you could handle them differently)
-            return node;
+            return node; // Duplicate values are not allowed
         }
 
         this.updateHeight(node);
 
         const balance = this.getBalanceFactor(node);
 
-        // Left Left Case
-        if (balance > 1 && value < node.left.value) {
-            return this.rotateRight(node);
-        }
-
-        // Right Right Case
-        if (balance < -1 && value > node.right.value) {
-            return this.rotateLeft(node);
-        }
-
-        // Left Right Case
+        // Balance the tree
+        if (balance > 1 && value < node.left.value) return this.rotateRight(node);
+        if (balance < -1 && value > node.right.value) return this.rotateLeft(node);
         if (balance > 1 && value > node.left.value) {
             node.left = this.rotateLeft(node.left);
             return this.rotateRight(node);
         }
-
-        // Right Left Case
         if (balance < -1 && value < node.right.value) {
             node.right = this.rotateRight(node.right);
             return this.rotateLeft(node);
@@ -111,8 +97,7 @@ class AVLTree {
     _search(node, value) {
         if (!node) return null;
         if (value === node.value) return node;
-        if (value < node.value) return this._search(node.left, value);
-        return this._search(node.right, value);
+        return value < node.value ? this._search(node.left, value) : this._search(node.right, value);
     }
 
     // In-order traversal
@@ -134,7 +119,6 @@ class AVLTree {
 // AVL Tree Visualization Functions
 function initAVLTree(containerId) {
     console.log(`Árbol AVL inicializado en: ${containerId}`);
-    // Inicialización adicional si es necesaria
 }
 
 function dibujarArbolAVL(containerId, data, tipoReporte) {
@@ -144,74 +128,20 @@ function dibujarArbolAVL(containerId, data, tipoReporte) {
         return;
     }
 
-    // Limpiar contenedor
-    container.innerHTML = '';
+    container.innerHTML = ''; // Clear container
 
-    // Crear elementos de visualización
-    const visualization = document.createElement('div');
-    visualization.className = 'avl-tree-visualization';
-    
-    // Crear SVG para el árbol
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    
-    // Grupo principal
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('transform', 'translate(50, 50)');
-    
-    // Ejemplo básico de nodos y conexiones
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('class', 'node');
-    circle.setAttribute('cx', '100');
-    circle.setAttribute('cy', '50');
-    circle.setAttribute('r', '20');
-    
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', '100');
-    text.setAttribute('y', '50');
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('dy', '.3em');
-    text.setAttribute('fill', 'white');
-    text.textContent = 'Raíz';
-    
-    // Ensamblar elementos
-    g.appendChild(circle);
-    g.appendChild(text);
-    svg.appendChild(g);
-    visualization.appendChild(svg);
-    container.appendChild(visualization);
+    const canvas = document.createElement('canvas');
+    canvas.width = container.offsetWidth;
+    canvas.height = 600;
+    container.appendChild(canvas);
 
-    console.log('Árbol AVL dibujado:', {containerId, data, tipoReporte});
-}
-
-function convertirDatosAArbol(data, tipo) {
-    // Esta función convierte tus datos a una estructura de árbol
-    // Implementación básica - debes adaptarla a tus necesidades reales
-    if (tipo === 'historicoEntrada') {
-        return {
-            valor: "Entradas",
-            izquierda: {
-                valor: data[0].instalacion,
-                izquierda: { valor: data[0].puerta },
-                derecha: { valor: data[0].fechas[0] }
-            },
-            derecha: {
-                valor: data[1].instalacion,
-                izquierda: { valor: data[1].puerta },
-                derecha: { valor: data[1].fechas[0] }
-            }
-        };
-    }
-    // Patrones similares para otros tipos de reportes
-    return { valor: "Raíz" }; // Estructura por defecto
+    dibujarArbolEnCanvas(canvas, data);
 }
 
 function dibujarArbolEnCanvas(canvas, arbol) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Función para dibujar un nodo
     function dibujarNodo(x, y, texto) {
         const radio = 20;
         ctx.beginPath();
@@ -225,7 +155,6 @@ function dibujarArbolEnCanvas(canvas, arbol) {
         ctx.fillText(texto, x, y);
     }
 
-    // Función para dibujar una línea
     function dibujarLinea(x1, y1, x2, y2) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
@@ -233,166 +162,69 @@ function dibujarArbolEnCanvas(canvas, arbol) {
         ctx.stroke();
     }
 
-    // Función recursiva para dibujar el árbol
     function dibujar(nodo, x, y, nivel, espacio) {
         if (!nodo) return;
-        
+
         const offsetY = 80;
         const nuevoEspacio = espacio / 2;
-        
-        if (nodo.izquierda) {
+
+        if (nodo.left) {
             const xIzq = x - nuevoEspacio;
             const yIzq = y + offsetY;
             dibujarLinea(x, y + 20, xIzq, yIzq - 20);
-            dibujar(nodo.izquierda, xIzq, yIzq, nivel + 1, nuevoEspacio);
+            dibujar(nodo.left, xIzq, yIzq, nivel + 1, nuevoEspacio);
         }
-        
-        if (nodo.derecha) {
+
+        if (nodo.right) {
             const xDer = x + nuevoEspacio;
             const yDer = y + offsetY;
             dibujarLinea(x, y + 20, xDer, yDer - 20);
-            dibujar(nodo.derecha, xDer, yDer, nivel + 1, nuevoEspacio);
+            dibujar(nodo.right, xDer, yDer, nivel + 1, nuevoEspacio);
         }
-        
-        dibujarNodo(x, y, nodo.valor);
+
+        dibujarNodo(x, y, nodo.value);
     }
 
-    // Iniciar el dibujo desde la raíz
     dibujar(arbol, canvas.width / 2, 50, 0, canvas.width / 3);
 }
 
-function renderTree(container, node, tipoReporte, level = 0) {
-    if (!node) return;
-
-    // Create node element
-    const nodeElement = document.createElement('div');
-    nodeElement.className = `avl-node level-${level}`;
-    
-    // Add specific classes based on report type and node data
-    if (node.data) {
-        switch (node.data.tipo) {
-            case 'instalacion':
-                nodeElement.classList.add('node-instalacion');
-                nodeElement.innerHTML = `<strong>${node.value}</strong>`;
-                break;
-                
-            case 'puerta':
-                nodeElement.classList.add('node-puerta');
-                nodeElement.innerHTML = `<strong>Puerta:</strong> ${node.value.split('-')[1]}`;
-                break;
-                
-            case 'nivel':
-                nodeElement.classList.add('node-nivel');
-                nodeElement.innerHTML = `<strong>Nivel:</strong> ${node.value.split('-')[1]}`;
-                break;
-                
-            case 'salon':
-                nodeElement.classList.add('node-salon');
-                nodeElement.innerHTML = `<strong>Salón:</strong> ${node.value.split('-')[2]}`;
-                break;
-                
-            case 'fecha':
-                nodeElement.classList.add('node-fecha');
-                nodeElement.innerHTML = `<strong>Fecha:</strong> ${node.data.data.fecha}`;
-                break;
-                
-            case 'registro':
-                nodeElement.classList.add('node-registro');
-                nodeElement.classList.add(node.data.asistencia ? 'asistencia-si' : 'asistencia-no');
-                
-                if (tipoReporte === 'fechaEntrada' || tipoReporte === 'fechaSalon') {
-                    nodeElement.innerHTML = `
-                        <div class="registro-info">
-                            <img src="${node.data.data.foto || 'default.jpg'}" alt="Foto" class="registro-foto">
-                            <div>
-                                <p><strong>${node.data.data.nombre || 'Nombre no disponible'}</strong></p>
-                                <p>${node.data.data.correo || 'Correo no disponible'}</p>
-                                <p>${node.data.asistencia ? 'Asistió' : 'No asistió'}</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    nodeElement.innerHTML = `<p>${node.value}</p>`;
-                }
-                break;
-                
-            default:
-                nodeElement.innerHTML = `<p>${node.value}</p>`;
-        }
-    } else {
-        nodeElement.innerHTML = `<p>${node.value}</p>`;
+// Data Conversion Functions
+function convertirDatosAArbol(data, tipo) {
+    if (tipo === 'historicoEntrada') {
+        return {
+            value: "Entradas",
+            left: {
+                value: data[0].instalacion,
+                left: { value: data[0].puerta },
+                right: { value: data[0].fechas[0] }
+            },
+            right: {
+                value: data[1].instalacion,
+                left: { value: data[1].puerta },
+                right: { value: data[1].fechas[0] }
+            }
+        };
     }
-
-    // Add click event for interactive features
-    nodeElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-        // Handle node click (expand/collapse or show details)
-        const children = nodeElement.parentElement.querySelector('.avl-children');
-        if (children) {
-            children.classList.toggle('collapsed');
-        }
-    });
-
-    // Create children container
-    const childrenContainer = document.createElement('div');
-    childrenContainer.className = 'avl-children';
-
-    // Render left and right children
-    if (node.left || node.right) {
-        if (node.left) {
-            const leftChild = renderTree(container, node.left, tipoReporte, level + 1);
-            childrenContainer.appendChild(leftChild);
-        }
-        if (node.right) {
-            const rightChild = renderTree(container, node.right, tipoReporte, level + 1);
-            childrenContainer.appendChild(rightChild);
-        }
-    }
-
-    // Create node container
-    const nodeContainer = document.createElement('div');
-    nodeContainer.className = 'avl-node-container';
-    nodeContainer.appendChild(nodeElement);
-    
-    if (node.left || node.right) {
-        nodeContainer.appendChild(childrenContainer);
-    }
-
-    return nodeContainer;
+    return { value: "Raíz" }; // Default structure
 }
 
-// Sample data functions (replace with actual data fetching)
+// Sample Data Functions
 function obtenerDatosHistorico() {
-    // Mock data for historical report
     return [
-        {
-            instalacion: "Edificio A",
-            puerta: "Principal",
-            fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
-        },
-        {
-            instalacion: "Edificio A",
-            puerta: "Secundaria",
-            fechas: ["2023-05-01", "2023-05-04"]
-        },
-        {
-            instalacion: "Edificio B",
-            puerta: "Principal",
-            fechas: ["2023-05-02", "2023-05-05"]
-        }
+        { instalacion: "Edificio A", puerta: "Principal", fechas: ["2023-05-01", "2023-05-02"] },
+        { instalacion: "Edificio B", puerta: "Secundaria", fechas: ["2023-05-03", "2023-05-04"] }
     ];
 }
 
 function obtenerDatosPorFecha() {
-    // Mock data for date-specific report
     return [
         {
             instalacion: "Edificio A",
             puerta: "Principal",
             fecha: "2023-05-01",
             registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "user1.jpg", asistencia: true },
-                { id: 2, nombre: "María García", correo: "maria@example.com", foto: "user2.jpg", asistencia: false }
+                { id: 1, nombre: "Juan Pérez", asistencia: true },
+                { id: 2, nombre: "María García", asistencia: false }
             ]
         }
     ];
