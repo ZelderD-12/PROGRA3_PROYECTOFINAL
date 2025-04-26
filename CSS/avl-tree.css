@@ -1,0 +1,198 @@
+/* AVL Tree Visualization Styles */
+.avl-tree-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.avl-tree-container h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.avl-tree-container h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.avl-tree-visualization {
+    width: 100%;
+    height: 500px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+.node {
+    fill: #4CAF50;
+    stroke: #388E3C;
+    stroke-width: 2;
+}
+
+.link {
+    stroke: #999;
+    stroke-width: 2;
+    fill: none;
+}
+
+.avl-node-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.avl-node {
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 5px;
+    width: auto;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.avl-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.avl-children {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-top: 20px;
+    position: relative;
+}
+
+.avl-children::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 80%;
+    height: 20px;
+    border-top: 2px solid #999;
+    transform: translateX(-50%);
+}
+
+.avl-children.collapsed {
+    display: none;
+}
+
+/* Level-specific styling */
+.level-0 .avl-node {
+    background-color: #4a6fa5;
+    color: white;
+    font-size: 1.2em;
+}
+
+.level-1 .avl-node {
+    background-color: #6b8cae;
+    color: white;
+}
+
+.level-2 .avl-node {
+    background-color: #8fa8c1;
+}
+
+.level-3 .avl-node {
+    background-color: #b5c5d8;
+}
+
+.level-4 .avl-node {
+    background-color: #dae1eb;
+}
+
+/* Node type specific styling */
+.node-instalacion {
+    background-color: #4a6fa5 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.node-puerta,
+.node-nivel {
+    background-color: #6b8cae !important;
+    color: white !important;
+}
+
+.node-salon {
+    background-color: #8fa8c1 !important;
+}
+
+.node-fecha {
+    background-color: #b5c5d8 !important;
+}
+
+.node-registro {
+    min-width: 250px;
+    text-align: left !important;
+}
+
+.asistencia-si {
+    border-left: 5px solid #4caf50;
+}
+
+.asistencia-no {
+    border-left: 5px solid #f44336;
+}
+
+.registro-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.registro-foto {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avl-node-container > .avl-node::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background-color: #999;
+    transform: translateX(-50%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .avl-children {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .avl-children::before {
+        display: none;
+    }
+
+    .avl-node-container > .avl-node::before {
+        display: none;
+    }
+}
+
+.error-message {
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+    border-left: 4px solid #d32f2f;
+}
