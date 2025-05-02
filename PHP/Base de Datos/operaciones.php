@@ -116,6 +116,7 @@ if (isset($_POST['registrar'])) {
     $celular = trim($_POST['celular']);
     $email = trim($_POST['email']);
     $foto = trim($_POST['foto']);
+    $foto = preg_replace('/^data:image\/\w+;base64,/', '', $foto);
     $seccion = trim($_POST['seccion']);
 
 
@@ -135,13 +136,12 @@ if (isset($_POST['registrar'])) {
         !empty($celular) && !empty($email) && !empty($foto) &&
         isset($indicetipouser) && isset($indicecarrera) && !empty($seccion)
     ) {
-        $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
         if (!$stmt) {
             die("❌ Error en la preparación de la consulta: " . $conexion->error);
         }
-        $actividad=1;
-        $stmt->bind_param("sssssssiisi", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $indicetipouser, $indicecarrera, $seccion, $actividad);
+        $stmt->bind_param("sssssssiis", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $indicetipouser, $indicecarrera, $seccion);
        
         try {
             if ($stmt->execute()) {
@@ -150,7 +150,7 @@ if (isset($_POST['registrar'])) {
                 throw new Exception("Error en la ejecución: " . $stmt->error);
             }
         } catch (Exception $e) {
-            echo "❌ Error al registrar usuario: " . $stmt->error;
+            echo "❌ Error al registrar usuario: " . $e->getMessage() . " - Código de error: " . $stmt->errno;
         }
 
         // Cerrar conexión

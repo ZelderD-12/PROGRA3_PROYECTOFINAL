@@ -37,21 +37,20 @@
             <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="../../index.html" class="back-link">← Volver al login</a>
+        <a href="../../index.php" class="back-link">← Volver al login</a>
                 
         <h2><span id="register-title">Registro</span></h2>
                 
         <div id="error-message" class="error-message hidden"></div>
                 
-        <form id="register-form" action="TomaFoto.php" method="POST">
+        <form id="register-form" action="../Base de Datos/operaciones.php" method="POST">
             <div class="form-grid">
-                <input type="number" name="carnet" placeholder="Carnet" required class="input-field" >
+                <input type="number" name="carnet" placeholder="Carnet" required class="input-field">
                 <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
                 <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" >
                 <input type="password" name="password" placeholder="Contraseña" required class="input-field" >
                 <input type="number" name="celular" placeholder="Celular" required class="input-field" >
                 <input type="email" name="email" placeholder="Email" required class="input-field" >
-                <input type="text" name="foto" placeholder="URL de Foto" class="input-field" >
                 <select name="tipouser" required class="input-field" >
                     <option value="" disabled selected>Seleccione un tipo de usuario</option>
                     <?php
@@ -77,8 +76,16 @@
                     }
                     ?>
         </select>
-
-                <input type="text" name="seccion" placeholder="Sección" class="input-field" >
+        <input type="text" name="seccion" id="seccion" placeholder="Sección" required class="input-field" maxlength="1">
+        <input type="hidden" id="foto" name="foto" placeholder="URL de Foto" required class="input-field">
+                <div class="camera-section">
+    <video id="video" width="320" height="240" autoplay playsinline></video>
+    <br>
+    <button type="button" id="capturar-foto" class="btn">Tomar Foto</button>
+    <br><br>
+    <img id="preview" src="" alt="Foto capturada" style="max-width: 100%; display: none;">
+    <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+</div>
             </div>
             
             <div class="form-actions">
@@ -104,5 +111,12 @@
             }
         });
     </script>
+    <script>
+    document.getElementById('seccion').addEventListener('input', function(e) {
+        // Convertir a mayúsculas automáticamente
+        e.target.value = e.target.value.toUpperCase();
+    });
+</script>
+    <script src=../../Javascript/foto.js></script>
 </body>
 </html>
