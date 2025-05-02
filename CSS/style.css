@@ -1074,4 +1074,16 @@ h2::after {
   }
 }
 
+html, body {
+  height: auto;
+  overflow-y: auto;
+  padding-bottom: 100px;
+}
+
+.camera-section {
+  text-align: center;
+  grid-column: 1 / -1; /* Esto hará que ocupe toda la fila en un grid */
+}
+
+
 
