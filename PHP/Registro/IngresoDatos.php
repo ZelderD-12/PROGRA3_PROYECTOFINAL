@@ -45,12 +45,12 @@
                 
         <form id="register-form" action="../Base de Datos/operaciones.php" method="POST">
             <div class="form-grid">
-                <input type="number" name="carnet" placeholder="Carnet" required class="input-field">
-                <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
-                <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" >
-                <input type="password" name="password" placeholder="Contraseña" required class="input-field" >
-                <input type="number" name="celular" placeholder="Celular" required class="input-field" >
-                <input type="email" name="email" placeholder="Email" required class="input-field" >
+                <input type="number" name="carnet" placeholder="Carnet" required class="input-field" readonly maxlength="50">
+                <input type="text" name="nombres" placeholder="Nombre" required class="input-field" maxlength="100">
+                <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" maxlength="100">
+                <input type="password" name="password" placeholder="Contraseña" required class="input-field" maxlength="50">
+                <input type="text" name="celular" placeholder="Celular" required class="input-field" maxlength="8">
+                <input type="email" name="email" placeholder="Email" required class="input-field" maxlength="50">
                 <select name="tipouser" required class="input-field" >
                     <option value="" disabled selected>Seleccione un tipo de usuario</option>
                     <?php
@@ -94,8 +94,19 @@
             </div>
         </form>
     </div>
-    
     <script>
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Script para generar el carnet aleatorio
+    window.addEventListener('DOMContentLoaded', function () {
+        const textbox = document.getElementsByName('carnet')[0];
+
+        // Genera un número aleatorio entre 100000 y 999999 (6 dígitos)
+        const valorAleatorio = Math.floor(100000000 + Math.random() * 9999999999);
+
+        textbox.value = valorAleatorio;
+    });
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Script para manejar spanish and english language
         document.getElementById("toggle-language").addEventListener("click", function() {
             const isEnglish = document.documentElement.lang === "en";
             if (isEnglish) {
@@ -110,12 +121,34 @@
                 // Actualizar placeholders aquí si es necesario
             }
         });
-    </script>
-    <script>
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ //Mayusuculas automaticas en el campo de seccion
     document.getElementById('seccion').addEventListener('input', function(e) {
         // Convertir a mayúsculas automáticamente
         e.target.value = e.target.value.toUpperCase();
     });
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Script para validar que la foto haya sido tomada
+    document.addEventListener('DOMContentLoaded', function () {
+    const formulario = document.getElementById('register-form');
+    const fotoInput = document.getElementById('foto');
+    const preview = document.getElementById('preview');
+
+    formulario.addEventListener('submit', function (event) {
+        // Validar que la foto haya sido tomada
+        if (!fotoInput.value || preview.style.display === 'none') {
+            event.preventDefault(); // Detiene el envío del formulario
+            alert('⚠️ Debes tomar una foto antes de registrar el usuario.');
+            return false;
+        }
+    });
+});
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//SOLO NUMEROS CAMPO CELULAR
+document.getElementsByName('celular')[0].addEventListener('input', function (e) {
+    this.value = this.value.replace(/\D/g, ''); // Elimina todo lo que no sea número
+});
 </script>
     <script src=../../Javascript/foto.js></script>
 </body>
