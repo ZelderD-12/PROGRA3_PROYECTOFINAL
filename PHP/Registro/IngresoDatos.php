@@ -96,15 +96,30 @@
     </div>
     <script>
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
-//Script para generar el carnet aleatorio
-    window.addEventListener('DOMContentLoaded', function () {
-        const textbox = document.getElementsByName('carnet')[0];
+//Script para generar el carnet aleatorio verificando que no exista ya en la bd
+    window.addEventListener('DOMContentLoaded', async function () {
+    const textbox = document.getElementsByName('carnet')[0];
 
-        // Genera un número aleatorio entre 100000 y 999999 (6 dígitos)
-        const valorAleatorio = Math.floor(100000000 + Math.random() * 9999999999);
+    async function carnetExiste(carnet) {
+        const response = await fetch(`../Base de Datos/verificar_carnet.php?carnet=${carnet}`);
+        const data = await response.json();
+        return data.existe;
+    }
 
-        textbox.value = valorAleatorio;
-    });
+    async function generarCarnetUnico() {
+        let carnet, existe;
+
+        do {
+            carnet = Math.floor(100000000 + Math.random() * 8999999999);
+            existe = await carnetExiste(carnet);
+        } while (existe);
+
+        return carnet;
+    }
+
+    const carnetUnico = await generarCarnetUnico();
+    textbox.value = carnetUnico;
+});
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //Script para manejar spanish and english language
         document.getElementById("toggle-language").addEventListener("click", function() {
