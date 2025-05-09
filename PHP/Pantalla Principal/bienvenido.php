@@ -488,20 +488,93 @@ function confirmarAsistencia() {
     alert('Confirmando asistencia...');
 }
 //----------------------------------------------------------------------------------------------------------------
+// Nueva función para cargar opciones en el combo box
+function cargarCombobox(tipoReporte) {
+    // Lista de opciones según el tipo de reporte
+    let opciones = [];
+    switch (tipoReporte) {
+        case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
+            opciones = [
+                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
+                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
+                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
+                { id: 'puertaSecundaria', nombre: "Puerta Secundaria - Nivel II" }
+            ];
+            break;
+
+        case 'fechaEntrada': // Mostrar solo edificios
+            opciones = [
+                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
+                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
+                { id: 'edificioC', nombre: "Edificio C - Nivel I" }
+            ];
+            break;
+
+        case 'historicoSalon': // Mostrar salones y puertas según el nivel
+            opciones = [
+                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
+                { id: 'salon202', nombre: "Salón 202 - Nivel II" },
+                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
+                { id: 'puertaEmergencia', nombre: "Puerta Emergencia - Nivel I" }
+            ];
+            break;
+
+        case 'fechaSalon': // Mostrar solo salones de un nivel específico
+            opciones = [
+                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
+                { id: 'salon202', nombre: "Salón 202 - Nivel II" }
+            ];
+            break;
+
+        default:
+            console.error('Tipo de reporte no reconocido:', tipoReporte);
+            return;
+    }
+
+    // Obtener el combo box por su ID
+    const comboBox = document.getElementById('report-options-select');
+
+    // Limpiar las opciones existentes
+    comboBox.innerHTML = '';
+
+    // Agregar una opción por defecto
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Seleccione una opción';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    comboBox.appendChild(defaultOption);
+
+    // Agregar las opciones dinámicamente
+    opciones.forEach(opcion => {
+        const option = document.createElement('option');
+        option.value = opcion.id;
+        option.textContent = opcion.nombre;
+        comboBox.appendChild(option);
+    });
+}
+
 // Función principal para mostrar reportes
 function mostrarReporte(tipo) {
     const baseCSSPath = '../../CSS/avl-tree.css';
     const baseJSPath = '../../Javascript/avl-tree.js';
-    
+
     let contenido = '';
     let containerId = '';
-    
+
     switch (tipo) {
         case 'historicoEntrada':
             containerId = 'avl-tree-historico';
             contenido = `
                 <h3>Reporte Histórico de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos históricos de ingresos.</p>
+                <div class="report-options">
+                    <label for="report-options-select">Selecciona una opción:</label>
+                    <select id="report-options-select">
+                        <!-- Las opciones se cargarán dinámicamente -->
+                    </select>
+                    <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
+                </div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -510,6 +583,13 @@ function mostrarReporte(tipo) {
             contenido = `
                 <h3>Reporte por Fecha de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos por fecha de ingresos.</p>
+                <div class="report-options">
+                    <label for="report-options-select">Selecciona una opción:</label>
+                    <select id="report-options-select">
+                        <!-- Las opciones se cargarán dinámicamente -->
+                    </select>
+                    <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
+                </div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -518,6 +598,13 @@ function mostrarReporte(tipo) {
             contenido = `
                 <h3>Reporte Histórico por Salón</h3>
                 <p>Visualización del árbol AVL con datos históricos por salón.</p>
+                <div class="report-options">
+                    <label for="report-options-select">Selecciona una opción:</label>
+                    <select id="report-options-select">
+                        <!-- Las opciones se cargarán dinámicamente -->
+                    </select>
+                    <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
+                </div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -526,6 +613,13 @@ function mostrarReporte(tipo) {
             contenido = `
                 <h3>Reporte por Fecha y Salón</h3>
                 <p>Visualización del árbol AVL con datos por fecha y salón.</p>
+                <div class="report-options">
+                    <label for="report-options-select">Selecciona una opción:</label>
+                    <select id="report-options-select">
+                        <!-- Las opciones se cargarán dinámicamente -->
+                    </select>
+                    <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
+                </div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -535,19 +629,22 @@ function mostrarReporte(tipo) {
     }
 
     document.getElementById('info-content').innerHTML = contenido;
-    
+
+    // Cargar las opciones del combo box dinámicamente según el tipo de reporte
+    cargarCombobox(tipo);
+
     if (containerId) {
         cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-            // Obtener datos según el tipo de reporte
-            const datos = obtenerDatosParaReporte(tipo);
-            
-            // Convertir datos a estructura de árbol AVL
-            const arbol = construirArbolDesdeDatos(datos, tipo);
-            
-            // Dibujar el árbol en el contenedor
-            dibujarArbolAVLCompleto(containerId, arbol);
+            console.log('Recursos AVL cargados.');
         });
     }
+}
+
+// Nueva función para manejar el evento del botón "Dibujar"
+function dibujarArbol(containerId, tipo) {
+    const datos = obtenerDatosParaReporte(tipo);
+    const arbol = construirArbolDesdeDatos(datos, tipo);
+    dibujarArbolAVLCompleto(containerId, arbol);
 }
 
 // Función mejorada para cargar recursos
@@ -613,15 +710,18 @@ function obtenerDatosParaReporte(tipo) {
 
 // Función para construir la estructura del árbol desde los datos
 function construirArbolDesdeDatos(datos, tipo) {
-    // Esta función transforma los datos en una estructura de árbol
-    // que puede ser dibujada por dibujarArbolAVLCompleto
-    
+    // Obtener el valor seleccionado del combo box
+    const comboBox = document.getElementById('report-options-select');
+    const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
+
+    // Crear el nodo raíz con el valor seleccionado
     const nodoRaiz = {
-        valor: "Raíz",
+        valor: valorRaiz,
         nivel: 0,
         hijos: []
     };
 
+    // Construir el árbol según el tipo de reporte
     switch (tipo) {
         case 'historicoEntrada':
             datos.forEach(entrada => {
@@ -630,13 +730,13 @@ function construirArbolDesdeDatos(datos, tipo) {
                     nivel: 1,
                     hijos: []
                 };
-                
+
                 const nodoPuerta = {
                     valor: entrada.puerta,
                     nivel: 2,
                     hijos: []
                 };
-                
+
                 entrada.fechas.forEach(fecha => {
                     nodoPuerta.hijos.push({
                         valor: fecha,
@@ -644,12 +744,12 @@ function construirArbolDesdeDatos(datos, tipo) {
                         hijos: []
                     });
                 });
-                
+
                 nodoInstalacion.hijos.push(nodoPuerta);
                 nodoRaiz.hijos.push(nodoInstalacion);
             });
             break;
-            
+
         case 'fechaEntrada':
             datos.forEach(entrada => {
                 const nodoInstalacion = {
@@ -657,13 +757,13 @@ function construirArbolDesdeDatos(datos, tipo) {
                     nivel: 1,
                     hijos: []
                 };
-                
+
                 const nodoFecha = {
                     valor: entrada.fecha,
                     nivel: 2,
                     hijos: []
                 };
-                
+
                 entrada.registros.forEach(registro => {
                     nodoFecha.hijos.push({
                         valor: registro.nombre,
@@ -672,12 +772,12 @@ function construirArbolDesdeDatos(datos, tipo) {
                         hijos: []
                     });
                 });
-                
+
                 nodoInstalacion.hijos.push(nodoFecha);
                 nodoRaiz.hijos.push(nodoInstalacion);
             });
             break;
-            
+
         case 'historicoSalon':
             datos.forEach(salon => {
                 const nodoInstalacion = {
@@ -685,19 +785,19 @@ function construirArbolDesdeDatos(datos, tipo) {
                     nivel: 1,
                     hijos: []
                 };
-                
+
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 2,
                     hijos: []
                 };
-                
+
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 3,
                     hijos: []
                 };
-                
+
                 salon.estudiantes.forEach(est => {
                     nodoSalon.hijos.push({
                         valor: `${est.nombre} (${est.tipo})`,
@@ -706,13 +806,13 @@ function construirArbolDesdeDatos(datos, tipo) {
                         hijos: []
                     });
                 });
-                
+
                 nodoNivel.hijos.push(nodoSalon);
                 nodoInstalacion.hijos.push(nodoNivel);
                 nodoRaiz.hijos.push(nodoInstalacion);
             });
             break;
-            
+
         case 'fechaSalon':
             datos.forEach(salon => {
                 const nodoInstalacion = {
@@ -720,25 +820,25 @@ function construirArbolDesdeDatos(datos, tipo) {
                     nivel: 1,
                     hijos: []
                 };
-                
+
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 2,
                     hijos: []
                 };
-                
+
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 3,
                     hijos: []
                 };
-                
+
                 const nodoFecha = {
                     valor: salon.fecha,
                     nivel: 4,
                     hijos: []
                 };
-                
+
                 salon.registros.forEach(reg => {
                     nodoFecha.hijos.push({
                         valor: `${reg.nombre} (${reg.tipo})`,
@@ -747,15 +847,19 @@ function construirArbolDesdeDatos(datos, tipo) {
                         hijos: []
                     });
                 });
-                
+
                 nodoSalon.hijos.push(nodoFecha);
                 nodoNivel.hijos.push(nodoSalon);
                 nodoInstalacion.hijos.push(nodoNivel);
                 nodoRaiz.hijos.push(nodoInstalacion);
             });
             break;
+
+        default:
+            console.error('Tipo de reporte no reconocido:', tipo);
+            break;
     }
-    
+
     return nodoRaiz;
 }
 
@@ -1068,6 +1172,77 @@ function abrirEstadisticas() {
         <p>Datos estadísticos del sistema.</p>
     `;
 }
+
+// Nueva función para cargar edificios
+function cargarEdificios() {
+    // Lista de edificios (puedes reemplazar esto con datos dinámicos desde el servidor si es necesario)
+    let opciones = [];
+    switch (tipoReporte) {
+        case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
+            opciones = [
+                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
+                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
+                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
+                { id: 'puertaSecundaria', nombre: "Puerta Secundaria - Nivel II" }
+            ];
+            break;
+
+        case 'fechaEntrada': // Mostrar solo edificios
+            opciones = [
+                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
+                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
+                { id: 'edificioC', nombre: "Edificio C - Nivel I" }
+            ];
+            break;
+
+        case 'historicoSalon': // Mostrar salones y puertas según el nivel
+            opciones = [
+                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
+                { id: 'salon202', nombre: "Salón 202 - Nivel II" },
+                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
+                { id: 'puertaEmergencia', nombre: "Puerta Emergencia - Nivel I" }
+            ];
+            break;
+
+        case 'fechaSalon': // Mostrar solo salones de un nivel específico
+            opciones = [
+                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
+                { id: 'salon202', nombre: "Salón 202 - Nivel II" }
+            ];
+            break;
+
+        default:
+            console.error('Tipo de reporte no reconocido:', tipoReporte);
+            return;
+    }
+
+    // Obtener el combo box por su ID
+    const comboBox = document.getElementById('report-options-select');
+
+    // Limpiar las opciones existentes
+    comboBox.innerHTML = '';
+
+    // Agregar una opción por defecto
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Seleccione una opción';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    comboBox.appendChild(defaultOption);
+
+    // Agregar las opciones dinámicamente
+    opciones.forEach(opcion => {
+        const option = document.createElement('option');
+        option.value = opcion.id;
+        option.textContent = opcion.nombre;
+        comboBox.appendChild(option);
+    });
+}
+
+// Llamar a la función cargarEdificios cuando se cargue la página
+document.addEventListener('DOMContentLoaded', function() {
+    cargarEdificios();
+});
     </script>
 </head>
 <body>
