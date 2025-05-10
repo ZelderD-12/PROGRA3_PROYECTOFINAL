@@ -1157,93 +1157,643 @@ function abrirRegistroGeneral() {
     `;
 }
 
-function abrirAsistenciasGenerales() {
-    // Función para mostrar todas las asistencias (compartida entre admin y desarrollador)
-    document.getElementById('info-content').innerHTML = `
-        <h3>Asistencias Generales</h3>
-        <p>Resumen de todas las asistencias.</p>
-    `;
-}
 
+// Función para mostrar estadísticas con gráficos
 function abrirEstadisticas() {
-    // Función para mostrar estadísticas (compartida entre admin y desarrollador)
     document.getElementById('info-content').innerHTML = `
-        <h3>Estadísticas</h3>
-        <p>Datos estadísticos del sistema.</p>
+        <div class="stats-container">
+            <h3>Estadísticas de Asistencia</h3>
+            
+            <div class="stats-controls">
+                <div class="form-group">
+                    <label for="report-type">Tipo de Reporte:</label>
+                    <select id="report-type" class="form-control" onchange="cambiarTipoReporte()">
+                        <option value="asistencia">Asistencia por Salón</option>
+                        <option value="comparativa-salones">Comparativa entre Salones</option>
+                        <option value="comparativa-docentes">Comparativa entre Docentes</option>
+                    </select>
+                </div>
+                
+                <div id="salon-control" class="form-group">
+                    <label for="salon-select">Seleccionar Salón:</label>
+                    <select id="salon-select" class="form-control">
+                        <option value="" disabled selected>-- Seleccione --</option>
+                        <option value="101">Salón 101</option>
+                        <option value="202">Salón 202</option>
+                        <option value="303">Salón 303</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="chart-type">Tipo de Gráfico:</label>
+                    <select id="chart-type" class="form-control">
+                        <option value="bar">Barras</option>
+                        <option value="line">Líneas</option>
+                        <option value="pie">Circular</option>
+                        <option value="doughnut">Dona</option>
+                        <option value="radar">Radar</option>
+                    </select>
+                </div>
+                
+                <div class="form-group date-range">
+                    <label for="rango-fechas">Rango de Fechas:</label>
+                    <div class="date-inputs">
+                        <input type="date" id="fecha-inicio" class="form-control">
+                        <span>a</span>
+                        <input type="date" id="fecha-fin" class="form-control">
+                    </div>
+                </div>
+                
+                <button onclick="cargarEstadisticas()" class="btn-generar">
+                    <i class="fas fa-chart-bar"></i> Generar Grafico
+                </button>
+            </div>
+            
+            <div id="loading-spinner" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Generando estadísticas...</p>
+            </div>
+            
+            <div id="stats-results" class="stats-results">
+                <div class="placeholder-message">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>Seleccione los parámetros para generar el reporte estadístico</p>
+                </div>
+            </div>
+            
+            <div id="stats-error" class="stats-error"></div>
+        </div>
     `;
+    
+    // Establecer fechas por defecto (últimos 7 días)
+    const hoy = new Date();
+    const hace7Dias = new Date();
+    hace7Dias.setDate(hoy.getDate() - 7);
+    
+    document.getElementById('fecha-inicio').valueAsDate = hace7Dias;
+    document.getElementById('fecha-fin').valueAsDate = hoy;
+    
+    // Ocultar spinner inicialmente
+    document.getElementById('loading-spinner').style.display = 'none';
 }
 
-// Nueva función para cargar edificios
-function cargarEdificios() {
-    // Lista de edificios (puedes reemplazar esto con datos dinámicos desde el servidor si es necesario)
-    let opciones = [];
-    switch (tipoReporte) {
-        case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
-            opciones = [
-                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
-                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
-                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
-                { id: 'puertaSecundaria', nombre: "Puerta Secundaria - Nivel II" }
-            ];
-            break;
-
-        case 'fechaEntrada': // Mostrar solo edificios
-            opciones = [
-                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
-                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
-                { id: 'edificioC', nombre: "Edificio C - Nivel I" }
-            ];
-            break;
-
-        case 'historicoSalon': // Mostrar salones y puertas según el nivel
-            opciones = [
-                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
-                { id: 'salon202', nombre: "Salón 202 - Nivel II" },
-                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
-                { id: 'puertaEmergencia', nombre: "Puerta Emergencia - Nivel I" }
-            ];
-            break;
-
-        case 'fechaSalon': // Mostrar solo salones de un nivel específico
-            opciones = [
-                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
-                { id: 'salon202', nombre: "Salón 202 - Nivel II" }
-            ];
-            break;
-
-        default:
-            console.error('Tipo de reporte no reconocido:', tipoReporte);
-            return;
+function cambiarTipoReporte() {
+    const tipo = document.getElementById('report-type').value;
+    const salonControl = document.getElementById('salon-control');
+    
+    if (tipo === 'asistencia') {
+        salonControl.style.display = 'block';
+    } else {
+        salonControl.style.display = 'none';
     }
+}
 
-    // Obtener el combo box por su ID
-    const comboBox = document.getElementById('report-options-select');
+function cargarEstadisticas() {
+    const tipo = document.getElementById('report-type').value;
+    const salon = tipo === 'asistencia' ? document.getElementById('salon-select').value : '';
+    const fechaInicio = document.getElementById('fecha-inicio').value;
+    const fechaFin = document.getElementById('fecha-fin').value;
+    const chartType = document.getElementById('chart-type').value;
+    
+    // Validaciones
+    if (tipo === 'asistencia' && !salon) {
+        mostrarError('Por favor seleccione un salón');
+        return;
+    }
+    
+    if (!fechaInicio || !fechaFin) {
+        mostrarError('Por favor seleccione un rango de fechas válido');
+        return;
+    }
+    
+    if (new Date(fechaFin) < new Date(fechaInicio)) {
+        mostrarError('La fecha final no puede ser anterior a la fecha inicial');
+        return;
+    }
+    
+    // Mostrar spinner de carga
+    document.getElementById('loading-spinner').style.display = 'flex';
+    document.getElementById('stats-results').innerHTML = '';
+    document.getElementById('stats-error').innerHTML = '';
+    
+    // Realizar petición al servidor
+    fetch(`get_stats.php?tipo=${tipo}&salon=${salon}&inicio=${fechaInicio}&fin=${fechaFin}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            mostrarResultadosEstadisticas(data, tipo, chartType);
+        })
+        .catch(error => {
+            console.error('Error al cargar estadísticas:', error);
+            mostrarError(`Error al generar el reporte: ${error.message}`);
+        })
+        .finally(() => {
+            document.getElementById('loading-spinner').style.display = 'none';
+        });
+}
 
-    // Limpiar las opciones existentes
-    comboBox.innerHTML = '';
+function mostrarResultadosEstadisticas(data, tipo, chartType) {
+    const container = document.getElementById('stats-results');
+    
+    // Plantilla base para el resumen estadístico
+    let htmlContent = `
+        <div class="stats-summary">
+            <h4>Reporte: ${obtenerTituloReporte(tipo)} (${data.fecha_inicio} a ${data.fecha_fin})</h4>
+            <div class="stats-grid">
+                ${generarResumenEstadistico(data, tipo)}
+            </div>
+        </div>
+        <div class="stats-charts">
+            <h4>Visualización de Datos</h4>
+            ${generarContenedoresGraficos(tipo, chartType)}
+        </div>
+    `;
 
-    // Agregar una opción por defecto
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'Seleccione una opción';
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    comboBox.appendChild(defaultOption);
+    container.innerHTML = htmlContent;
+    
+    // Crear los gráficos según el tipo
+    switch(tipo) {
+        case 'asistencia':
+            crearGraficosAsistencia(data, chartType);
+            break;
+        case 'comparativa-salones':
+            crearGraficosComparativaSalones(data, chartType);
+            break;
+        case 'comparativa-docentes':
+            crearGraficosComparativaDocentes(data, chartType);
+            break;
+    }
+}
 
-    // Agregar las opciones dinámicamente
-    opciones.forEach(opcion => {
-        const option = document.createElement('option');
-        option.value = opcion.id;
-        option.textContent = opcion.nombre;
-        comboBox.appendChild(option);
+function obtenerTituloReporte(tipo) {
+    const titulos = {
+        'asistencia': `Asistencia Salón ${document.getElementById('salon-select').value}`,
+        'comparativa-salones': 'Comparativa entre Salones',
+        'comparativa-docentes': 'Comparativa entre Docentes'
+    };
+    return titulos[tipo] || 'Reporte Estadístico';
+}
+
+function generarResumenEstadistico(data, tipo) {
+    if (tipo === 'asistencia') {
+        return `
+            <div class="stat-item">
+                <span class="stat-label">Total Estudiantes:</span>
+                <span class="stat-value">${data.total_estudiantes || 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Asistencia Promedio:</span>
+                <span class="stat-value">${data.asistencia_promedio ? data.asistencia_promedio + '%' : 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Día con más asistencia:</span>
+                <span class="stat-value">${data.dia_max_asistencia || 'N/A'} (${data.max_asistencia || 0} estudiantes)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Día con menos asistencia:</span>
+                <span class="stat-value">${data.dia_min_asistencia || 'N/A'} (${data.min_asistencia || 0} estudiantes)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Estudiante con mejor asistencia:</span>
+                <span class="stat-value">${data.estudiante_top?.nombre || 'N/A'} (${data.estudiante_top?.asistencias || 0} asistencias)</span>
+            </div>
+        `;
+    } else if (tipo === 'comparativa-salones') {
+        return `
+            <div class="stat-item">
+                <span class="stat-label">Total Estudiantes:</span>
+                <span class="stat-value">${data.total_estudiantes || 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Salón con más asistencia:</span>
+                <span class="stat-value">${data.salon_max_asistencia || 'N/A'} (${data.max_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Salón con menos asistencia:</span>
+                <span class="stat-value">${data.salon_min_asistencia || 'N/A'} (${data.min_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Diferencia porcentual:</span>
+                <span class="stat-value">${(data.max_asistencia - data.min_asistencia).toFixed(2) || 0}%</span>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="stat-item">
+                <span class="stat-label">Docente con mejor asistencia:</span>
+                <span class="stat-value">${data.docente_max_asistencia || 'N/A'} (${data.max_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Docente con menor asistencia:</span>
+                <span class="stat-value">${data.docente_min_asistencia || 'N/A'} (${data.min_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Diferencia porcentual:</span>
+                <span class="stat-value">${data.diferencia || 0}%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total estudiantes:</span>
+                <span class="stat-value">${data.estudiantes_por_docente?.reduce((a, b) => a + b, 0) || 'N/A'}</span>
+            </div>
+        `;
+    }
+}
+
+function generarContenedoresGraficos(tipo, chartType) {
+    let chartsHTML = '';
+    
+    if (tipo === 'asistencia') {
+        chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="asistenciaChart"></canvas>
+                    <div class="chart-legend">Asistencia diaria</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="asistenciaHoraChart"></canvas>
+                    <div class="chart-legend">Asistencia por hora</div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="topEstudiantesChart"></canvas>
+                    <div class="chart-legend">Top 5 estudiantes</div>
+                </div>
+            </div>
+        `;
+    } else if (tipo === 'comparativa-salones') {
+        chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="comparativaSalonesChart"></canvas>
+                    <div class="chart-legend">Comparativa porcentual</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="totalSalonesChart"></canvas>
+                    <div class="chart-legend">Total asistencias</div>
+                </div>
+            </div>
+        `;
+    } else {
+        chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="comparativaDocentesChart"></canvas>
+                    <div class="chart-legend">Comparativa porcentual</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="estudiantesDocentesChart"></canvas>
+                    <div class="chart-legend">Estudiantes por docente</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    return chartsHTML;
+}
+
+function crearGraficosAsistencia(data, chartType) {
+    // Gráfico de asistencia diaria
+    crearChart(
+        'asistenciaChart',
+        chartType,
+        data.dias_semana,
+        ['Estudiantes presentes'],
+        [data.asistencias_diarias],
+        'Asistencia Diaria',
+        'Número de estudiantes',
+        ['rgba(54, 162, 235, 0.7)'],
+        true
+    );
+    
+    // Gráfico de asistencia por hora
+    crearChart(
+        'asistenciaHoraChart',
+        'line',
+        data.horas_dia,
+        ['Porcentaje de asistencia'],
+        [data.asistencia_por_hora],
+        'Asistencia por Hora',
+        'Porcentaje de asistencia',
+        ['rgba(255, 99, 132, 0.7)'],
+        true
+    );
+    
+    // Gráfico de top estudiantes
+    const topEstudiantes = [...data.estudiantes]
+        .sort((a, b) => b.asistencias - a.asistencias)
+        .slice(0, 5);
+    
+    crearChart(
+        'topEstudiantesChart',
+        'bar',
+        topEstudiantes.map(e => e.nombre),
+        ['Asistencias', 'Inasistencias'],
+        [
+            topEstudiantes.map(e => e.asistencias),
+            topEstudiantes.map(e => e.inasistencias)
+        ],
+        'Top 5 Estudiantes',
+        'Número de días',
+        ['rgba(75, 192, 192, 0.7)', 'rgba(255, 159, 64, 0.7)'],
+        true
+    );
+}
+
+function crearGraficosComparativaSalones(data, chartType) {
+    // Gráfico comparativo porcentual
+    crearChart(
+        'comparativaSalonesChart',
+        chartType,
+        data.salones,
+        ['Porcentaje de asistencia'],
+        [data.porcentajes_asistencia],
+        'Comparativa entre Salones',
+        'Porcentaje de asistencia',
+        [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(75, 192, 192, 0.7)'
+        ],
+        true
+    );
+    
+    // Gráfico de total asistencias
+    crearChart(
+        'totalSalonesChart',
+        'doughnut',
+        data.salones,
+        ['Total asistencias'],
+        [data.total_asistencias],
+        'Total de Asistencias',
+        'Número de asistencias',
+        [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(75, 192, 192, 0.7)'
+        ],
+        false
+    );
+}
+
+function crearGraficosComparativaDocentes(data, chartType) {
+    // Gráfico comparativo porcentual
+    crearChart(
+        'comparativaDocentesChart',
+        chartType,
+        data.docentes,
+        ['Porcentaje de asistencia'],
+        [data.porcentajes_asistencia],
+        'Comparativa entre Docentes',
+        'Porcentaje de asistencia',
+        [
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(201, 203, 207, 0.7)'
+        ],
+        true
+    );
+    
+    // Gráfico de estudiantes por docente
+    crearChart(
+        'estudiantesDocentesChart',
+        'pie',
+        data.docentes,
+        ['Estudiantes'],
+        [data.estudiantes_por_docente],
+        'Estudiantes por Docente',
+        'Número de estudiantes',
+        [
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(201, 203, 207, 0.7)'
+        ],
+        false
+    );
+}
+
+function crearChart(canvasId, type, labels, datasetsLabels, datasetsData, title, yLabel, colors, showLegend) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    
+    // Preparar datasets
+    const datasets = [];
+    for (let i = 0; i < datasetsLabels.length; i++) {
+        datasets.push({
+            label: datasetsLabels[i],
+            data: datasetsData[i],
+            backgroundColor: colors[i % colors.length],
+            borderColor: colors[i % colors.length].replace('0.7', '1'),
+            borderWidth: 1,
+            fill: type === 'line'
+        });
+    }
+    
+    // Configuración común
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 2000,
+            easing: 'easeOutQuart'
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: title,
+                font: {
+                    size: 16
+                }
+            },
+            legend: {
+                display: showLegend,
+                position: 'top'
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: !!yLabel,
+                    text: yLabel
+                }
+            }
+        }
+    };
+    
+    // Configuración específica para radar
+    if (type === 'radar') {
+        commonOptions.scales = {
+            r: {
+                angleLines: {
+                    display: true
+                },
+                suggestedMin: 0,
+                suggestedMax: 100
+            }
+        };
+    }
+    
+    new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: commonOptions
     });
 }
 
-// Llamar a la función cargarEdificios cuando se cargue la página
+function mostrarError(mensaje) {
+    const errorContainer = document.getElementById('stats-error');
+    errorContainer.innerHTML = `
+        <div class="error-message">
+            <i class="fas fa-times-circle"></i>
+            <p>${mensaje}</p>
+            <button onclick="cargarEstadisticas()" class="btn-reintentar">
+                <i class="fas fa-sync-alt"></i> Reintentar
+            </button>
+        </div>
+    `;
+}
+
+// Añadir estilos al documento
 document.addEventListener('DOMContentLoaded', function() {
-    cargarEdificios();
+    // Cargar Chart.js dinámicamente
+    const chartScript = document.createElement('script');
+    chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+    chartScript.onload = function() {
+        // Cargar animaciones adicionales
+        const chartAnimationScript = document.createElement('script');
+        chartAnimationScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-animation@1.1.1';
+        document.head.appendChild(chartAnimationScript);
+    };
+    document.head.appendChild(chartScript);
+    
+    // Agregar estilos CSS
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `
+        .stats-container {
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Controles responsivos */
+.stats-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+/* Contenedor de gráficos ajustado */
+.chart-container {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    height: 300px; /* Altura fija */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ajuste específico para móviles */
+@media (max-width: 768px) {
+    .stats-container {
+        padding: 12px;
+    }
+    
+    .stats-controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .chart-container {
+        height: 280px;
+        padding: 12px;
+    }
+    
+    /* Animaciones optimizadas para móvil */
+    .stat-item:hover {
+        transform: none; /* Desactiva hover en móvil */
+    }
+    
+    .btn-generar:hover {
+        transform: none;
+    }
+}
+
+/* Animaciones mejoradas */
+@keyframes smoothAppear {
+    0% { 
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-results {
+    animation: smoothAppear 0.4s ease-out;
+}
+
+/* Spinner optimizado */
+.loading-spinner {
+    height: 200px;
+    animation: smoothAppear 0.3s ease-out;
+}
+
+/* Efectos hover solo para desktop */
+@media (min-width: 769px) {
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .btn-generar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .chart-container:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+}
+    `;
+    document.head.appendChild(styleElement);
 });
-    </script>
+
+
+
+// Inicializar cuando Chart.js esté cargado
+if (typeof Chart !== 'undefined') {
+    initEstadisticasButton();
+} else {
+    const checkChartLoaded = setInterval(() => {
+        if (typeof Chart !== 'undefined') {
+            clearInterval(checkChartLoaded);
+            initEstadisticasButton();
+        }
+    }, 100);
+}
+</script>
 </head>
 <body>
     <div class="container">
