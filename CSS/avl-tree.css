@@ -1,198 +1,850 @@
-/* AVL Tree Visualization Styles */
+/* ========== VARIABLES NEO-TECH ========== */
+:root {
+  --deep-space: #0a0e17;
+  --tech-gray: #1a1d2b;
+  --light-void: #252a3f;
+  --neon-blue: #00f0ff;
+  --neon-purple: #7b2dff;
+  --neon-accent: #00c8d0;
+  --neon-pink: #ff2d75;
+  --neon-green: #00ff88;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a8c0;
+  --transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --border-glow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+/* ========== AVL TREE CONTAINER ========== */
 .avl-tree-container {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    margin: 15px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Orbitron', 'Inter', sans-serif;
+  padding: 2rem;
+  margin: 2rem auto;
+  border: 1px solid var(--light-void);
+  border-radius: 12px;
+  background: rgba(26, 29, 43, 0.85);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 200, 208, 0.1);
+  backdrop-filter: blur(6px);
+  max-width: 95vw;
+  overflow: hidden;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.avl-tree-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid transparent;
+  border-image: linear-gradient(135deg, 
+    transparent 20%, 
+    var(--neon-accent) 50%, 
+    transparent 80%) 1;
+  pointer-events: none;
+  animation: borderPulse 6s infinite linear;
+  z-index: -1;
+}
+
+.avl-tree-container h3, 
+.avl-tree-container h4 {
+  color: var(--neon-accent);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 5px rgba(0, 200, 208, 0.3);
+  animation: textGlow 3s infinite alternate;
 }
 
 .avl-tree-container h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  position: relative;
 }
 
-.avl-tree-container h4 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    text-align: center;
+.avl-tree-container h3::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: lineExpand 0.8s ease-out 0.8s forwards;
+  transform-origin: left center;
+  transform: scaleX(0);
 }
 
+/* ========== TREE VISUALIZATION ========== */
 .avl-tree-visualization {
-    width: 100%;
-    height: 500px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: auto;
+  width: 100%;
+  min-height: 500px;
+  background: rgba(37, 42, 63, 0.5);
+  border: 1px solid var(--light-void);
+  border-radius: 8px;
+  overflow: auto;
+  padding: 2rem;
+  margin: 1rem 0;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-.node {
-    fill: #4CAF50;
-    stroke: #388E3C;
-    stroke-width: 2;
-}
-
-.link {
-    stroke: #999;
-    stroke-width: 2;
-    fill: none;
-}
-
+/* ========== NODE STYLES ========== */
 .avl-node-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem;
+  position: relative;
+  animation: nodeEntrance 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .avl-node {
-    padding: 10px 15px;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 5px;
-    width: auto;
-    text-align: center;
-    border: 1px solid #ddd;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  background: rgba(26, 29, 43, 0.9);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(0, 200, 208, 0.1);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 0.5rem;
+  width: auto;
+  text-align: center;
+  border: 1px solid var(--light-void);
+  color: var(--text-primary);
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+  min-width: 120px;
 }
 
 .avl-node:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(0, 200, 208, 0.2);
+  border-color: var(--neon-accent);
 }
 
+.avl-node::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  background: linear-gradient(to bottom, 
+    transparent, 
+    var(--neon-accent));
+  transform: translateX(-50%);
+  animation: lineExpand 0.6s ease-out forwards;
+}
+
+/* ========== CHILDREN CONTAINER ========== */
 .avl-children {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding-top: 20px;
-    position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: 2rem;
+  position: relative;
 }
 
 .avl-children::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 80%;
-    height: 20px;
-    border-top: 2px solid #999;
-    transform: translateX(-50%);
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 80%;
+  height: 20px;
+  border-top: 2px solid var(--neon-accent);
+  transform: translateX(-50%);
+  opacity: 0.5;
+  animation: lineExpand 0.8s ease-out forwards;
 }
 
 .avl-children.collapsed {
-    display: none;
+  display: none;
 }
 
-/* Level-specific styling */
+/* ========== LEVEL SPECIFIC STYLES ========== */
 .level-0 .avl-node {
-    background-color: #4a6fa5;
-    color: white;
-    font-size: 1.2em;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  color: var(--deep-space);
+  font-weight: bold;
+  font-size: 1.2em;
+  box-shadow: 
+    0 4px 15px rgba(123, 45, 255, 0.4),
+    0 0 20px rgba(0, 240, 255, 0.2);
 }
 
 .level-1 .avl-node {
-    background-color: #6b8cae;
-    color: white;
+  background: linear-gradient(135deg, var(--light-void), var(--neon-purple));
+  color: var(--text-primary);
+  box-shadow: 
+    0 4px 12px rgba(123, 45, 255, 0.3),
+    0 0 15px rgba(123, 45, 255, 0.1);
 }
 
 .level-2 .avl-node {
-    background-color: #8fa8c1;
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void));
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(0, 200, 208, 0.1);
 }
 
 .level-3 .avl-node {
-    background-color: #b5c5d8;
+  background: linear-gradient(135deg, var(--deep-space), var(--tech-gray));
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 0 10px rgba(0, 200, 208, 0.1);
 }
 
 .level-4 .avl-node {
-    background-color: #dae1eb;
+  background: var(--deep-space);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.2),
+    0 0 8px rgba(0, 200, 208, 0.1);
 }
 
-/* Node type specific styling */
+/* ========== NODE TYPE SPECIFIC ========== */
 .node-instalacion {
-    background-color: #4a6fa5 !important;
-    color: white !important;
-    font-weight: bold;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue)) !important;
+  color: var(--deep-space) !important;
+  font-weight: bold !important;
 }
 
 .node-puerta,
 .node-nivel {
-    background-color: #6b8cae !important;
-    color: white !important;
+  background: linear-gradient(135deg, var(--light-void), var(--neon-purple)) !important;
+  color: var(--text-primary) !important;
 }
 
 .node-salon {
-    background-color: #8fa8c1 !important;
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void)) !important;
 }
 
 .node-fecha {
-    background-color: #b5c5d8 !important;
+  background: linear-gradient(135deg, var(--deep-space), var(--tech-gray)) !important;
 }
 
 .node-registro {
-    min-width: 250px;
-    text-align: left !important;
+  min-width: 250px;
+  text-align: left !important;
+  background: rgba(26, 29, 43, 0.95) !important;
 }
 
+/* ========== ASISTENCIA STATES ========== */
 .asistencia-si {
-    border-left: 5px solid #4caf50;
+  border-left: 5px solid var(--neon-green);
+  box-shadow: 
+    0 0 15px rgba(0, 255, 136, 0.2) !important;
 }
 
 .asistencia-no {
-    border-left: 5px solid #f44336;
+  border-left: 5px solid var(--neon-pink);
+  box-shadow: 
+    0 0 15px rgba(255, 45, 117, 0.2) !important;
 }
 
+/* ========== REGISTRO INFO ========== */
 .registro-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: fadeIn 0.6s ease-out forwards;
 }
 
 .registro-foto {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--neon-accent);
+  box-shadow: 0 0 10px rgba(0, 200, 208, 0.3);
+  transition: var(--transition);
 }
 
-.avl-node-container > .avl-node::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    width: 2px;
-    height: 20px;
-    background-color: #999;
-    transform: translateX(-50%);
+.registro-foto:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 200, 208, 0.5);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .avl-children {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .avl-children::before {
-        display: none;
-    }
-
-    .avl-node-container > .avl-node::before {
-        display: none;
-    }
-}
-
+/* ========== ERROR MESSAGE ========== */
 .error-message {
-    color: #d32f2f;
-    background-color: #ffebee;
-    padding: 15px;
-    border-radius: 4px;
-    margin-top: 20px;
-    border-left: 4px solid #d32f2f;
+  color: var(--neon-pink);
+  background: rgba(255, 45, 117, 0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+  border-left: 4px solid var(--neon-pink);
+  animation: 
+    fadeIn 0.6s ease-out forwards,
+    errorPulse 2s infinite alternate;
+  box-shadow: 0 0 15px rgba(255, 45, 117, 0.1);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes nodeEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lineExpand {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes textGlow {
+  0%, 100% { text-shadow: 0 0 5px rgba(0, 200, 208, 0.3); }
+  50% { text-shadow: 0 0 15px var(--neon-accent); }
+}
+
+@keyframes borderPulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes errorPulse {
+  0%, 100% { opacity: 0.9; box-shadow: 0 0 15px rgba(255, 45, 117, 0.1); }
+  50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 45, 117, 0.2); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== RESPONSIVE ADJUSTMENTS ========== */
+@media (max-width: 768px) {
+  .avl-tree-container {
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .avl-children {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+  }
+
+  .avl-children::before {
+    display: none;
+  }
+
+  .avl-node-container > .avl-node::before {
+    display: none;
+  }
+  
+  .node-registro {
+    min-width: 200px;
+  }
+  
+  .registro-info {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .avl-tree-container {
+    padding: 1rem;
+  }
+  
+  .avl-tree-container h3 {
+    font-size: 1.4rem;
+  }
+  
+  .avl-node {
+    padding: 0.8rem 1rem;
+    min-width: 100px;
+  }
+  
+  .node-registro {
+    min-width: 180px;
+  }
+}
+
+/* ========== SCROLLBAR STYLING ========== */
+.avl-tree-visualization::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-track {
+  background: var(--tech-gray);
+  border-radius: 4px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-thumb {
+  background: var(--neon-accent);
+  border-radius: 4px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-blue);
+}
+/* ========== VARIABLES NEO-TECH ESCALABLES ========== */
+:root {
+  --deep-space: #0a0e17;
+  --tech-gray: #1a1d2b;
+  --light-void: #252a3f;
+  --neon-blue: #00f0ff;
+  --neon-purple: #7b2dff;
+  --neon-accent: #00c8d0;
+  --neon-pink: #ff2d75;
+  --neon-green: #00ff88;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a8c0;
+  --transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --border-glow: 0 0 8px rgba(0, 240, 255, 0.6);
+  
+  /* Variables escalables */
+  --base-size: clamp(14px, 2vw, 16px);
+  --h3-size: clamp(1.4rem, 5vw, 1.8rem);
+  --container-padding: clamp(1rem, 3vw, 2rem);
+  --node-padding: clamp(0.8rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+  --node-min-width: clamp(100px, 20vw, 120px);
+  --registro-min-width: clamp(180px, 40vw, 250px);
+  --tree-min-height: clamp(300px, 60vh, 500px);
+  --foto-size: clamp(40px, 8vw, 50px);
+}
+
+/* ========== AVL TREE CONTAINER ADAPTABLE ========== */
+.avl-tree-container {
+  font-family: 'Orbitron', 'Inter', sans-serif;
+  padding: var(--container-padding);
+  margin: clamp(1rem, 3vw, 2rem) auto;
+  border: 1px solid var(--light-void);
+  border-radius: 12px;
+  background: rgba(26, 29, 43, 0.85);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(0, 200, 208, 0.1);
+  backdrop-filter: blur(6px);
+  max-width: 95vw;
+  overflow: hidden;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out forwards;
+  transform: translateY(20px);
+  opacity: 0;
+  width: 100%;
+}
+
+.avl-tree-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid transparent;
+  border-image: linear-gradient(135deg, 
+    transparent 20%, 
+    var(--neon-accent) 50%, 
+    transparent 80%) 1;
+  pointer-events: none;
+  animation: borderPulse 6s infinite linear;
+  z-index: -1;
+}
+
+.avl-tree-container h3, 
+.avl-tree-container h4 {
+  color: var(--neon-accent);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 5px rgba(0, 200, 208, 0.3);
+  animation: textGlow 3s infinite alternate;
+}
+
+.avl-tree-container h3 {
+  font-size: var(--h3-size);
+  margin-bottom: clamp(1.5rem, 4vw, 2rem);
+  position: relative;
+}
+
+.avl-tree-container h3::after {
+  content: '';
+  position: absolute;
+  width: clamp(60px, 15vw, 80px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: lineExpand 0.8s ease-out 0.8s forwards;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* ========== TREE VISUALIZATION ADAPTABLE ========== */
+.avl-tree-visualization {
+  width: 100%;
+  min-height: var(--tree-min-height);
+  background: rgba(37, 42, 63, 0.5);
+  border: 1px solid var(--light-void);
+  border-radius: 8px;
+  overflow: auto;
+  padding: var(--container-padding);
+  margin: clamp(0.8rem, 2vw, 1rem) 0;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ========== NODE STYLES ADAPTABLES ========== */
+.avl-node-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: clamp(0.8rem, 2vw, 1.5rem);
+  position: relative;
+  animation: nodeEntrance 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.avl-node {
+  padding: var(--node-padding);
+  border-radius: 8px;
+  background: rgba(26, 29, 43, 0.9);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(0, 200, 208, 0.1);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: clamp(0.3rem, 1vw, 0.5rem);
+  width: auto;
+  text-align: center;
+  border: 1px solid var(--light-void);
+  color: var(--text-primary);
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+  min-width: var(--node-min-width);
+  font-size: var(--base-size);
+}
+
+.avl-node:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(0, 200, 208, 0.2);
+  border-color: var(--neon-accent);
+}
+
+.avl-node::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  background: linear-gradient(to bottom, 
+    transparent, 
+    var(--neon-accent));
+  transform: translateX(-50%);
+  animation: lineExpand 0.6s ease-out forwards;
+}
+
+/* ========== CHILDREN CONTAINER ADAPTABLE ========== */
+.avl-children {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: clamp(1rem, 3vw, 2rem);
+  position: relative;
+}
+
+.avl-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 80%;
+  height: 20px;
+  border-top: 2px solid var(--neon-accent);
+  transform: translateX(-50%);
+  opacity: 0.5;
+  animation: lineExpand 0.8s ease-out forwards;
+}
+
+.avl-children.collapsed {
+  display: none;
+}
+
+/* ========== LEVEL SPECIFIC STYLES ========== */
+.level-0 .avl-node {
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  color: var(--deep-space);
+  font-weight: bold;
+  font-size: clamp(1rem, 3vw, 1.2em);
+  box-shadow: 
+    0 4px 15px rgba(123, 45, 255, 0.4),
+    0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.level-1 .avl-node {
+  background: linear-gradient(135deg, var(--light-void), var(--neon-purple));
+  color: var(--text-primary);
+  box-shadow: 
+    0 4px 12px rgba(123, 45, 255, 0.3),
+    0 0 15px rgba(123, 45, 255, 0.1);
+}
+
+.level-2 .avl-node {
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void));
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(0, 200, 208, 0.1);
+}
+
+.level-3 .avl-node {
+  background: linear-gradient(135deg, var(--deep-space), var(--tech-gray));
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 0 10px rgba(0, 200, 208, 0.1);
+}
+
+.level-4 .avl-node {
+  background: var(--deep-space);
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.2),
+    0 0 8px rgba(0, 200, 208, 0.1);
+}
+
+/* ========== NODE TYPE SPECIFIC ========== */
+.node-instalacion {
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue)) !important;
+  color: var(--deep-space) !important;
+  font-weight: bold !important;
+}
+
+.node-puerta,
+.node-nivel {
+  background: linear-gradient(135deg, var(--light-void), var(--neon-purple)) !important;
+  color: var(--text-primary) !important;
+}
+
+.node-salon {
+  background: linear-gradient(135deg, var(--tech-gray), var(--light-void)) !important;
+}
+
+.node-fecha {
+  background: linear-gradient(135deg, var(--deep-space), var(--tech-gray)) !important;
+}
+
+.node-registro {
+  min-width: var(--registro-min-width);
+  text-align: left !important;
+  background: rgba(26, 29, 43, 0.95) !important;
+}
+
+/* ========== ASISTENCIA STATES ========== */
+.asistencia-si {
+  border-left: 5px solid var(--neon-green);
+  box-shadow: 
+    0 0 15px rgba(0, 255, 136, 0.2) !important;
+}
+
+.asistencia-no {
+  border-left: 5px solid var(--neon-pink);
+  box-shadow: 
+    0 0 15px rgba(255, 45, 117, 0.2) !important;
+}
+
+/* ========== REGISTRO INFO ADAPTABLE ========== */
+.registro-info {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8rem, 2vw, 1rem);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.registro-foto {
+  width: var(--foto-size);
+  height: var(--foto-size);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--neon-accent);
+  box-shadow: 0 0 10px rgba(0, 200, 208, 0.3);
+  transition: var(--transition);
+}
+
+.registro-foto:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 200, 208, 0.5);
+}
+
+/* ========== ERROR MESSAGE ADAPTABLE ========== */
+.error-message {
+  color: var(--neon-pink);
+  background: rgba(255, 45, 117, 0.1);
+  padding: clamp(0.8rem, 2vw, 1rem);
+  border-radius: 6px;
+  margin-top: clamp(1rem, 3vw, 2rem);
+  border-left: 4px solid var(--neon-pink);
+  animation: 
+    fadeIn 0.6s ease-out forwards,
+    errorPulse 2s infinite alternate;
+  box-shadow: 0 0 15px rgba(255, 45, 117, 0.1);
+  font-size: var(--base-size);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes nodeEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lineExpand {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes textGlow {
+  0%, 100% { text-shadow: 0 0 5px rgba(0, 200, 208, 0.3); }
+  50% { text-shadow: 0 0 15px var(--neon-accent); }
+}
+
+@keyframes borderPulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes errorPulse {
+  0%, 100% { opacity: 0.9; box-shadow: 0 0 15px rgba(255, 45, 117, 0.1); }
+  50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 45, 117, 0.2); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== MEDIA QUERIES PARA DISPOSITIVOS PEQUEÑOS ========== */
+@media (max-width: 768px) {
+  .avl-children {
+    flex-direction: column;
+    align-items: center;
+    padding-top: clamp(0.8rem, 2vw, 1rem);
+  }
+
+  .avl-children::before {
+    display: none;
+  }
+
+  .avl-node-container > .avl-node::before {
+    display: none;
+  }
+  
+  .registro-info {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ========== SCROLLBAR STYLING ========== */
+.avl-tree-visualization::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-track {
+  background: var(--tech-gray);
+  border-radius: 4px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-thumb {
+  background: var(--neon-accent);
+  border-radius: 4px;
+}
+
+.avl-tree-visualization::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-blue);
+}
+
+/* ========== SOPORTE PARA MODO OSCURO ========== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --deep-space: #0a0e17;
+    --tech-gray: #1a1d2b;
+    --light-void: #252a3f;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a8c0;
+  }
+}
+
+/* ========== REDUCCIÓN DE MOVIMIENTO ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .avl-tree-container, .avl-node-container, 
+  .avl-tree-container h3::after, .avl-children::before,
+  .avl-node::before {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
 }
