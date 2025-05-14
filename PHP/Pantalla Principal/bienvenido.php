@@ -28,7 +28,7 @@
                 const mensajeDiv = document.getElementById('mensaje-tipo');
                 const panelBotones = document.getElementById('panel-botones');
                 
-                switch(tipoUsuario) {
+               switch(tipoUsuario) {
         case 1: // Administrador
             mensajeDiv.innerHTML = "<strong>Eres un Administrador</strong>. Tienes acceso completo al sistema.";
             panelBotones.innerHTML = `
@@ -115,11 +115,6 @@
                         </div>
                     </div>
                     
-                    <!-- Imprimir PDF -->
-                    <button onclick="generarPDFAdmin()" class="btn-dev">
-                        <i class="fas fa-file-pdf"></i> Imprimir PDF
-                    </button>
-                    
                     <!-- Configuración (desplegable) -->
                     <div class="dropdown">
                         <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
@@ -133,13 +128,16 @@
                             <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
                                 <i class="fas fa-palette"></i> Color de Pantalla
                             </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
-                                <i class="fas fa-user-edit"></i> Datos Usuario
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
                             </a>
                         </div>
                     </div>
                 </div>
             `;
+
             break;
             
         case 2: // Docente
@@ -179,11 +177,6 @@
                         </div>
                     </div>
                     
-                    <!-- Generar PDF (misma función que en Administrador) -->
-                    <button onclick="generarPDFAdmin()" class="btn-dev">
-                        <i class="fas fa-file-pdf"></i> Imprimir PDF
-                    </button>
-                    
                     <!-- Configuración (misma función que en Administrador) -->
                     <div class="dropdown">
                         <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
@@ -197,13 +190,16 @@
                             <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
                                 <i class="fas fa-palette"></i> Color de Pantalla
                             </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
-                                <i class="fas fa-user-edit"></i> Datos Usuario
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
                             </a>
                         </div>
                     </div>
                 </div>
             `;
+
             break;
             
         case 3: // Estudiante
@@ -211,14 +207,9 @@
             panelBotones.innerHTML = `
                 <h3>Panel de Estudiante</h3>
                 <div class="botones-container">
-                    <!-- Tomar Asistencia -->
-                    <button onclick="tomarAsistencia()" class="btn-dev">
-                        <i class="fas fa-user-check"></i> Tomar Asistencia
-                    </button>
-                    
-                    <!-- Generar PDF (misma función que en Administrador) -->
-                    <button onclick="generarPDFAdmin()" class="btn-dev">
-                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                    <!-- Ver Asistencia -->
+                    <button onclick="verAsistencia()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Ver Asistencia
                     </button>
                     
                     <!-- Configuración (misma función que en Administrador) -->
@@ -234,8 +225,10 @@
                             <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
                                 <i class="fas fa-palette"></i> Color de Pantalla
                             </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
-                                <i class="fas fa-user-edit"></i> Datos Usuario
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -324,11 +317,6 @@
                         <i class="fas fa-chart-bar"></i> Estadísticas
                     </button>
                     
-                    <!-- Imprimir PDF (misma función que en Administrador) -->
-                    <button onclick="generarPDFAdmin()" class="btn-dev">
-                        <i class="fas fa-file-pdf"></i> Imprimir PDF
-                    </button>
-                    
                     <!-- Configuración (misma función que en Administrador) -->
                     <div class="dropdown">
                         <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
@@ -342,8 +330,10 @@
                             <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
                                 <i class="fas fa-palette"></i> Color de Pantalla
                             </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
-                                <i class="fas fa-user-edit"></i> Datos Usuario
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -357,14 +347,9 @@
                 <h3>Panel de Servicios</h3>
                 <div class="botones-container">
                     <!-- Mismos botones que estudiante -->
-                    <!-- Tomar Asistencia -->
-                    <button onclick="tomarAsistencia()" class="btn-dev">
-                        <i class="fas fa-user-check"></i> Tomar Asistencia
-                    </button>
-                    
-                    <!-- Generar PDF (misma función que en Administrador) -->
-                    <button onclick="generarPDFAdmin()" class="btn-dev">
-                        <i class="fas fa-file-pdf"></i> Imprimir PDF
+                     <!-- Ver Asistencia -->
+                    <button onclick="verAsistencia()" class="btn-dev">
+                        <i class="fas fa-user-check"></i> Ver Asistencia
                     </button>
                     
                     <!-- Configuración (misma función que en Administrador) -->
@@ -380,19 +365,21 @@
                             <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
                                 <i class="fas fa-palette"></i> Color de Pantalla
                             </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('datos')">
-                                <i class="fas fa-user-edit"></i> Datos Usuario
-                            </a>
+                                    <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
                         </div>
                     </div>
                 </div>
             `;
+
+             
             break;
                         
-                    default:
-                        mensajeDiv.innerHTML = "<strong>Tipo de usuario no reconocido</strong>. Contacta al administrador.";
-                        document.body.style.backgroundColor = "#f5f5f5"; // Gris claro
-                }
+        default:
+            mensajeDiv.innerHTML = "<strong>Tipo de usuario no reconocido</strong>. Contacta al administrador.";
+            document.body.style.backgroundColor = "#f5f5f5"; // Gris claro
+}
             } else {
                 // Si no hay datos en sessionStorage, obtenerlos del servidor
                 fetch('get_user.php')
@@ -469,12 +456,64 @@ function mostrarInformacionAdmin(tipo) {
         <p>Aquí se mostraría la información específica para ${tipo}.</p>
     `;
 }
-
-function generarPDFAdmin() {
-    // Función para generar PDF que comparten todos los tipos de usuario
-    alert('Generando PDF...');
+/*--------------------------------------------------------------------- */
+// Función para cambiar configuración (modificada)
+function cambiarConfiguracion(opcion) {
+    // Obtener el área de contenido principal
+    const infoContent = document.getElementById('info-content');
+    
+    // Limpiar contenido anterior
+    infoContent.innerHTML = '';
+    
+    if (opcion === 'datos') {
+        // Mostrar contenido de datos usuario
+        infoContent.innerHTML = `
+            <div class="datos-usuario-container">
+                <h3>Datos Usuario</h3>
+                <p>Actualice sus datos personales.</p>
+                <!-- Botón adicional que aparecerá aquí -->
+                <button id="boton-adicional" class="btn-adicional">
+                    <i class="fas fa-file-pdf"></i> Generar PDF
+                </button>
+            </div>
+        `;
+        
+        // Configurar evento para el botón adicional
+        document.getElementById('boton-adicional').addEventListener('click', function() {
+            generarPDFAdmin();
+        });
+    } 
+    else if (opcion === 'idioma') {
+        infoContent.innerHTML = `
+            <h3>Cambiar Idioma</h3>
+            <p>Opciones de idioma disponibles.</p>
+        `;
+    } 
+    else if (opcion === 'color') {
+        infoContent.innerHTML = `
+            <h3>Color de Pantalla</h3>
+            <p>Seleccione un esquema de color para la interfaz.</p>
+        `;
+    }
+    
+    // Cerrar el dropdown si está abierto
+    cerrarDropdowns();
 }
 
+// Función para generar PDF
+function generarPDFAdmin() {
+    alert('Generando PDF...');
+    // Aquí iría el código real para generar el PDF
+}
+
+// Función auxiliar para cerrar dropdowns
+function cerrarDropdowns() {
+    const dropdowns = document.querySelectorAll('.dropdown-content');
+    dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('show');
+    });
+}
+/*---------------------------------------------------------------------- */
 function mostrarCursosAsignados() {
     // Función para mostrar cursos asignados (compartida entre admin y docente)
     document.getElementById('info-content').innerHTML = `

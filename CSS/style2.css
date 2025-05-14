@@ -16,7 +16,31 @@
     --glass-effect: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
 }
+/*******************************************************************************/
+/* Estilos para el botón adicional */
+.btn-adicional {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-top: 200px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
 
+.btn-adicional:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-adicional i {
+    margin-right: 5px;
+}
+/*************************************************************************************/
 /* Reset moderno y estilos base */
 *,
 *::before,
