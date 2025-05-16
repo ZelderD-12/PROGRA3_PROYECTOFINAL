@@ -146,7 +146,7 @@ if (isset($_POST['registrar'])) {
         try {
             if ($stmt->execute()) {
                 echo "✅ Usuario insertado correctamente.";
-                header("Location: ../../index.php");
+                header("Location: ../Registro/Impresion.php");
                 exit();
             } else {
                 throw new Exception("Error en la ejecución: " . $stmt->error);
