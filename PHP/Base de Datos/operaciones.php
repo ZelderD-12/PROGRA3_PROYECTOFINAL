@@ -107,9 +107,10 @@ if (isset($_POST['login'])) {
         exit();
     }
 }
-
+//REGISTRAR NUEVO USUARIO
 if (isset($_POST['registrar'])) {
     $carnet = trim($_POST['carnet']);
+    $_SESSION['carnetusuario'] = $carnet;
     $nombres = trim($_POST['nombres']);
     $apellidos = trim($_POST['apellidos']);
     $password = trim($_POST['password']);
@@ -146,7 +147,7 @@ if (isset($_POST['registrar'])) {
         try {
             if ($stmt->execute()) {
                 echo "✅ Usuario insertado correctamente.";
-                header("Location: ../../index.php");
+                header("Location: ../Registro/Impresion.php");
                 exit();
             } else {
                 throw new Exception("Error en la ejecución: " . $stmt->error);
@@ -162,5 +163,32 @@ if (isset($_POST['registrar'])) {
     }
 }
 
-mysqli_close($conexion);
+// Función para mostrar imagen desde base64 usando el SP Obtener64
+function mostrarImagenDesdeSP($carnetUsuario) {
+    // Requiere acceso a $conexion
+    global $conexion;
+
+    // Llamar al procedimiento almacenado con el parámetro IN y OUT
+    $conexion->query("CALL Obtener64('$carnetUsuario', @base64)");
+/
+    // Procesar resultados adicionales para liberar el SP anterior
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+
+    // Obtener el valor OUT
+    $resultado = $conexion->query("SELECT @base64 AS imagen_base64");
+
+    if ($resultado && $fila = $resultado->fetch_assoc()) {
+        $imagenBase64 = $fila['imagen_base64'];
+        if ($imagenBase64) {
+            echo '<img src="data:image/png;base64,' . $imagenBase64 . '" alt="Foto del usuario" />';
+        } else {
+            echo '📷 Imagen no encontrada.';
+        }
+    } else {
+        echo '❌ Error al obtener la imagen desde el procedimiento almacenado.';
+    }
+}
+
 ?>
