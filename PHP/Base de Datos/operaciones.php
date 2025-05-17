@@ -170,7 +170,6 @@ function mostrarImagenDesdeSP($carnetUsuario) {
 
     // Llamar al procedimiento almacenado con el parámetro IN y OUT
     $conexion->query("CALL Obtener64('$carnetUsuario', @base64)");
-/
     // Procesar resultados adicionales para liberar el SP anterior
     while ($conexion->more_results()) {
         $conexion->next_result();
