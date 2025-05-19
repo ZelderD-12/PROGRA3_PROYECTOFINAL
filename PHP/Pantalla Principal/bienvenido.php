@@ -614,6 +614,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -629,6 +630,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -644,6 +646,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -659,6 +662,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -805,10 +809,13 @@ function construirArbolDesdeDatos(datos, tipo) {
 
                 entrada.registros.forEach(registro => {
                     nodoFecha.hijos.push({
-                        valor: registro.nombre,
-                        nivel: 3,
-                        data: registro,
-                        hijos: []
+                            valor: registro.nombre,
+                            nivel: 5,
+                            data: {
+                        ...registro,
+                        foto: registro.foto // Asegurarse que esto contiene la ruta correcta
+                        },
+                     hijos: []
                     });
                 });
 
@@ -961,9 +968,9 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
             if (hijo.x !== undefined && hijo.y !== undefined) {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('x1', nodo.x);
-                line.setAttribute('y1', nodo.y + 15); // Ajuste para la mitad del nodo
+                line.setAttribute('y1', nodo.y);
                 line.setAttribute('x2', hijo.x);
-                line.setAttribute('y2', hijo.y - 15); // Ajuste para la mitad del nodo
+                line.setAttribute('y2', hijo.y);
                 line.setAttribute('stroke', '#555');
                 line.setAttribute('stroke-width', '2');
                 g.appendChild(line);
@@ -974,47 +981,89 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
 
     dibujarConexiones(arbol, g);
 
+    // Función para expandir la imagen
+    function expandirImagen(event) {
+        const imgSrc = event.target.getAttribute('data-fullimg');
+        
+        // Crear overlay para la imagen expandida
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = '1000';
+        overlay.style.cursor = 'zoom-out';
+        
+        // Crear imagen expandida
+        const expandedImg = document.createElement('img');
+        expandedImg.src = imgSrc;
+        expandedImg.style.maxWidth = '80%';
+        expandedImg.style.maxHeight = '80%';
+        expandedImg.style.borderRadius = '8px';
+        expandedImg.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.5)';
+        
+        // Cerrar al hacer clic
+        overlay.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+        
+        overlay.appendChild(expandedImg);
+        document.body.appendChild(overlay);
+    }
+
     // Dibujar nodos
     function dibujarNodos(nodo, g) {
         if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
 
-        // Crear un elemento temporal para medir el texto
-        const tempText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        tempText.setAttribute('font-size', '14px');
-        tempText.setAttribute('font-family', 'Arial');
-        tempText.textContent = nodo.valor;
-        g.appendChild(tempText);
+        // Crear grupo para el nodo
+        const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodeGroup.setAttribute('class', 'avl-node-group');
+        nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
 
-        const textBBox = tempText.getBBox();
-        const nodeWidth = textBBox.width * 1.05; // 5% más ancho que el texto
-        const nodeHeight = textBBox.height * 1.5; // 50% más alto que el texto
+        // Determinar si tiene imagen
+        const tieneImagen = nodo.data && nodo.data.foto;
+        const radio = tieneImagen ? 30 : 20; // Radio más grande si tiene imagen
 
-        g.removeChild(tempText); // Eliminar el elemento temporal
+        // Dibujar el nodo (círculo)
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('r', radio);
+        circle.setAttribute('fill', '#4CAF50');
+        circle.setAttribute('stroke', '#388E3C');
+        circle.setAttribute('stroke-width', '2');
+        circle.setAttribute('class', 'node-circle');
+        nodeGroup.appendChild(circle);
 
-        // Dibujar el nodo (rectángulo)
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', nodo.x - nodeWidth / 2);
-        rect.setAttribute('y', nodo.y - nodeHeight / 2);
-        rect.setAttribute('width', nodeWidth);
-        rect.setAttribute('height', nodeHeight);
-        rect.setAttribute('rx', 5); // Bordes redondeados
-        rect.setAttribute('fill', '#4CAF50');
-        rect.setAttribute('stroke', '#388E3C');
-        rect.setAttribute('stroke-width', '2');
+        // Si tiene imagen, agregar la imagen de perfil
+        if (tieneImagen) {
+            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            image.setAttribute('href', nodo.data.foto);
+            image.setAttribute('height', radio * 1.6);
+            image.setAttribute('width', radio * 1.6);
+            image.setAttribute('x', -radio * 0.8);
+            image.setAttribute('y', -radio * 0.8);
+            image.setAttribute('class', 'node-image');
+            image.setAttribute('data-fullimg', nodo.data.foto);
+            image.style.cursor = 'pointer';
+            image.addEventListener('click', expandirImagen);
+            nodeGroup.appendChild(image);
+        } else {
+            // Dibujar el texto dentro del nodo (solo si no tiene imagen)
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('fill', 'white');
+            text.setAttribute('font-size', '14px');
+            text.setAttribute('font-family', 'Arial');
+            text.textContent = nodo.valor;
+            nodeGroup.appendChild(text);
+        }
 
-        // Dibujar el texto dentro del nodo
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', nodo.x);
-        text.setAttribute('y', nodo.y);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
-        text.setAttribute('fill', 'white');
-        text.setAttribute('font-size', '14px');
-        text.setAttribute('font-family', 'Arial');
-        text.textContent = nodo.valor;
-
-        g.appendChild(rect);
-        g.appendChild(text);
+        g.appendChild(nodeGroup);
 
         // Dibujar los hijos
         if (nodo.hijos) {
@@ -1037,6 +1086,7 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
     svg.setAttribute('height', (bbox.height + 100) + 'px');
 }
 // Funciones para obtener datos (se mantienen iguales)
+
 function obtenerDatosHistorico() {
     return [
         {
@@ -1074,8 +1124,20 @@ function obtenerDatosPorFecha() {
             puerta: "Principal",
             fecha: "2023-05-01",
             registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true },
-                { id: 2, nombre: "María García", correo: "maria@example.com", foto: "img/users/user2.jpg", asistencia: false }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    correo: "juan@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                },
+                { 
+                    id: 2, 
+                    nombre: "María García", 
+                    correo: "maria@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: false 
+                }
             ]
         },
         {
@@ -1083,8 +1145,20 @@ function obtenerDatosPorFecha() {
             puerta: "Secundaria",
             fecha: "2023-05-02",
             registros: [
-                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true },
-                { id: 4, nombre: "Ana Torres", correo: "ana@example.com", foto: "img/users/user4.jpg", asistencia: true }
+                { 
+                    id: 3, 
+                    nombre: "Carlos López", 
+                    correo: "carlos@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                },
+                { 
+                    id: 4, 
+                    nombre: "Ana Torres", 
+                    correo: "ana@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                }
             ]
         },
         {
@@ -1092,8 +1166,20 @@ function obtenerDatosPorFecha() {
             puerta: "Emergencia",
             fecha: "2023-05-03",
             registros: [
-                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false },
-                { id: 6, nombre: "Sofía Martínez", correo: "sofia@example.com", foto: "img/users/user6.jpg", asistencia: true }
+                { 
+                    id: 5, 
+                    nombre: "Luis Gómez", 
+                    correo: "luis@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: false 
+                },
+                { 
+                    id: 6, 
+                    nombre: "Sofía Martínez", 
+                    correo: "sofia@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                }
             ]
         }
     ];
@@ -1106,8 +1192,18 @@ function obtenerDatosSalonHistorico() {
             nivel: "1",
             salon: "101",
             estudiantes: [
-                { id: 1, nombre: "Juan Pérez", tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", tipo: "catedrático" }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 2, 
+                    nombre: "Prof. Rodríguez", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         },
         {
@@ -1115,8 +1211,18 @@ function obtenerDatosSalonHistorico() {
             nivel: "2",
             salon: "202",
             estudiantes: [
-                { id: 3, nombre: "Carlos López", tipo: "estudiante" },
-                { id: 4, nombre: "Prof. García", tipo: "catedrático" }
+                { 
+                    id: 3, 
+                    nombre: "Carlos López", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 4, 
+                    nombre: "Prof. García", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         },
         {
@@ -1124,48 +1230,48 @@ function obtenerDatosSalonHistorico() {
             nivel: "3",
             salon: "303",
             estudiantes: [
-                { id: 5, nombre: "Luis Gómez", tipo: "estudiante" },
-                { id: 6, nombre: "Prof. Martínez", tipo: "catedrático" }
+                { 
+                    id: 5, 
+                    nombre: "Luis Gómez", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 6, 
+                    nombre: "Prof. Martínez", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         }
     ];
 }
-
-function obtenerDatosSalonPorFecha() {
+function obtenerDatosPorFecha() {
     return [
         {
             instalacion: "Edificio A",
-            nivel: "1",
-            salon: "101",
+            puerta: "Principal",
             fecha: "2023-05-01",
             registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true, tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", correo: "prof@example.com", foto: "img/users/prof1.jpg", asistencia: true, tipo: "catedrático" }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    correo: "juan@example.com", 
+                     foto: "imagenes/IMG/users/user.avif", // Ruta relativa corregida
+                    asistencia: true 
+                },
+                { 
+                    id: 2, 
+                    nombre: "María García", 
+                    correo: "maria@example.com", 
+                    foto: "imagenes/IMG/users/user.avif", // Ruta relativa corregida
+                    asistencia: false 
+                }
             ]
         },
-        {
-            instalacion: "Edificio B",
-            nivel: "2",
-            salon: "202",
-            fecha: "2023-05-02",
-            registros: [
-                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true, tipo: "estudiante" },
-                { id: 4, nombre: "Prof. García", correo: "prof@example.com", foto: "img/users/prof2.jpg", asistencia: false, tipo: "catedrático" }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            nivel: "3",
-            salon: "303",
-            fecha: "2023-05-03",
-            registros: [
-                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false, tipo: "estudiante" },
-                { id: 6, nombre: "Prof. Martínez", correo: "prof@example.com", foto: "img/users/prof3.jpg", asistencia: true, tipo: "catedrático" }
-            ]
-        }
+        
     ];
 }
-
 //----------------------------------------------------------------------------------------------------------------
 function tomarAsistencia() {
     // Función para tomar asistencia (compartida entre estudiante y servicios)
