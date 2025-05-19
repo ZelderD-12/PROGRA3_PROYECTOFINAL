@@ -164,8 +164,6 @@
 document.getElementsByName('celular')[0].addEventListener('input', function (e) {
     this.value = this.value.replace(/\D/g, ''); // Elimina todo lo que no sea número
 });
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
-//Script para enviar los datos registrados a correo
 </script>
     <script src=../../Javascript/foto.js></script>
 </body>
