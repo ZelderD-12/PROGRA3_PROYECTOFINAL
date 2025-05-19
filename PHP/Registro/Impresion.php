@@ -1,4 +1,7 @@
-<?php include '../Base de Datos/operaciones.php'; ?>
+<?php
+include '../Base de Datos/operaciones.php'; 
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -37,72 +40,17 @@
             <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="TomaFoto.php" class="back-link">← Volver al login</a>
-                
-        <h2><span id="register-title">Datos del nuevo usuario</span></h2>
-                
-        <div id="error-message" class="error-message hidden"></div>
-                
-        <form id="register-form" action="../Base de Datos/operaciones.php" method="POST">
-            <div class="form-grid">
-                <input type="number" name="carnet" placeholder="Carnet" required class="input-field" >
-                <input type="text" name="nombres" placeholder="Nombre" required class="input-field" >
-                <input type="text" name="apellidos" placeholder="Apellido" required class="input-field" >
-                <input type="password" name="password" placeholder="Contraseña" required class="input-field" >
-                <input type="number" name="celular" placeholder="Celular" required class="input-field" >
-                <input type="email" name="email" placeholder="Email" required class="input-field" >
-                <input type="text" name="foto" placeholder="URL de Foto" class="input-field" >
-                <select name="tipouser" required class="input-field" >
-                    <option value="" disabled selected>Seleccione un tipo de usuario</option>
-                    <?php
-                    if (!empty($tipos_usuario)) {
-                        foreach ($tipos_usuario as $tipo) {
-                            echo "<option value='" . $tipo . "'>" . $tipo . "</option>";
-                        }
-                    } else {
-                        echo "<option value='' disabled>No se encontraron tipos de usuario</option>";
-                    }
-                    ?>
-        </select>
-
-        <select name="carrera" required class="input-field" >
-                    <option value="" disabled selected>Seleccione una carrera</option>
-                    <?php
-                    if (!empty($carreras)) {
-                        foreach ($carreras as $carreer) {
-                            echo "<option value='" . $carreer . "'>" . $carreer . "</option>";
-                        }
-                    } else {
-                        echo "<option value='' disabled>No se encontraron carreras</option>";
-                    }
-                    ?>
-        </select>
-
-                <input type="text" name="seccion" placeholder="Sección" class="input-field" >
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" name="registrar" class="btn">Registrar</button>
-                <button type="reset" class="btn btn-secondary">Limpiar</button>
-            </div>
-        </form>
+        <div class="usuario-imagen" style="text-align: center; margin-top: 20px;">
+        <?php
+        if (isset($_SESSION['carnetusuario'])) {
+            mostrarImagenDesdeSP($_SESSION['carnetusuario']);
+        } else {
+            echo "<p>⚠️ No se ha iniciado sesión o no hay imagen disponible.</p>";
+        }
+        ?>
     </div>
-    
-    <script>
-        document.getElementById("toggle-language").addEventListener("click", function() {
-            const isEnglish = document.documentElement.lang === "en";
-            if (isEnglish) {
-                document.documentElement.lang = "es";
-                this.textContent = "English";
-                document.getElementById("register-title").textContent = "Registro";
-                // Actualizar placeholders aquí si es necesario
-            } else {
-                document.documentElement.lang = "en";
-                this.textContent = "Español";
-                document.getElementById("register-title").textContent = "Register";
-                // Actualizar placeholders aquí si es necesario
-            }
-        });
-    </script>
+                
+        
+    </div>
 </body>
 </html>
