@@ -466,7 +466,55 @@ function cambiarConfiguracion(opcion) {
     infoContent.innerHTML = '';
     
     if (opcion === 'datos') {
-        // Mostrar contenido de datos usuario
+        // Recuperar los datos del usuario desde sessionStorage
+        const usuarioData = JSON.parse(sessionStorage.getItem('usuario'));
+        if (usuarioData) {
+            // Mostrar los datos del usuario
+            infoContent.innerHTML = `
+                <div class="datos-usuario-container">
+                    <h3>Datos Usuario</h3>
+                    
+                    <div class="perfil-usuario">
+                        <div class="foto-perfil">
+                            <img src="data:image/png;base64,${usuarioData.Foto_Usuario}" alt="Foto de perfil">
+                        </div>
+                        
+                        <div class="info-personal">
+                            <div class="campo-dato">
+                                <label>Nombre:</label>
+                                <span>${usuarioData.Nombres_Usuario} ${usuarioData.Apellidos_Usuario}</span>
+                            </div>
+                            <div class="campo-dato">
+                                <label>Carnet:</label>
+                                <span>${usuarioData.Carnet_Usuario}</span>
+                            </div>
+                            <div class="campo-dato">
+                                <label>Correo:</label>
+                                <span>${usuarioData.Correo_Electronico_Usuario}</span>
+                            </div>
+                            <div class="campo-dato">
+                                <label>Teléfono:</label>
+                                <span>${usuarioData.Numero_De_Telefono_Usuario}</span>
+                            </div>
+                           
+                            <div class="campo-dato">
+                                <label>Sección:</label>
+                                <span>${usuarioData.Seccion_Usuario}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="boton-adicional" class="btn-adicional">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                </div>
+            `;
+            
+            // Configurar evento para el botón adicional
+            document.getElementById('boton-adicional').addEventListener('click', function() {
+                generarPDFAdmin();
+            });
+        } else {
         infoContent.innerHTML = `
             <div class="datos-usuario-container">
                 <h3>Datos Usuario</h3>
@@ -477,7 +525,8 @@ function cambiarConfiguracion(opcion) {
                 </button>
             </div>
         `;
-        
+        }
+       
         // Configurar evento para el botón adicional
         document.getElementById('boton-adicional').addEventListener('click', function() {
             generarPDFAdmin();
@@ -527,7 +576,6 @@ function confirmarAsistencia() {
     alert('Confirmando asistencia...');
 }
 //----------------------------------------------------------------------------------------------------------------
-// Nueva función para cargar opciones en el combo box
 function cargarCombobox(tipoReporte) {
     // Lista de opciones según el tipo de reporte
     let opciones = [];
@@ -614,6 +662,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -629,6 +678,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -644,6 +694,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -659,6 +710,7 @@ function mostrarReporte(tipo) {
                     </select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
+                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
             break;
@@ -749,30 +801,33 @@ function obtenerDatosParaReporte(tipo) {
 
 // Función para construir la estructura del árbol desde los datos
 function construirArbolDesdeDatos(datos, tipo) {
-    // Obtener el valor seleccionado del combo box
     const comboBox = document.getElementById('report-options-select');
     const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
 
-    // Crear el nodo raíz con el valor seleccionado
     const nodoRaiz = {
         valor: valorRaiz,
         nivel: 0,
         hijos: []
     };
 
-    // Construir el árbol según el tipo de reporte
     switch (tipo) {
         case 'historicoEntrada':
             datos.forEach(entrada => {
+                // Determinar la imagen según si es edificio o puerta
+                const esEdificio = entrada.instalacion.includes("Edificio");
+                const imagen = esEdificio ? "imagenes/IMG/objetos/edificio.jpeg" : "imagenes/IMG/objetos/door.jpg";
+                
                 const nodoInstalacion = {
                     valor: entrada.instalacion,
                     nivel: 1,
+                    data: { foto: imagen },
                     hijos: []
                 };
 
                 const nodoPuerta = {
                     valor: entrada.puerta,
                     nivel: 2,
+                    data: { foto: "imagenes/IMG/objetos/door.jpg" },
                     hijos: []
                 };
 
@@ -794,6 +849,7 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoInstalacion = {
                     valor: entrada.instalacion,
                     nivel: 1,
+                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
                     hijos: []
                 };
 
@@ -806,8 +862,11 @@ function construirArbolDesdeDatos(datos, tipo) {
                 entrada.registros.forEach(registro => {
                     nodoFecha.hijos.push({
                         valor: registro.nombre,
-                        nivel: 3,
-                        data: registro,
+                        nivel: 5,
+                        data: {
+                            ...registro,
+                            foto: registro.foto
+                        },
                         hijos: []
                     });
                 });
@@ -822,18 +881,21 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoInstalacion = {
                     valor: salon.instalacion,
                     nivel: 1,
+                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
                     hijos: []
                 };
 
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 2,
+                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` }, // Imagen de nivel
                     hijos: []
                 };
 
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 3,
+                    data: { foto: "imagenes/IMG/objetos/classroom.png" }, // Imagen de salón
                     hijos: []
                 };
 
@@ -857,37 +919,33 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoInstalacion = {
                     valor: salon.instalacion,
                     nivel: 1,
+                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
                     hijos: []
                 };
 
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 2,
+                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` }, // Imagen de nivel
                     hijos: []
                 };
 
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 3,
-                    hijos: []
-                };
-
-                const nodoFecha = {
-                    valor: salon.fecha,
-                    nivel: 4,
+                    data: { foto: "imagenes/IMG/objetos/classroom.png" }, // Imagen de salón
                     hijos: []
                 };
 
                 salon.registros.forEach(reg => {
-                    nodoFecha.hijos.push({
-                        valor: `${reg.nombre} (${reg.tipo})`,
-                        nivel: 5,
+                    nodoSalon.hijos.push({
+                        valor: `${reg.nombre} (${reg.tipo}) - ${salon.fecha}`,
+                        nivel: 4,
                         data: reg,
                         hijos: []
                     });
                 });
 
-                nodoSalon.hijos.push(nodoFecha);
                 nodoNivel.hijos.push(nodoSalon);
                 nodoInstalacion.hijos.push(nodoNivel);
                 nodoRaiz.hijos.push(nodoInstalacion);
@@ -902,6 +960,22 @@ function construirArbolDesdeDatos(datos, tipo) {
     return nodoRaiz;
 }
 
+// Configuración mejorada del árbol
+const TREE_CONFIG = {
+    NODE_RADIUS: 35,
+    VERTICAL_SPACING: 120,
+    HORIZONTAL_SPACING: 60,
+    NODE_SPACING: 5, // Espacio adicional entre nodos
+    LEVEL_HEIGHT: 100,
+    IMAGE_SIZE: 50,
+    LINE_WIDTH: 3,
+    NODE_COLORS: {
+        default: '#4CAF50',
+        hover: '#3e8e41',
+        stroke: '#388E3C'
+    }
+};
+
 function dibujarArbolAVLCompleto(containerId, arbol) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -912,34 +986,44 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
     // Limpiar el contenedor
     container.innerHTML = '';
 
-    // Crear elemento SVG para el árbol
+    // Crear elemento SVG para el árbol con scroll
+    const svgWrapper = document.createElement('div');
+    svgWrapper.style.width = '100%';
+    svgWrapper.style.height = '600px';
+    svgWrapper.style.overflow = 'auto';
+    svgWrapper.style.border = '1px solid #ddd';
+    svgWrapper.style.borderRadius = '8px';
+    svgWrapper.style.padding = '10px';
+    svgWrapper.style.backgroundColor = '#f9f9f9';
+
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '600');
+    svg.setAttribute('height', '800');
     svg.style.display = 'block';
     svg.style.margin = '0 auto';
+    svg.style.minWidth = '1000px'; // Ancho mínimo para asegurar el scroll horizontal
 
     // Grupo principal
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('transform', 'translate(0, 50)');
+    g.setAttribute('transform', 'translate(80, 80)'); // Margen izquierdo aumentado
     svg.appendChild(g);
-    container.appendChild(svg);
+    svgWrapper.appendChild(svg);
+    container.appendChild(svgWrapper);
 
-    // Configuración de dibujo
-    const verticalSpacing = 80; // Espaciado vertical entre niveles
-    const minHorizontalSpacing = 2; // Espaciado mínimo entre nodos hijos
-
-    // Función para calcular posiciones
+    // Calcular posiciones con más espacio
     function calcularPosiciones(nodo, nivel, posX, espacioDisponible) {
         if (!nodo) return;
 
-        const posY = nivel * verticalSpacing;
+        const posY = nivel * (TREE_CONFIG.VERTICAL_SPACING + TREE_CONFIG.NODE_SPACING);
         nodo.x = posX;
         nodo.y = posY;
 
         if (nodo.hijos && nodo.hijos.length > 0) {
             const totalHijos = nodo.hijos.length;
-            const espacioRequerido = Math.max(minHorizontalSpacing * (totalHijos - 1), espacioDisponible / totalHijos);
+            const espacioRequerido = Math.max(
+                (TREE_CONFIG.HORIZONTAL_SPACING + TREE_CONFIG.NODE_SPACING) * (totalHijos - 1), 
+                espacioDisponible / totalHijos
+            );
 
             const startX = posX - (espacioRequerido * (totalHijos - 1)) / 2;
 
@@ -951,9 +1035,9 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
     }
 
     // Calcular posiciones comenzando desde el centro
-    calcularPosiciones(arbol, 0, container.offsetWidth / 2, container.offsetWidth);
+    calcularPosiciones(arbol, 0, (container.offsetWidth - 160) / 2, container.offsetWidth - 160);
 
-    // Dibujar conexiones
+    // Dibujar conexiones más gruesas
     function dibujarConexiones(nodo, g) {
         if (!nodo || !nodo.hijos) return;
 
@@ -961,11 +1045,12 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
             if (hijo.x !== undefined && hijo.y !== undefined) {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('x1', nodo.x);
-                line.setAttribute('y1', nodo.y + 15); // Ajuste para la mitad del nodo
+                line.setAttribute('y1', nodo.y);
                 line.setAttribute('x2', hijo.x);
-                line.setAttribute('y2', hijo.y - 15); // Ajuste para la mitad del nodo
+                line.setAttribute('y2', hijo.y);
                 line.setAttribute('stroke', '#555');
-                line.setAttribute('stroke-width', '2');
+                line.setAttribute('stroke-width', TREE_CONFIG.LINE_WIDTH);
+                line.setAttribute('stroke-linecap', 'round');
                 g.appendChild(line);
                 dibujarConexiones(hijo, g);
             }
@@ -974,95 +1059,238 @@ function dibujarArbolAVLCompleto(containerId, arbol) {
 
     dibujarConexiones(arbol, g);
 
-    // Dibujar nodos
-    function dibujarNodos(nodo, g) {
-        if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
+    // Función mejorada para manejar imágenes
+    async function cargarImagenSegura(ruta) {
+        const rutasPosibles = [
+            ruta,
+            `/${ruta}`,
+            `../${ruta}`,
+            `../../${ruta}`,
+            `imagenes/IMG/objetos/${ruta.split('/').pop()}`,
+            'imagenes/IMG/users/user.png',
+            'https://via.placeholder.com/100?text=Usuario'
+        ];
 
-        // Crear un elemento temporal para medir el texto
-        const tempText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        tempText.setAttribute('font-size', '14px');
-        tempText.setAttribute('font-family', 'Arial');
-        tempText.textContent = nodo.valor;
-        g.appendChild(tempText);
-
-        const textBBox = tempText.getBBox();
-        const nodeWidth = textBBox.width * 1.05; // 5% más ancho que el texto
-        const nodeHeight = textBBox.height * 1.5; // 50% más alto que el texto
-
-        g.removeChild(tempText); // Eliminar el elemento temporal
-
-        // Dibujar el nodo (rectángulo)
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', nodo.x - nodeWidth / 2);
-        rect.setAttribute('y', nodo.y - nodeHeight / 2);
-        rect.setAttribute('width', nodeWidth);
-        rect.setAttribute('height', nodeHeight);
-        rect.setAttribute('rx', 5); // Bordes redondeados
-        rect.setAttribute('fill', '#4CAF50');
-        rect.setAttribute('stroke', '#388E3C');
-        rect.setAttribute('stroke-width', '2');
-
-        // Dibujar el texto dentro del nodo
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', nodo.x);
-        text.setAttribute('y', nodo.y);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
-        text.setAttribute('fill', 'white');
-        text.setAttribute('font-size', '14px');
-        text.setAttribute('font-family', 'Arial');
-        text.textContent = nodo.valor;
-
-        g.appendChild(rect);
-        g.appendChild(text);
-
-        // Dibujar los hijos
-        if (nodo.hijos) {
-            nodo.hijos.forEach(hijo => {
-                dibujarNodos(hijo, g);
-            });
+        for (const posibleRuta of rutasPosibles) {
+            try {
+                const existe = await verificarImagen(posibleRuta);
+                if (existe) return posibleRuta;
+            } catch (e) {
+                console.warn(`Error al verificar imagen: ${posibleRuta}`, e);
+            }
         }
+
+        return 'https://via.placeholder.com/100?text=Usuario';
     }
 
-    dibujarNodos(arbol, g);
+    async function verificarImagen(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    }
 
-    // Ajustar el tamaño del SVG correctamente
-    const bbox = g.getBBox();
-    const containerWidth = container.offsetWidth;
+    // Función mejorada para expandir imágenes
+    function expandirImagen(event, imgSrc) {
+        event.stopPropagation();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'image-overlay';
+        
+        const expandedImg = document.createElement('img');
+        expandedImg.src = imgSrc;
+        expandedImg.className = 'expanded-image';
+        
+        overlay.appendChild(expandedImg);
+        document.body.appendChild(overlay);
+        
+        overlay.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+    }
 
-    // Usar el mayor entre el ancho calculado y el ancho del contenedor
-    const svgWidth = Math.max(bbox.width + 100, containerWidth);
+    // Dibujar nodos mejorados con imágenes específicas para edificios y puertas
+   // En la función dibujarNodos, modifica esta parte:
+async function dibujarNodos(nodo, g) {
+    if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
 
-    svg.setAttribute('width', svgWidth + 'px');
-    svg.setAttribute('height', (bbox.height + 100) + 'px');
+    const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    nodeGroup.setAttribute('class', 'avl-node-group');
+    nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
+
+    // Detectar si es un nodo de nivel (ejemplo: "Nivel 1", "Nivel 2", ...)
+    const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
+    let esNivel = false;
+    let nivelNumero = 0;
+    if (nivelMatch) {
+        esNivel = true;
+        nivelNumero = parseInt(nivelMatch[1]);
+    }
+
+    // Crear el círculo base para todos los nodos
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
+    circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
+    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('class', 'node-circle');
+
+    if (esNivel && nivelNumero >= 1 && nivelNumero <= 5) {
+        // Imagen de nivel correspondiente
+        const imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelNumero}.png`);
+        const imageSize = TREE_CONFIG.IMAGE_SIZE;
+        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        image.setAttribute('href', imagenUrl);
+        image.setAttribute('width', imageSize);
+        image.setAttribute('height', imageSize);
+        image.setAttribute('x', -imageSize / 2);
+        image.setAttribute('y', -imageSize / 2);
+        image.setAttribute('class', 'node-image');
+        image.style.cursor = 'pointer';
+        nodeGroup.appendChild(circle);
+        nodeGroup.appendChild(image);
+
+        // Texto del nivel debajo de la imagen
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'hanging');
+        text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '12px');
+        text.setAttribute('font-weight', 'bold');
+        text.textContent = nodo.valor;
+        nodeGroup.appendChild(text);
+    } else {
+        // Configuración para otros nodos (edificios, puertas, personas)
+        circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default);
+        nodeGroup.appendChild(circle);
+
+        // Determinar la imagen a mostrar
+        let imagenUrl = 'imagenes/IMG/users/user.png';
+        if (nodo.data && nodo.data.foto) {
+            imagenUrl = await cargarImagenSegura(nodo.data.foto);
+        } else if (nodo.valor.includes("Edificio")) {
+            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
+        } else if (nodo.valor.includes("Puerta")) {
+            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
+        } else if (nodo.valor.includes("Salón")) {
+            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+        }
+
+        // Crear elemento de imagen
+        const imageSize = TREE_CONFIG.IMAGE_SIZE;
+        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        image.setAttribute('href', imagenUrl);
+        image.setAttribute('width', imageSize);
+        image.setAttribute('height', imageSize);
+        image.setAttribute('x', -imageSize/2);
+        image.setAttribute('y', -imageSize/2);
+        image.setAttribute('class', 'node-image');
+        image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
+        image.style.cursor = 'pointer';
+        image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+        nodeGroup.appendChild(image);
+
+        // Texto del nodo (debajo de la imagen)
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'hanging');
+        text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '12px');
+        text.setAttribute('font-weight', 'bold');
+        
+        // Acortar texto largo
+        const textoMostrar = nodo.valor.length > 15 ? 
+            nodo.valor.substring(0, 12) + '...' : nodo.valor;
+        text.textContent = textoMostrar;
+        
+        nodeGroup.appendChild(text);
+    }
+
+    g.appendChild(nodeGroup);
+
+    // Dibujar hijos recursivamente
+    if (nodo.hijos) {
+        for (const hijo of nodo.hijos) {
+            await dibujarNodos(hijo, g);
+        }
+    }
 }
+
+// Función para mostrar el número de salón completo (se mantiene igual)
+function mostrarNumeroSalon(numeroSalon) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '1000';
+    overlay.style.cursor = 'pointer';
+    
+    // Crear contenedor del número
+    const numeroContainer = document.createElement('div');
+    numeroContainer.style.backgroundColor = 'white';
+    numeroContainer.style.padding = '40px 80px';
+    numeroContainer.style.borderRadius = '10px';
+    numeroContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+    numeroContainer.style.fontSize = '48px';
+    numeroContainer.style.fontWeight = 'bold';
+    numeroContainer.style.color = '#2196F3';
+    numeroContainer.textContent = numeroSalon;
+    
+    // Cerrar al hacer clic
+    overlay.addEventListener('click', () => {
+        document.body.removeChild(overlay);
+    });
+    
+    overlay.appendChild(numeroContainer);
+    document.body.appendChild(overlay);
+}
+
+    // Iniciar el dibujo del árbol
+    (async () => {
+        await dibujarNodos(arbol, g);
+        
+        // Ajustar tamaño del SVG según el árbol
+        const bbox = g.getBBox();
+        const svgWidth = Math.max(bbox.width + 200, container.offsetWidth);
+        const svgHeight = Math.max(bbox.height + 200, 600);
+        
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        
+        // Centrar el árbol si es más pequeño que el contenedor
+        if (bbox.width < container.offsetWidth) {
+            g.setAttribute('transform', `translate(${(container.offsetWidth - bbox.width) / 2}, 80)`);
+        }
+    })();
+}
+
 // Funciones para obtener datos (se mantienen iguales)
 function obtenerDatosHistorico() {
     return [
         {
             instalacion: "Edificio A",
-            puerta: "Principal",
+            puerta: "Puerta Principal",
             fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
         },
         {
             instalacion: "Edificio B",
-            puerta: "Secundaria",
+            puerta: "Puerta Secundaria",
             fechas: ["2023-05-01", "2023-05-04"]
         },
         {
             instalacion: "Edificio C",
-            puerta: "Emergencia",
+            puerta: "Puerta Emergencia",
             fechas: ["2023-05-02", "2023-05-03"]
-        },
-        {
-            instalacion: "Edificio D",
-            puerta: "Principal",
-            fechas: ["2023-05-01", "2023-05-02"]
-        },
-        {
-            instalacion: "Edificio E",
-            puerta: "Lateral",
-            fechas: ["2023-05-03", "2023-05-05"]
         }
     ];
 }
@@ -1071,29 +1299,44 @@ function obtenerDatosPorFecha() {
     return [
         {
             instalacion: "Edificio A",
-            puerta: "Principal",
+            puerta: "Puerta Principal",
             fecha: "2023-05-01",
             registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true },
-                { id: 2, nombre: "María García", correo: "maria@example.com", foto: "img/users/user2.jpg", asistencia: false }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    correo: "juan@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                },
+                { 
+                    id: 2, 
+                    nombre: "María García", 
+                    correo: "maria@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: false 
+                }
             ]
         },
         {
             instalacion: "Edificio B",
-            puerta: "Secundaria",
+            puerta: "Puerta Secundaria",
             fecha: "2023-05-02",
             registros: [
-                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true },
-                { id: 4, nombre: "Ana Torres", correo: "ana@example.com", foto: "img/users/user4.jpg", asistencia: true }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            puerta: "Emergencia",
-            fecha: "2023-05-03",
-            registros: [
-                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false },
-                { id: 6, nombre: "Sofía Martínez", correo: "sofia@example.com", foto: "img/users/user6.jpg", asistencia: true }
+                { 
+                    id: 3, 
+                    nombre: "Carlos López", 
+                    correo: "carlos@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                },
+                { 
+                    id: 4, 
+                    nombre: "Ana Torres", 
+                    correo: "ana@example.com", 
+                    foto: "imagenes/IMG/users/user.avif",
+                    asistencia: true 
+                }
             ]
         }
     ];
@@ -1106,8 +1349,18 @@ function obtenerDatosSalonHistorico() {
             nivel: "1",
             salon: "101",
             estudiantes: [
-                { id: 1, nombre: "Juan Pérez", tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", tipo: "catedrático" }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 2, 
+                    nombre: "Prof. Rodríguez", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         },
         {
@@ -1115,17 +1368,18 @@ function obtenerDatosSalonHistorico() {
             nivel: "2",
             salon: "202",
             estudiantes: [
-                { id: 3, nombre: "Carlos López", tipo: "estudiante" },
-                { id: 4, nombre: "Prof. García", tipo: "catedrático" }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            nivel: "3",
-            salon: "303",
-            estudiantes: [
-                { id: 5, nombre: "Luis Gómez", tipo: "estudiante" },
-                { id: 6, nombre: "Prof. Martínez", tipo: "catedrático" }
+                { 
+                    id: 3, 
+                    nombre: "Carlos López", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 4, 
+                    nombre: "Prof. García", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         }
     ];
@@ -1139,33 +1393,22 @@ function obtenerDatosSalonPorFecha() {
             salon: "101",
             fecha: "2023-05-01",
             registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "img/users/user1.jpg", asistencia: true, tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", correo: "prof@example.com", foto: "img/users/prof1.jpg", asistencia: true, tipo: "catedrático" }
-            ]
-        },
-        {
-            instalacion: "Edificio B",
-            nivel: "2",
-            salon: "202",
-            fecha: "2023-05-02",
-            registros: [
-                { id: 3, nombre: "Carlos López", correo: "carlos@example.com", foto: "img/users/user3.jpg", asistencia: true, tipo: "estudiante" },
-                { id: 4, nombre: "Prof. García", correo: "prof@example.com", foto: "img/users/prof2.jpg", asistencia: false, tipo: "catedrático" }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            nivel: "3",
-            salon: "303",
-            fecha: "2023-05-03",
-            registros: [
-                { id: 5, nombre: "Luis Gómez", correo: "luis@example.com", foto: "img/users/user5.jpg", asistencia: false, tipo: "estudiante" },
-                { id: 6, nombre: "Prof. Martínez", correo: "prof@example.com", foto: "img/users/prof3.jpg", asistencia: true, tipo: "catedrático" }
+                { 
+                    id: 1, 
+                    nombre: "Juan Pérez", 
+                    tipo: "estudiante",
+                    foto: "imagenes/IMG/users/user.avif"
+                },
+                { 
+                    id: 2, 
+                    nombre: "Prof. Rodríguez", 
+                    tipo: "catedrático",
+                    foto: "imagenes/IMG/users/user.avif"
+                }
             ]
         }
     ];
 }
-
 //----------------------------------------------------------------------------------------------------------------
 function tomarAsistencia() {
     // Función para tomar asistencia (compartida entre estudiante y servicios)

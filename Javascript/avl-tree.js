@@ -1,262 +1,244 @@
-// AVL Tree Visualization
-class AVLNode {
-    constructor(value, data = null) {
-        this.value = value;
-        this.data = data;
-        this.left = null;
-        this.right = null;
-        this.height = 1;
+// Configuración mejorada del árbol
+const TREE_CONFIG = {
+    NODE_RADIUS: 35, // Aumentado de 25 a 35
+    VERTICAL_SPACING: 120, // Aumentado de 80 a 120
+    HORIZONTAL_SPACING: 60, // Aumentado para más espacio
+    LEVEL_HEIGHT: 100,
+    IMAGE_SIZE: 50, // Tamaño de la imagen
+    LINE_WIDTH: 3,
+    NODE_COLORS: {
+        default: '#4CAF50',
+        hover: '#3e8e41',
+        stroke: '#388E3C'
     }
-}
+};
 
-class AVLTree {
-    constructor() {
-        this.root = null;
-    }
-
-    // Helper functions
-    getHeight(node) {
-        return node ? node.height : 0;
-    }
-
-    updateHeight(node) {
-        node.height = Math.max(this.getHeight(node.left), this.getHeight(node.right)) + 1;
-    }
-
-    getBalanceFactor(node) {
-        return this.getHeight(node.left) - this.getHeight(node.right);
-    }
-
-    // Rotations
-    rotateRight(y) {
-        const x = y.left;
-        const T2 = x.right;
-
-        x.right = y;
-        y.left = T2;
-
-        this.updateHeight(y);
-        this.updateHeight(x);
-
-        return x;
-    }
-
-    rotateLeft(x) {
-        const y = x.right;
-        const T2 = y.left;
-
-        y.left = x;
-        x.right = T2;
-
-        this.updateHeight(x);
-        this.updateHeight(y);
-
-        return y;
-    }
-
-    // Insert a value into the AVL tree
-    insert(value, data = null) {
-        this.root = this._insert(this.root, value, data);
-    }
-
-    _insert(node, value, data) {
-        if (!node) return new AVLNode(value, data);
-
-        if (value < node.value) {
-            node.left = this._insert(node.left, value, data);
-        } else if (value > node.value) {
-            node.right = this._insert(node.right, value, data);
-        } else {
-            return node; // Duplicate values are not allowed
-        }
-
-        this.updateHeight(node);
-
-        const balance = this.getBalanceFactor(node);
-
-        // Balance the tree
-        if (balance > 1 && value < node.left.value) return this.rotateRight(node);
-        if (balance < -1 && value > node.right.value) return this.rotateLeft(node);
-        if (balance > 1 && value > node.left.value) {
-            node.left = this.rotateLeft(node.left);
-            return this.rotateRight(node);
-        }
-        if (balance < -1 && value < node.right.value) {
-            node.right = this.rotateRight(node.right);
-            return this.rotateLeft(node);
-        }
-
-        return node;
-    }
-
-    // Search for a value in the AVL tree
-    search(value) {
-        return this._search(this.root, value);
-    }
-
-    _search(node, value) {
-        if (!node) return null;
-        if (value === node.value) return node;
-        return value < node.value ? this._search(node.left, value) : this._search(node.right, value);
-    }
-
-    // In-order traversal
-    inOrder() {
-        const result = [];
-        this._inOrder(this.root, result);
-        return result;
-    }
-
-    _inOrder(node, result) {
-        if (node) {
-            this._inOrder(node.left, result);
-            result.push(node);
-            this._inOrder(node.right, result);
-        }
-    }
-}
-
-// AVL Tree Visualization Functions
-function initAVLTree(containerId) {
-    console.log(`Árbol AVL inicializado en: ${containerId}`);
-}
-
-function dibujarArbolAVL(containerId, data, tipoReporte) {
+function dibujarArbolAVLCompleto(containerId, arbol) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error(`Contenedor ${containerId} no encontrado`);
         return;
     }
 
-    container.innerHTML = ''; // Clear container
+    // Limpiar el contenedor
+    container.innerHTML = '';
 
-    const canvas = document.createElement('canvas');
-    canvas.width = container.offsetWidth;
-    canvas.height = 600;
-    container.appendChild(canvas);
+    // Crear elemento SVG para el árbol
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '800'); // Altura aumentada
+    svg.style.display = 'block';
+    svg.style.margin = '20px auto';
+    svg.style.overflow = 'visible';
 
-    dibujarArbolEnCanvas(canvas, data);
-}
+    // Grupo principal
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', 'translate(0, 80)');
+    svg.appendChild(g);
+    container.appendChild(svg);
 
-function dibujarArbolEnCanvas(canvas, arbol) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    function dibujarNodo(x, y, texto) {
-        const radio = 20;
-        ctx.beginPath();
-        ctx.arc(x, y, radio, 0, Math.PI * 2);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(texto, x, y);
-    }
-
-    function dibujarLinea(x1, y1, x2, y2) {
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-
-    function dibujar(nodo, x, y, nivel, espacio) {
+    // Calcular posiciones con más espacio
+    function calcularPosiciones(nodo, nivel, posX, espacioDisponible) {
         if (!nodo) return;
 
-        const offsetY = 80;
-        const nuevoEspacio = espacio / 2;
+        const posY = nivel * TREE_CONFIG.VERTICAL_SPACING;
+        nodo.x = posX;
+        nodo.y = posY;
 
-        if (nodo.left) {
-            const xIzq = x - nuevoEspacio;
-            const yIzq = y + offsetY;
-            dibujarLinea(x, y + 20, xIzq, yIzq - 20);
-            dibujar(nodo.left, xIzq, yIzq, nivel + 1, nuevoEspacio);
+        if (nodo.hijos && nodo.hijos.length > 0) {
+            const totalHijos = nodo.hijos.length;
+            const espacioRequerido = Math.max(
+                TREE_CONFIG.HORIZONTAL_SPACING * (totalHijos - 1), 
+                espacioDisponible / totalHijos
+            );
+
+            const startX = posX - (espacioRequerido * (totalHijos - 1)) / 2;
+
+            nodo.hijos.forEach((hijo, index) => {
+                const childX = startX + index * espacioRequerido;
+                calcularPosiciones(hijo, nivel + 1, childX, espacioRequerido);
+            });
         }
-
-        if (nodo.right) {
-            const xDer = x + nuevoEspacio;
-            const yDer = y + offsetY;
-            dibujarLinea(x, y + 20, xDer, yDer - 20);
-            dibujar(nodo.right, xDer, yDer, nivel + 1, nuevoEspacio);
-        }
-
-        dibujarNodo(x, y, nodo.value);
     }
 
-    dibujar(arbol, canvas.width / 2, 50, 0, canvas.width / 3);
-}
+    // Calcular posiciones comenzando desde el centro
+    calcularPosiciones(arbol, 0, container.offsetWidth / 2, container.offsetWidth);
 
-// Data Conversion Functions
-function convertirDatosAArbol(data, tipo) {
-    if (tipo === 'historicoEntrada') {
-        return {
-            value: "Entradas",
-            left: {
-                value: data[0].instalacion,
-                left: { value: data[0].puerta },
-                right: { value: data[0].fechas[0] }
-            },
-            right: {
-                value: data[1].instalacion,
-                left: { value: data[1].puerta },
-                right: { value: data[1].fechas[0] }
+    // Dibujar conexiones más gruesas
+    function dibujarConexiones(nodo, g) {
+        if (!nodo || !nodo.hijos) return;
+
+        nodo.hijos.forEach(hijo => {
+            if (hijo.x !== undefined && hijo.y !== undefined) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', nodo.x);
+                line.setAttribute('y1', nodo.y);
+                line.setAttribute('x2', hijo.x);
+                line.setAttribute('y2', hijo.y);
+                line.setAttribute('stroke', '#555');
+                line.setAttribute('stroke-width', TREE_CONFIG.LINE_WIDTH);
+                line.setAttribute('stroke-linecap', 'round');
+                g.appendChild(line);
+                dibujarConexiones(hijo, g);
             }
-        };
+        });
     }
-    return { value: "Raíz" }; // Default structure
-}
 
-// Sample Data Functions
-function obtenerDatosHistorico() {
-    return [
-        { instalacion: "Edificio A", puerta: "Principal", fechas: ["2023-05-01", "2023-05-02"] },
-        { instalacion: "Edificio B", puerta: "Secundaria", fechas: ["2023-05-03", "2023-05-04"] }
-    ];
-}
+    dibujarConexiones(arbol, g);
 
-function obtenerDatosPorFecha() {
-    return [
-        {
-            instalacion: "Edificio A",
-            puerta: "Principal",
-            fecha: "2023-05-01",
-            registros: [
-                { id: 1, nombre: "Juan Pérez", asistencia: true },
-                { id: 2, nombre: "María García", asistencia: false }
-            ]
+    // Función mejorada para manejar imágenes
+    async function cargarImagenSegura(ruta) {
+        const rutasPosibles = [
+            ruta,
+            `/${ruta}`,
+            `../${ruta}`,
+            `../../${ruta}`,
+            `imagenes/IMG/users/${ruta.split('/').pop()}`,
+            'imagenes/IMG/users/user.png',
+            'https://via.placeholder.com/100?text=Usuario'
+        ];
+
+        for (const posibleRuta of rutasPosibles) {
+            try {
+                const existe = await verificarImagen(posibleRuta);
+                if (existe) return posibleRuta;
+            } catch (e) {
+                console.warn(`Error al verificar imagen: ${posibleRuta}`, e);
+            }
         }
-    ];
+
+        return 'https://via.placeholder.com/100?text=Usuario';
+    }
+
+    async function verificarImagen(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    }
+
+    // Función mejorada para expandir imágenes
+    function expandirImagen(event, imgSrc) {
+        event.stopPropagation();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'image-overlay';
+        
+        const expandedImg = document.createElement('img');
+        expandedImg.src = imgSrc;
+        expandedImg.className = 'expanded-image';
+        
+        overlay.appendChild(expandedImg);
+        document.body.appendChild(overlay);
+        
+        overlay.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+    }
+
+    // Dibujar nodos mejorados
+    async function dibujarNodos(nodo, g) {
+        if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
+
+        const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodeGroup.setAttribute('class', 'avl-node-group');
+        nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
+
+        // Crear fondo del nodo
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
+        circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default);
+        circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
+        circle.setAttribute('stroke-width', '2');
+        circle.setAttribute('class', 'node-circle');
+        nodeGroup.appendChild(circle);
+
+        // Cargar imagen (si existe)
+        let imagenUrl = 'imagenes/IMG/users/user.png';
+        if (nodo.data && nodo.data.foto) {
+            imagenUrl = await cargarImagenSegura(nodo.data.foto);
+        }
+
+        // Crear elemento de imagen
+        const imageSize = TREE_CONFIG.IMAGE_SIZE;
+        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        image.setAttribute('href', imagenUrl);
+        image.setAttribute('width', imageSize);
+        image.setAttribute('height', imageSize);
+        image.setAttribute('x', -imageSize/2);
+        image.setAttribute('y', -imageSize/2);
+        image.setAttribute('class', 'node-image');
+        image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
+        image.style.cursor = 'pointer';
+        image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+        nodeGroup.appendChild(image);
+
+        // Texto del nodo (debajo de la imagen)
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'hanging');
+        text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+        text.setAttribute('fill', '#333');
+        text.setAttribute('font-size', '12px');
+        text.setAttribute('font-weight', 'bold');
+        
+        // Acortar texto largo
+        const textoMostrar = nodo.valor.length > 15 ? 
+            nodo.valor.substring(0, 12) + '...' : nodo.valor;
+        text.textContent = textoMostrar;
+        
+        // Tooltip para texto completo
+        if (nodo.valor.length > 15) {
+            nodeGroup.setAttribute('title', nodo.valor);
+        }
+        
+        nodeGroup.appendChild(text);
+
+        g.appendChild(nodeGroup);
+
+        // Dibujar hijos recursivamente
+        if (nodo.hijos) {
+            for (const hijo of nodo.hijos) {
+                await dibujarNodos(hijo, g);
+            }
+        }
+    }
+
+    // Iniciar el dibujo del árbol
+    (async () => {
+        await dibujarNodos(arbol, g);
+        
+        // Ajustar tamaño del SVG
+        const bbox = g.getBBox();
+        const svgWidth = Math.max(bbox.width + 100, container.offsetWidth);
+        const svgHeight = Math.max(bbox.height + 150, 600);
+        
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        
+        // Centrar el árbol si es más pequeño que el contenedor
+        if (bbox.width < container.offsetWidth) {
+            g.setAttribute('transform', `translate(${(container.offsetWidth - bbox.width) / 2}, 80)`);
+        }
+    })();
 }
 
-function obtenerDatosSalonHistorico() {
-    // Mock data for classroom historical report
-    return [
-        {
-            instalacion: "Edificio A",
-            nivel: "1",
-            salon: "101",
-            estudiantes: [
-                { id: 1, nombre: "Juan Pérez", tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", tipo: "catedrático" }
-            ]
+    // Iniciar el dibujo del árbol
+    (async () => {
+        await dibujarNodos(arbol, g);
+        
+        // Ajustar tamaño del SVG
+        const bbox = g.getBBox();
+        const svgWidth = Math.max(bbox.width + 100, container.offsetWidth);
+        const svgHeight = Math.max(bbox.height + 150, 600);
+        
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        
+        // Centrar el árbol si es más pequeño que el contenedor
+        if (bbox.width < container.offsetWidth) {
+            g.setAttribute('transform', `translate(${(container.offsetWidth - bbox.width) / 2}, 80)`);
         }
-    ];
-}
-
-function obtenerDatosSalonPorFecha() {
-    // Mock data for classroom date-specific report
-    return [
-        {
-            instalacion: "Edificio A",
-            nivel: "1",
-            salon: "101",
-            fecha: "2023-05-01",
-            registros: [
-                { id: 1, nombre: "Juan Pérez", correo: "juan@example.com", foto: "user1.jpg", asistencia: true, tipo: "estudiante" },
-                { id: 2, nombre: "Prof. Rodríguez", correo: "prof@example.com", foto: "user3.jpg", asistencia: true, tipo: "catedrático" }
-            ]
-        }
-    ];
-}
+    })();
