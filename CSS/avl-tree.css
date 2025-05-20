@@ -134,3 +134,67 @@ line {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+.node-rect {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.avl-node-group:hover .node-rect {
+    fill: #0b7dda;
+    stroke: #0a6ebd;
+    filter: drop-shadow(0 2px 8px rgba(33, 150, 243, 0.4));
+    transform: scale(1.05);
+}
+
+/* Asegurar que el texto del salón sea visible */
+.avl-node-group text {
+    user-select: none;
+    pointer-events: none;
+}
+/* Estilos para las imágenes de nivel */
+.nivel-1-image {
+    border: 2px solid #9C27B0;
+}
+
+.nivel-2-image {
+    border: 2px solid #FF9800;
+}
+
+.nivel-3-image {
+    border: 2px solid #607D8B;
+}
+
+.nivel-4-image {
+    border: 2px solid #795548;
+}
+
+.nivel-5-image {
+    border: 2px solid #E91E63;
+}
+
+/* Efecto hover para todos los nodos */
+.avl-node-group:hover .node-circle {
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    transform: scale(1.05);
+}
+
+.avl-node-group:hover .node-image {
+    transform: scale(1.1);
+}
+
+/* Estilo para el modal de nivel */
+.nivel-modal img {
+    max-height: 150px;
+    margin-bottom: 15px;
+}
+
+.nivel-modal h3 {
+    color: #2196F3;
+    margin: 10px 0;
+}
+
+.nivel-modal p {
+    color: #555;
+    font-size: 16px;
+}
