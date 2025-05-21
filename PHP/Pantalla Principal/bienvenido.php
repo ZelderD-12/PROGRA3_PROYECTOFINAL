@@ -456,7 +456,7 @@ function mostrarInformacionAdmin(tipo) {
         <p>Aquí se mostraría la información específica para ${tipo}.</p>
     `;
 }
-/*--------------------------------------------------------------------- */
+/*----------------------AQUI SE MUESTRA LO DE OPERACIONES----------------------------------------------- */
 // Función para cambiar configuración
 function cambiarConfiguracion(opcion) {
     // Obtener el área de contenido principal

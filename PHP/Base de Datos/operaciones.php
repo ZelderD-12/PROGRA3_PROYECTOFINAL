@@ -189,6 +189,7 @@ function mostrarImagenDesdeSP($carnetUsuario) {
         echo '❌ Error al obtener la imagen desde el procedimiento almacenado.';
     }
 }
+//******AQUI IMPLEMENTO LOS SP NUEVOS************************************* */
 // Función para obtener el nombre de la carrera
 function obtenerNombreCarrera($idCarrera) {
     global $conexion;
@@ -262,6 +263,6 @@ function obtenerTipoUsuario($idTipoUsuario) {
     
     return $tipoUsuario;
 }
-
+/********************************************************************************* */ 
  
 ?>
