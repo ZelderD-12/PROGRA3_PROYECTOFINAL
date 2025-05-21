@@ -189,5 +189,79 @@ function mostrarImagenDesdeSP($carnetUsuario) {
         echo '❌ Error al obtener la imagen desde el procedimiento almacenado.';
     }
 }
+// Función para obtener el nombre de la carrera
+function obtenerNombreCarrera($idCarrera) {
+    global $conexion;
+    
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+    
+    // Llamar al procedimiento almacenado
+    $query = "CALL BuscarCarrera($idCarrera)";
+    $result = $conexion->query($query);
+    
+    $nombreCarrera = "";
+    
+    if ($result && $row = $result->fetch_assoc()) {
+        $nombreCarrera = $row['Nombre_Carrera'];
+    }
+    
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+    
+    return $nombreCarrera;
+}
 
+// Función para obtener el tipo de usuario
+function obtenerTipoUsuario($idTipoUsuario) {
+    global $conexion;
+    
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+    
+    try {
+        // Llamar al procedimiento  
+        $query = "CALL BuscarTipoUsuario($idTipoUsuario)";
+        $result = $conexion->query($query);
+        
+        $tipoUsuario = "";
+        
+        if ($result && $row = $result->fetch_assoc()) {
+            $tipoUsuario = $row['Tipo_De_Usuario'];
+        } else {
+            // Si hay error, intentar un enfoque alternativo usando una consulta directa
+            error_log("Error con SP BuscarTipoUsuario: " . $conexion->error);
+            
+            // Limpiar resultados pendientes
+            while ($conexion->more_results()) {
+                $conexion->next_result();
+            }
+            
+            // Consulta alternativa
+            $query_alt = "SELECT Tipo_De_Usuario FROM TiposUsuario WHERE Id_Tipo_Usuario = $idTipoUsuario";
+            $result_alt = $conexion->query($query_alt);
+            
+            if ($result_alt && $row_alt = $result_alt->fetch_assoc()) {
+                $tipoUsuario = $row_alt['Tipo_De_Usuario'];
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Excepción al buscar tipo de usuario: " . $e->getMessage());
+    }
+    
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+    
+    return $tipoUsuario;
+}
+
+ 
 ?>
