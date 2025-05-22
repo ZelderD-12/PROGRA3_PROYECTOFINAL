@@ -6,7 +6,7 @@ if (!isset($_SESSION['tipos_usuario']) || !isset($_SESSION['id_tipos_usuario']))
     $query = "CALL ObtenerTiposDeUsuarios();";
     $result = $conexion->query($query);
     while ($conexion->more_results()) {
-        $conexion->next_result(); 
+        $conexion->next_result();
     }
     if ($result) {
         $tipos_usuario = [];
@@ -30,7 +30,7 @@ if (!isset($_SESSION['carreras']) || !isset($_SESSION['id_carreras'])) {
     $query = "CALL ObtenerCarreras();";
     $result = $conexion->query($query);
     while ($conexion->more_results()) {
-        $conexion->next_result(); 
+        $conexion->next_result();
     }
     if ($result) {
         $carreras = [];
@@ -59,9 +59,9 @@ if (isset($_POST['login'])) {
         $stmt = $conexion->prepare("CALL BuscarUsuarios_Login(?, ?)");
         $stmt->bind_param("ss", $email, $password);
         $stmt->execute();
-        
+
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             $usuario = $result->fetch_assoc();
             $nombreCarrera = obtenerNombreCarrera($usuario['Id_Carrera_Usuario']);
@@ -88,30 +88,40 @@ if (isset($_POST['login'])) {
             $_SESSION['tipousuario'] = $tipoUsuario;
 
             $pagina_destino = '../Pantalla Principal/bienvenido.php'; // Ruta base ajustada a tu estructura
-            switch($_SESSION['idtipousuario']) {
-                case 1: $pagina_destino = '../admin/dashboard.php'; break;
-                case 2: $pagina_destino = '../docente/panel.php'; break;
-                case 3: $pagina_destino = '../estudiante/inicio.php'; break;
-                case 4: $pagina_destino = '../Desarrolladores/panel.php'; break;
-                case 5: $pagina_destino = '../Servicios/inicio.php'; break;
-            }   
-            
+            switch ($_SESSION['idtipousuario']) {
+                case 1:
+                    $pagina_destino = '../admin/dashboard.php';
+                    break;
+                case 2:
+                    $pagina_destino = '../docente/panel.php';
+                    break;
+                case 3:
+                    $pagina_destino = '../estudiante/inicio.php';
+                    break;
+                case 4:
+                    $pagina_destino = '../Desarrolladores/panel.php';
+                    break;
+                case 5:
+                    $pagina_destino = '../Servicios/inicio.php';
+                    break;
+            }
+
             // Guardar también en sessionStorage para JavaScript
             echo "<script>
                 sessionStorage.setItem('loggedIn', 'true');
-                sessionStorage.setItem('usuario', JSON.stringify(".json_encode($usuario)."));
+                sessionStorage.setItem('usuario', JSON.stringify(" . json_encode($usuario) . "));
                 window.location.href = '../Pantalla Principal/bienvenido.php';
             </script>";
-            
+
             exit();
         } else {
-            header("Location: ../../index.php?error=".urlencode("Credenciales incorrectas"));
+            header("Location: ../../index.php?error=" . urlencode("Credenciales incorrectas"));
             exit();
         }
-        
+
         $stmt->close();
     } else {
-        header("Location: ../../index.php?error=".urlencode("Por favor complete todos los campos"));
+        header("Location: ../../index.php?error=" . urlencode("Por favor complete todos los campos"));
         exit();
     }
 }
@@ -146,17 +156,39 @@ if (isset($_POST['registrar'])) {
         isset($indicetipouser) && isset($indicecarrera) && !empty($seccion)
     ) {
         $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
+
         if (!$stmt) {
             die("❌ Error en la preparación de la consulta: " . $conexion->error);
         }
         $stmt->bind_param("sssssssiis", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $indicetipouser, $indicecarrera, $seccion);
-       
+
         try {
             if ($stmt->execute()) {
                 echo "✅ Usuario insertado correctamente.";
-                header("Location: ../Registro/Impresion.php");
-                exit();
+
+                // Preparar datos para enviar_pdf.php
+                $datosPDF = [
+                    'email' => $email,
+                    'fotoData' => $_POST['foto'], // La foto base64 desde el formulario
+                    'carnet' => $carnet,
+                    'nombres' => $nombres,
+                    'apellidos' => $apellidos,
+                    'celular' => $celular,
+                    'tipo' => $_POST['tipouser'],
+                    'carrera' => $_POST['carrera'],
+                    'seccion' => $seccion
+                ];
+
+                include(__DIR__ . '/../Registro/enviar_pdf.php');
+
+
+                $resultado = generarYEnviarPDF($datosPDF);
+                if ($resultado === true) {
+                    header("Location: ../Registro/Impresion.php");
+                    exit();
+                } else {
+                    echo "Error al enviar PDF o correo: " . $resultado;
+                }
             } else {
                 throw new Exception("Error en la ejecución: " . $stmt->error);
             }
@@ -172,7 +204,8 @@ if (isset($_POST['registrar'])) {
 }
 
 // Función para mostrar imagen desde base64 usando el SP Obtener64
-function mostrarImagenDesdeSP($carnetUsuario) {
+function mostrarImagenDesdeSP($carnetUsuario)
+{
     // Requiere acceso a $conexion
     global $conexion;
 
