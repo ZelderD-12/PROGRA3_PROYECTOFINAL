@@ -837,14 +837,14 @@ function construirArbolDesdeDatos(datos, tipo) {
                         const nodoNivel = {
                             valor: `Nivel ${nivel.numero}`,
                             nivel: 1,
-                            data: { foto: `imagenes/IMG/level/nivel${nivel.numero}.png` },
+                            data: { foto: IMG_PATHS.nivel(nivel.numero) },
                             hijos: []
                         };
                         nivel.salones.forEach(salon => {
                             const nodoSalon = {
                                 valor: `Salón ${salon.numero}`,
                                 nivel: 2,
-                                data: { foto: "imagenes/IMG/objetos/classroom.png" },
+                                data: { foto: IMG_PATHS.classroom },
                                 hijos: []
                             };
                             if (salon.usuarios) {
@@ -869,7 +869,7 @@ function construirArbolDesdeDatos(datos, tipo) {
                     const nodoPuerta = {
                         valor: entrada.puerta,
                         nivel: 1,
-                        data: { foto: "imagenes/IMG/objetos/door.jpg" },
+                        data: { foto: IMG_PATHS.door },
                         hijos: []
                     };
                     (entrada.fechas || []).forEach((fecha, idx) => {
@@ -895,7 +895,7 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoPuerta = {
                     valor: entradaFecha.puerta,
                     nivel: 1,
-                    data: { foto: "imagenes/IMG/objetos/door.jpg" },
+                    data: { foto: IMG_PATHS.door },
                     hijos: []
                 };
                 (entradaFecha.registros || []).forEach((registro, idx) => {
@@ -921,13 +921,13 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 1,
-                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` },
+                    data: { foto: IMG_PATHS.nivel(salon.nivel) },
                     hijos: []
                 };
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 2,
-                    data: { foto: "imagenes/IMG/objetos/classroom.png" },
+                    data: { foto: IMG_PATHS.classroom },
                     hijos: []
                 };
                 (salon.estudiantes || []).forEach((est, idx) => {
@@ -954,13 +954,13 @@ function construirArbolDesdeDatos(datos, tipo) {
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
                     nivel: 1,
-                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` },
+                    data: { foto: IMG_PATHS.nivel(salon.nivel) },
                     hijos: []
                 };
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
                     nivel: 2,
-                    data: { foto: "imagenes/IMG/objetos/classroom.png" },
+                    data: { foto: IMG_PATHS.classroom },
                     hijos: []
                 };
                 (salon.registros || []).forEach((reg, idx) => {
@@ -1325,8 +1325,8 @@ function obtenerDatosHistorico() {
                         {
                             numero: "101",
                             usuarios: [
-                                { nombre: "Juan Pérez", foto: "imagenes/IMG/users/user.avif" },
-                                { nombre: "Ana Torres", foto: "imagenes/IMG/users/user.avif" }
+                                { nombre: "Juan Pérez", foto: IMG_PATHS.user },
+                                { nombre: "Ana Torres", foto: IMG_PATHS.user }
                             ]
                         }
                     ]
@@ -1337,14 +1337,13 @@ function obtenerDatosHistorico() {
                         {
                             numero: "202",
                             usuarios: [
-                                { nombre: "Carlos López", foto: "imagenes/IMG/users/user.avif" }
+                                { nombre: "Carlos López", foto: IMG_PATHS.user }
                             ]
                         }
                     ]
                 }
             ]
         },
-        // ...otros edificios...
     ];
 }
 
@@ -1359,14 +1358,14 @@ function obtenerDatosPorFecha() {
                     id: 1, 
                     nombre: "Juan Pérez", 
                     correo: "juan@example.com", 
-                    foto: "imagenes/IMG/users/user.avif",
+                    foto: IMG_PATHS.user,
                     asistencia: true 
                 },
                 { 
                     id: 2, 
                     nombre: "María García", 
                     correo: "maria@example.com", 
-                    foto: "imagenes/IMG/users/user.avif",
+                    foto: IMG_PATHS.user,
                     asistencia: false 
                 }
             ]
@@ -1380,14 +1379,14 @@ function obtenerDatosPorFecha() {
                     id: 3, 
                     nombre: "Carlos López", 
                     correo: "carlos@example.com", 
-                    foto: "imagenes/IMG/users/user.avif",
+                    foto: IMG_PATHS.user,
                     asistencia: true 
                 },
                 { 
                     id: 4, 
                     nombre: "Ana Torres", 
                     correo: "ana@example.com", 
-                    foto: "imagenes/IMG/users/user.avif",
+                    foto: IMG_PATHS.user,
                     asistencia: true 
                 }
             ]
@@ -1406,13 +1405,13 @@ function obtenerDatosSalonHistorico() {
                     id: 1, 
                     nombre: "Juan Pérez", 
                     tipo: "estudiante",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 },
                 { 
                     id: 2, 
                     nombre: "Prof. Rodríguez", 
                     tipo: "catedrático",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 }
             ]
         },
@@ -1425,13 +1424,13 @@ function obtenerDatosSalonHistorico() {
                     id: 3, 
                     nombre: "Carlos López", 
                     tipo: "estudiante",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 },
                 { 
                     id: 4, 
                     nombre: "Prof. García", 
                     tipo: "catedrático",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 }
             ]
         }
@@ -1450,13 +1449,13 @@ function obtenerDatosSalonPorFecha() {
                     id: 1, 
                     nombre: "Juan Pérez", 
                     tipo: "estudiante",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 },
                 { 
                     id: 2, 
                     nombre: "Prof. Rodríguez", 
                     tipo: "catedrático",
-                    foto: "imagenes/IMG/users/user.avif"
+                    foto: IMG_PATHS.user
                 }
             ]
         }
@@ -1480,7 +1479,7 @@ function gestionarUsuarios(accion) {
     // Función para gestionar usuarios (compartida entre admin y desarrollador)
     document.getElementById('info-content').innerHTML = `
         <h3>Gestor de Usuarios - ${accion}</h3>
-        <p>Realizando acción: ${accion}.</p>
+        <p>Realizando acción : ${accion}.</p>
     `;
 }
 
@@ -1862,6 +1861,7 @@ function crearGraficosComparativaSalones(data, chartType) {
     );
     
     // Gráfico de total asistencias
+   
     crearChart(
         'totalSalonesChart',
         'doughnut',
@@ -1873,7 +1873,7 @@ function crearGraficosComparativaSalones(data, chartType) {
         [
             'rgba(54, 162, 235, 0.7)',
             'rgba(255, 99, 132, 0.7)',
-            'rgba(75, 192, 192, 0.7)'
+            'rgba(75, 192, 192,  0.7)'
         ],
         false
     );
@@ -2129,6 +2129,15 @@ if (typeof Chart !== 'undefined') {
         }
     }, 100);
 }
+
+// Definir rutas de imágenes estáticas globales
+const IMG_PATHS = {
+    nivel: num => `imagenes/IMG/level/nivel${num}.png`,
+    classroom: "imagenes/IMG/objetos/classroom.jpg",
+    door: "imagenes/IMG/objetos/door.jpg",
+    edificio: "imagenes/IMG/objetos/edificio.jpeg",
+    user: "imagenes/IMG/users/user.avif"
+};
 </script>
 </head>
 <body>
