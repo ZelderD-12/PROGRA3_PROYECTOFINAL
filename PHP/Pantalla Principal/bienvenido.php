@@ -293,16 +293,16 @@
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte histórico de ingresos
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos 
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso por fecha
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso de salon
                             </a>
                         </div>
                     </div>
@@ -577,54 +577,48 @@ function confirmarAsistencia() {
 }
 //----------------------------------------------------------------------------------------------------------------
 function cargarCombobox(tipoReporte) {
-    // Lista de opciones según el tipo de reporte
     let opciones = [];
+    let mostrarFecha = false;
+
     switch (tipoReporte) {
-        case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
+        case 'historicoEntrada': // Solo edificios
             opciones = [
-                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
-                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
-                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
-                { id: 'puertaSecundaria', nombre: "Puerta Secundaria - Nivel II" }
+                { id: 'edificioA', nombre: "Edificio A" },
+                { id: 'edificioB', nombre: "Edificio B" },
+                { id: 'edificioC', nombre: "Edificio C" }
             ];
             break;
-
-        case 'fechaEntrada': // Mostrar solo edificios
+        case 'fechaEntrada': // Solo edificios + fecha
             opciones = [
-                { id: 'edificioA', nombre: "Edificio A - Nivel I" },
-                { id: 'edificioB', nombre: "Edificio B - Nivel I" },
-                { id: 'edificioC', nombre: "Edificio C - Nivel I" }
+                { id: 'edificioA', nombre: "Edificio A" },
+                { id: 'edificioB', nombre: "Edificio B" },
+                { id: 'edificioC', nombre: "Edificio C" }
+            ];
+            mostrarFecha = true;
+            break;
+        case 'historicoSalon': // Solo salones
+            opciones = [
+                { id: 'salon101', nombre: "Salón 101" },
+                { id: 'salon202', nombre: "Salón 202" }
             ];
             break;
-
-        case 'historicoSalon': // Mostrar salones y puertas según el nivel
+        case 'fechaSalon': // Solo salones + fecha
             opciones = [
-                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
-                { id: 'salon202', nombre: "Salón 202 - Nivel II" },
-                { id: 'puertaPrincipal', nombre: "Puerta Principal - Nivel II" },
-                { id: 'puertaEmergencia', nombre: "Puerta Emergencia - Nivel I" }
+                { id: 'salon101', nombre: "Salón 101" },
+                { id: 'salon202', nombre: "Salón 202" }
             ];
+            mostrarFecha = true;
             break;
-
-        case 'fechaSalon': // Mostrar solo salones de un nivel específico
-            opciones = [
-                { id: 'salon101', nombre: "Salón 101 - Nivel I" },
-                { id: 'salon202', nombre: "Salón 202 - Nivel II" }
-            ];
-            break;
-
         default:
             console.error('Tipo de reporte no reconocido:', tipoReporte);
             return;
     }
 
-    // Obtener el combo box por su ID
     const comboBox = document.getElementById('report-options-select');
+    if (!comboBox) return;
 
-    // Limpiar las opciones existentes
     comboBox.innerHTML = '';
 
-    // Agregar una opción por defecto
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = 'Seleccione una opción';
@@ -632,13 +626,28 @@ function cargarCombobox(tipoReporte) {
     defaultOption.selected = true;
     comboBox.appendChild(defaultOption);
 
-    // Agregar las opciones dinámicamente
     opciones.forEach(opcion => {
         const option = document.createElement('option');
         option.value = opcion.id;
         option.textContent = opcion.nombre;
         comboBox.appendChild(option);
     });
+
+    // Manejo del input de fecha
+    let fechaInput = document.getElementById('report-date-input');
+    if (mostrarFecha) {
+        if (!fechaInput) {
+            fechaInput = document.createElement('input');
+            fechaInput.type = 'date';
+            fechaInput.id = 'report-date-input';
+            fechaInput.className = 'report-date-input';
+            comboBox.parentNode.appendChild(fechaInput);
+        }
+    } else {
+        if (fechaInput) {
+            fechaInput.parentNode.removeChild(fechaInput);
+        }
+    }
 }
 
 // Función principal para mostrar reportes
@@ -802,8 +811,11 @@ function obtenerDatosParaReporte(tipo) {
 // Función para construir la estructura del árbol desde los datos
 function construirArbolDesdeDatos(datos, tipo) {
     const comboBox = document.getElementById('report-options-select');
-    const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
+    const valorRaiz = comboBox?.options[comboBox.selectedIndex]?.text || "Sin selección";
+    const fechaInput = document.getElementById('report-date-input');
+    const fechaSeleccionada = fechaInput ? fechaInput.value : null;
 
+    // Solo un nodo raíz (el seleccionado en el combo)
     const nodoRaiz = {
         valor: valorRaiz,
         nivel: 0,
@@ -812,144 +824,155 @@ function construirArbolDesdeDatos(datos, tipo) {
 
     switch (tipo) {
         case 'historicoEntrada':
-            datos.forEach(entrada => {
-                // Determinar la imagen según si es edificio o puerta
-                const esEdificio = entrada.instalacion.includes("Edificio");
-                const imagen = esEdificio ? "imagenes/IMG/objetos/edificio.jpeg" : "imagenes/IMG/objetos/door.jpg";
-                
-                const nodoInstalacion = {
-                    valor: entrada.instalacion,
-                    nivel: 1,
-                    data: { foto: imagen },
-                    hijos: []
-                };
-
-                const nodoPuerta = {
-                    valor: entrada.puerta,
-                    nivel: 2,
-                    data: { foto: "imagenes/IMG/objetos/door.jpg" },
-                    hijos: []
-                };
-
-                entrada.fechas.forEach(fecha => {
-                    nodoPuerta.hijos.push({
-                        valor: fecha,
-                        nivel: 3,
-                        hijos: []
+            // Buscar el edificio seleccionado
+            const entrada = datos.find(e => e.instalacion === valorRaiz);
+            if (entrada) {
+                // Si tiene niveles, cada nivel será hijo directo del nodo raíz
+                if (entrada.niveles && Array.isArray(entrada.niveles)) {
+                    entrada.niveles.forEach(nivel => {
+                        const nodoNivel = {
+                            valor: `Nivel ${nivel.numero}`,
+                            nivel: 1,
+                            data: { foto: `imagenes/IMG/level/nivel${nivel.numero}.png` },
+                            hijos: []
+                        };
+                        nivel.salones.forEach(salon => {
+                            const nodoSalon = {
+                                valor: `Salón ${salon.numero}`,
+                                nivel: 2,
+                                data: { foto: "imagenes/IMG/objetos/classroom.png" },
+                                hijos: []
+                            };
+                            if (salon.usuarios) {
+                                salon.usuarios.forEach((usuario, idx) => {
+                                    nodoSalon.hijos.push({
+                                        valor: usuario.nombre,
+                                        nivel: 3,
+                                        data: {
+                                            ...usuario,
+                                            hora: usuario.hora || `${String(8 + idx).padStart(2, '0')}:00`
+                                        },
+                                        hijos: []
+                                    });
+                                });
+                            }
+                            nodoNivel.hijos.push(nodoSalon);
+                        });
+                        nodoRaiz.hijos.push(nodoNivel);
                     });
-                });
-
-                nodoInstalacion.hijos.push(nodoPuerta);
-                nodoRaiz.hijos.push(nodoInstalacion);
-            });
+                } else if (entrada.puerta) {
+                    // Si no hay niveles, muestra las puertas como antes
+                    const nodoPuerta = {
+                        valor: entrada.puerta,
+                        nivel: 1,
+                        data: { foto: "imagenes/IMG/objetos/door.jpg" },
+                        hijos: []
+                    };
+                    (entrada.fechas || []).forEach((fecha, idx) => {
+                        nodoPuerta.hijos.push({
+                            valor: `Usuario ${idx + 1}`,
+                            nivel: 2,
+                            data: {
+                                foto: "imagenes/IMG/users/user.avif",
+                                hora: `${String(8 + idx).padStart(2, '0')}:00`
+                            },
+                            hijos: []
+                        });
+                    });
+                    nodoRaiz.hijos.push(nodoPuerta);
+                }
+            }
             break;
 
         case 'fechaEntrada':
-            datos.forEach(entrada => {
-                const nodoInstalacion = {
-                    valor: entrada.instalacion,
+            // Solo agregar el primer edificio que coincide y filtrar por fecha
+            const entradaFecha = datos.find(e => e.instalacion === valorRaiz && (!fechaSeleccionada || e.fecha === fechaSeleccionada));
+            if (entradaFecha) {
+                const nodoPuerta = {
+                    valor: entradaFecha.puerta,
                     nivel: 1,
-                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
+                    data: { foto: "imagenes/IMG/objetos/door.jpg" },
                     hijos: []
                 };
-
-                const nodoFecha = {
-                    valor: entrada.fecha,
-                    nivel: 2,
-                    hijos: []
-                };
-
-                entrada.registros.forEach(registro => {
-                    nodoFecha.hijos.push({
+                (entradaFecha.registros || []).forEach((registro, idx) => {
+                    nodoPuerta.hijos.push({
                         valor: registro.nombre,
-                        nivel: 5,
+                        nivel: 2,
                         data: {
                             ...registro,
-                            foto: registro.foto
+                            hora: `${String(8 + idx).padStart(2, '0')}:00`
                         },
                         hijos: []
                     });
                 });
-
-                nodoInstalacion.hijos.push(nodoFecha);
-                nodoRaiz.hijos.push(nodoInstalacion);
-            });
+                nodoRaiz.hijos.push(nodoPuerta);
+            }
             break;
 
         case 'historicoSalon':
-            datos.forEach(salon => {
-                const nodoInstalacion = {
-                    valor: salon.instalacion,
-                    nivel: 1,
-                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
-                    hijos: []
-                };
-
+            // Solo agregar el último salón que coincide
+            const salonesHistorico = datos.filter(s => `Salón ${s.salon}` === valorRaiz);
+            if (salonesHistorico.length > 0) {
+                const salon = salonesHistorico[salonesHistorico.length - 1];
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
-                    nivel: 2,
-                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` }, // Imagen de nivel
+                    nivel: 1,
+                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` },
                     hijos: []
                 };
-
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
-                    nivel: 3,
-                    data: { foto: "imagenes/IMG/objetos/classroom.png" }, // Imagen de salón
+                    nivel: 2,
+                    data: { foto: "imagenes/IMG/objetos/classroom.png" },
                     hijos: []
                 };
-
-                salon.estudiantes.forEach(est => {
+                (salon.estudiantes || []).forEach((est, idx) => {
                     nodoSalon.hijos.push({
                         valor: `${est.nombre} (${est.tipo})`,
-                        nivel: 4,
-                        data: est,
+                        nivel: 3,
+                        data: {
+                            ...est,
+                            hora: `${String(8 + idx).padStart(2, '0')}:00`
+                        },
                         hijos: []
                     });
                 });
-
                 nodoNivel.hijos.push(nodoSalon);
-                nodoInstalacion.hijos.push(nodoNivel);
-                nodoRaiz.hijos.push(nodoInstalacion);
-            });
+                nodoRaiz.hijos.push(nodoNivel);
+            }
             break;
 
         case 'fechaSalon':
-            datos.forEach(salon => {
-                const nodoInstalacion = {
-                    valor: salon.instalacion,
-                    nivel: 1,
-                    data: { foto: "imagenes/IMG/objetos/edificio.jpeg" },
-                    hijos: []
-                };
-
+            // Solo agregar el último salón que coincide y filtrar por fecha
+            const salonesFecha = datos.filter(s => `Salón ${s.salon}` === valorRaiz && (!fechaSeleccionada || s.fecha === fechaSeleccionada));
+            if (salonesFecha.length > 0) {
+                const salon = salonesFecha[salonesFecha.length - 1];
                 const nodoNivel = {
                     valor: `Nivel ${salon.nivel}`,
-                    nivel: 2,
-                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` }, // Imagen de nivel
+                    nivel: 1,
+                    data: { foto: `imagenes/IMG/level/nivel${salon.nivel}.png` },
                     hijos: []
                 };
-
                 const nodoSalon = {
                     valor: `Salón ${salon.salon}`,
-                    nivel: 3,
-                    data: { foto: "imagenes/IMG/objetos/classroom.png" }, // Imagen de salón
+                    nivel: 2,
+                    data: { foto: "imagenes/IMG/objetos/classroom.png" },
                     hijos: []
                 };
-
-                salon.registros.forEach(reg => {
+                (salon.registros || []).forEach((reg, idx) => {
                     nodoSalon.hijos.push({
-                        valor: `${reg.nombre} (${reg.tipo}) - ${salon.fecha}`,
-                        nivel: 4,
-                        data: reg,
+                        valor: `${reg.nombre} (${reg.tipo})`,
+                        nivel: 3,
+                        data: {
+                            ...reg,
+                            hora: `${String(8 + idx).padStart(2, '0')}:00`
+                        },
                         hijos: []
                     });
                 });
-
                 nodoNivel.hijos.push(nodoSalon);
-                nodoInstalacion.hijos.push(nodoNivel);
-                nodoRaiz.hijos.push(nodoInstalacion);
-            });
+                nodoRaiz.hijos.push(nodoNivel);
+            }
             break;
 
         default:
@@ -1209,6 +1232,18 @@ async function dibujarNodos(nodo, g) {
         nodeGroup.appendChild(text);
     }
 
+    // Agregado: Mostrar la hora si está disponible
+    if (nodo.data && nodo.data.hora) {
+        const horaText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        horaText.setAttribute('text-anchor', 'middle');
+        horaText.setAttribute('dominant-baseline', 'hanging');
+        horaText.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 28);
+        horaText.setAttribute('fill', '#1976d2');
+        horaText.setAttribute('font-size', '11px');
+        horaText.textContent = nodo.data.hora;
+        nodeGroup.appendChild(horaText);
+    }
+
     g.appendChild(nodeGroup);
 
     // Dibujar hijos recursivamente
@@ -1278,20 +1313,34 @@ function mostrarNumeroSalon(numeroSalon) {
 function obtenerDatosHistorico() {
     return [
         {
-            instalacion: "Edificio A",
-            puerta: "Puerta Principal",
-            fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
-        },
-        {
             instalacion: "Edificio B",
-            puerta: "Puerta Secundaria",
-            fechas: ["2023-05-01", "2023-05-04"]
+            niveles: [
+                {
+                    numero: 1,
+                    salones: [
+                        {
+                            numero: "101",
+                            usuarios: [
+                                { nombre: "Juan Pérez", foto: "imagenes/IMG/users/user.avif" },
+                                { nombre: "Ana Torres", foto: "imagenes/IMG/users/user.avif" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    numero: 2,
+                    salones: [
+                        {
+                            numero: "202",
+                            usuarios: [
+                                { nombre: "Carlos López", foto: "imagenes/IMG/users/user.avif" }
+                            ]
+                        }
+                    ]
+                }
+            ]
         },
-        {
-            instalacion: "Edificio C",
-            puerta: "Puerta Emergencia",
-            fechas: ["2023-05-02", "2023-05-03"]
-        }
+        // ...otros edificios...
     ];
 }
 
@@ -1800,6 +1849,7 @@ function crearGraficosComparativaSalones(data, chartType) {
         'Comparativa entre Salones',
         'Porcentaje de asistencia',
         [
+
             'rgba(54, 162, 235, 0.7)',
             'rgba(255, 99, 132, 0.7)',
             'rgba(75, 192, 192, 0.7)'
