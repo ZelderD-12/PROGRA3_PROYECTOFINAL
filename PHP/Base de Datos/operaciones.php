@@ -64,8 +64,13 @@ if (isset($_POST['login'])) {
         
         if ($result->num_rows > 0) {
             $usuario = $result->fetch_assoc();
-            $_SESSION['usuario'] = $usuario;
+            $nombreCarrera = obtenerNombreCarrera($usuario['Id_Carrera_Usuario']);
+               $tipoUsuario = obtenerTipoUsuario($usuario['Id_Tipo_Usuario']);
+           
+            $usuario['Nombre_Carrera'] = $nombreCarrera;
+            $usuario['Tipo_Usuario'] = $tipoUsuario;
 
+             $_SESSION['usuario'] = $usuario;
             $_SESSION['idusuario'] = $usuario['Id_Usuario'];
             $_SESSION['carnetusuario'] = $usuario['Carnet_Usuario'];
             $_SESSION['nombresusuario'] = $usuario['Nombres_Usuario'];
@@ -78,6 +83,9 @@ if (isset($_POST['login'])) {
             $_SESSION['idcarrerausuario'] = $usuario['Id_Carrera_Usuario'];
             $_SESSION['seccionusuario'] = $usuario['Seccion_Usuario'];
             $_SESSION['usuarioactivo'] = $usuario['Activo'];
+             
+             $_SESSION['nombrecarrera'] = $nombreCarrera;
+            $_SESSION['tipousuario'] = $tipoUsuario;
 
             $pagina_destino = '../Pantalla Principal/bienvenido.php'; // Ruta base ajustada a tu estructura
             switch($_SESSION['idtipousuario']) {
@@ -190,8 +198,21 @@ function mostrarImagenDesdeSP($carnetUsuario) {
     }
 }
 //******AQUI IMPLEMENTO LOS SP NUEVOS************************************* */
-// Función para obtener el nombre de la carrera
 function obtenerNombreCarrera($idCarrera) {
+    // Usar los datos que ya están cargados en sesión
+    if (isset($_SESSION['carreras']) && isset($_SESSION['id_carreras'])) {
+        $carreras = $_SESSION['carreras'];
+        $idcarreras = $_SESSION['id_carreras'];
+        
+        // Buscar el índice del ID en el array de IDs
+        $indice = array_search($idCarrera, $idcarreras);
+        
+        if ($indice !== false && isset($carreras[$indice])) {
+            return $carreras[$indice];
+        }
+    }
+    
+    // Si no se encuentra en sesión, usar consulta directa como respaldo
     global $conexion;
     
     // Limpiar resultados pendientes
@@ -199,26 +220,41 @@ function obtenerNombreCarrera($idCarrera) {
         $conexion->next_result();
     }
     
-    // Llamar al procedimiento almacenado
-    $query = "CALL BuscarCarrera($idCarrera)";
-    $result = $conexion->query($query);
-    
     $nombreCarrera = "";
+    $query = "SELECT Nombre_Carrera FROM Carreras WHERE Id_Carrera = ?";
+    $stmt = $conexion->prepare($query);
     
-    if ($result && $row = $result->fetch_assoc()) {
-        $nombreCarrera = $row['Nombre_Carrera'];
-    }
-    
-    // Limpiar resultados pendientes
-    while ($conexion->more_results()) {
-        $conexion->next_result();
+    if ($stmt) {
+        $stmt->bind_param("i", $idCarrera);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result && $row = $result->fetch_assoc()) {
+            $nombreCarrera = $row['Nombre_Carrera'];
+        }
+        
+        $stmt->close();
     }
     
     return $nombreCarrera;
 }
 
-// Función para obtener el tipo de usuario
+// Función para obtener el tipo de usuario usando los datos ya cargados
 function obtenerTipoUsuario($idTipoUsuario) {
+    // Usar los datos que ya están cargados en sesión
+    if (isset($_SESSION['tipos_usuario']) && isset($_SESSION['id_tipos_usuario'])) {
+        $tipos_usuario = $_SESSION['tipos_usuario'];
+        $idtiposusuario = $_SESSION['id_tipos_usuario'];
+        
+        // Buscar el índice del ID en el array de IDs
+        $indice = array_search($idTipoUsuario, $idtiposusuario);
+        
+        if ($indice !== false && isset($tipos_usuario[$indice])) {
+            return $tipos_usuario[$indice];
+        }
+    }
+    
+    // Si no se encuentra en sesión, usar consulta directa como respaldo
     global $conexion;
     
     // Limpiar resultados pendientes
@@ -226,43 +262,23 @@ function obtenerTipoUsuario($idTipoUsuario) {
         $conexion->next_result();
     }
     
-    try {
-        // Llamar al procedimiento  
-        $query = "CALL BuscarTipoUsuario($idTipoUsuario)";
-        $result = $conexion->query($query);
-        
-        $tipoUsuario = "";
+    $tipoUsuario = "";
+    $query = "SELECT Tipo_De_Usuario FROM TiposUsuario WHERE Id_Tipo_Usuario = ?";
+    $stmt = $conexion->prepare($query);
+    
+    if ($stmt) {
+        $stmt->bind_param("i", $idTipoUsuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
         if ($result && $row = $result->fetch_assoc()) {
             $tipoUsuario = $row['Tipo_De_Usuario'];
-        } else {
-            // Si hay error, intentar un enfoque alternativo usando una consulta directa
-            error_log("Error con SP BuscarTipoUsuario: " . $conexion->error);
-            
-            // Limpiar resultados pendientes
-            while ($conexion->more_results()) {
-                $conexion->next_result();
-            }
-            
-            // Consulta alternativa
-            $query_alt = "SELECT Tipo_De_Usuario FROM TiposUsuario WHERE Id_Tipo_Usuario = $idTipoUsuario";
-            $result_alt = $conexion->query($query_alt);
-            
-            if ($result_alt && $row_alt = $result_alt->fetch_assoc()) {
-                $tipoUsuario = $row_alt['Tipo_De_Usuario'];
-            }
         }
-    } catch (Exception $e) {
-        error_log("Excepción al buscar tipo de usuario: " . $e->getMessage());
-    }
-    
-    // Limpiar resultados pendientes
-    while ($conexion->more_results()) {
-        $conexion->next_result();
+        
+        $stmt->close();
     }
     
     return $tipoUsuario;
 }
-/********************************************************************************* */ 
  
 ?>

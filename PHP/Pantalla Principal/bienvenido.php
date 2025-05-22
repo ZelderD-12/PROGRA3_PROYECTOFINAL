@@ -464,7 +464,8 @@ function cambiarConfiguracion(opcion) {
     
     // Limpiar contenido anterior
     infoContent.innerHTML = '';
-    
+   
+
     if (opcion === 'datos') {
         // Recuperar los datos del usuario desde sessionStorage
         const usuarioData = JSON.parse(sessionStorage.getItem('usuario'));
@@ -498,11 +499,11 @@ function cambiarConfiguracion(opcion) {
                             </div>
                             <div class="campo-dato">
                                 <label>Carrera:</label>
-                                <span id="nombre-carrera">Cargando...</span>
+                                <span>${usuarioData.Nombre_Carrera}</span>
                             </div>
                             <div class="campo-dato">
                                 <label>Tipo de Usuario:</label>
-                                <span id="tipo-usuario">Cargando...</span>
+                                <span>${usuarioData.Tipo_Usuario}</span>
                             </div>
                             <div class="campo-dato">
                                 <label>Sección:</label>
