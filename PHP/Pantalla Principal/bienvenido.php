@@ -524,7 +524,10 @@ function cambiarConfiguracion(opcion) {
                 </div>
             `;
             
-            
+            // Configurar evento para el botón adicional
+        document.getElementById('boton-adicional').addEventListener('click', function() {
+            generarPDFAdmin();
+});
         } else {
             infoContent.innerHTML = `
                 <div class="datos-usuario-container">
