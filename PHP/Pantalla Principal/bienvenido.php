@@ -479,32 +479,38 @@ function cambiarConfiguracion(opcion) {
                         <div class="foto-perfil">
                             <img src="data:image/png;base64,${usuarioData.Foto_Usuario}" alt="Foto de perfil">
                         </div>
-                        
-                        <div class="info-personal">
-                            <div class="campo-dato">
-                                <label>Nombre:</label>
-                                <span>${usuarioData.Nombres_Usuario} ${usuarioData.Apellidos_Usuario}</span>
-                            </div>
-                            <div class="campo-dato">
+                        <div class="campo-dato">
                                 <label>Carnet:</label>
                                 <span>${usuarioData.Carnet_Usuario}</span>
                             </div>
+                        <div class="info-personal">
+                            <div class="campo-dato">
+                                <label>Nombre:</label>
+                                <span>${usuarioData.Nombres_Usuario}</span>
+                            </div>
+                            <div class="info-personal">
+                            <div class="campo-dato">
+                                <label>Apellido:</label>
+                                <span>${usuarioData.Apellidos_Usuario}</span>
+                            </div>
+                            
                             <div class="campo-dato">
                                 <label>Correo:</label>
                                 <span>${usuarioData.Correo_Electronico_Usuario}</span>
                             </div>
                             <div class="campo-dato">
-                                <label>Teléfono:</label>
+                                <label>Celular:</label>
                                 <span>${usuarioData.Numero_De_Telefono_Usuario}</span>
+                            </div>
+                            <div class="campo-dato">
+                                <label>Tipo:</label>
+                                <span>${usuarioData.Tipo_Usuario}</span>
                             </div>
                             <div class="campo-dato">
                                 <label>Carrera:</label>
                                 <span>${usuarioData.Nombre_Carrera}</span>
                             </div>
-                            <div class="campo-dato">
-                                <label>Tipo de Usuario:</label>
-                                <span>${usuarioData.Tipo_Usuario}</span>
-                            </div>
+                            
                             <div class="campo-dato">
                                 <label>Sección:</label>
                                 <span>${usuarioData.Seccion_Usuario}</span>
