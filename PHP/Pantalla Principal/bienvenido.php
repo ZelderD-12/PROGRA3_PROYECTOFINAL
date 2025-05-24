@@ -1,3 +1,10 @@
+<?php
+include '../Base de Datos/operaciones.php';
+$edificios = saberEdificios();
+$salones = saberSalones();
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -581,41 +588,24 @@ function confirmarAsistencia() {
 }
 //----------------------------------------------------------------------------------------------------------------
 function cargarCombobox(tipoReporte) {
-    let opciones = [];
     let mostrarFecha = false;
+    let datos = [];
+    let labelDefault = '';
+    
+    // Determinar qué datos usar y el label
+    if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
+        // Usar los datos de edificios que ya están disponibles desde PHP
+        datos = <?php echo json_encode($edificios); ?>;
+        labelDefault = 'Seleccione un edificio';
+    } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
+        // Usar los datos de salones que ya están disponibles desde PHP
+        datos = <?php echo json_encode($salones); ?>;
+        labelDefault = 'Seleccione un salón';
+    }
 
-    switch (tipoReporte) {
-        case 'historicoEntrada': // Solo edificios
-            opciones = [
-                { id: 'edificioA', nombre: "Edificio A" },
-                { id: 'edificioB', nombre: "Edificio B" },
-                { id: 'edificioC', nombre: "Edificio C" }
-            ];
-            break;
-        case 'fechaEntrada': // Solo edificios + fecha
-            opciones = [
-                { id: 'edificioA', nombre: "Edificio A" },
-                { id: 'edificioB', nombre: "Edificio B" },
-                { id: 'edificioC', nombre: "Edificio C" }
-            ];
-            mostrarFecha = true;
-            break;
-        case 'historicoSalon': // Solo salones
-            opciones = [
-                { id: 'salon101', nombre: "Salón 101" },
-                { id: 'salon202', nombre: "Salón 202" }
-            ];
-            break;
-        case 'fechaSalon': // Solo salones + fecha
-            opciones = [
-                { id: 'salon101', nombre: "Salón 101" },
-                { id: 'salon202', nombre: "Salón 202" }
-            ];
-            mostrarFecha = true;
-            break;
-        default:
-            console.error('Tipo de reporte no reconocido:', tipoReporte);
-            return;
+    // Si el reporte es por fecha, mostrar input de fecha
+    if (tipoReporte === 'fechaEntrada' || tipoReporte === 'fechaSalon') {
+        mostrarFecha = true;
     }
 
     const comboBox = document.getElementById('report-options-select');
@@ -625,17 +615,39 @@ function cargarCombobox(tipoReporte) {
 
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
-    defaultOption.textContent = 'Seleccione una opción';
+    defaultOption.textContent = labelDefault;
     defaultOption.disabled = true;
     defaultOption.selected = true;
     comboBox.appendChild(defaultOption);
 
-    opciones.forEach(opcion => {
+    // Guardar los ids y nombres en arrays si lo necesitas
+    const ids = [];
+    const nombres = [];
+
+    datos.forEach(item => {
+        let id, nombre;
+        if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
+            id = item.idEdificio;
+            nombre = item.Edificio;
+        } else {
+            id = item.idSalon;
+            nombre = item.Area;
+        }
+        ids.push(id);
+        nombres.push(nombre);
+
         const option = document.createElement('option');
-        option.value = opcion.id;
-        option.textContent = opcion.nombre;
+        option.value = id;
+        option.textContent = nombre;
         comboBox.appendChild(option);
     });
+
+    // Guarda los arrays globalmente
+    window.comboBoxIds = ids;
+    window.comboBoxNombres = nombres;
+
+    // También guarda el tipo de combo cargado
+    window.comboBoxTipo = (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') ? 'edificio' : 'salon';
 
     // Manejo del input de fecha
     let fechaInput = document.getElementById('report-date-input');
@@ -656,8 +668,8 @@ function cargarCombobox(tipoReporte) {
 
 // Función principal para mostrar reportes
 function mostrarReporte(tipo) {
-    const baseCSSPath = '../../CSS/avl-tree.css';
-    const baseJSPath = '../../Javascript/avl-tree.js';
+    const baseCSSPath = '../../../CSS/avl-tree.css';
+    const baseJSPath = '../../../Javascript/avl-tree.js';
 
     let contenido = '';
     let containerId = '';
@@ -746,9 +758,39 @@ function mostrarReporte(tipo) {
 
 // Nueva función para manejar el evento del botón "Dibujar"
 function dibujarArbol(containerId, tipo) {
-    const datos = obtenerDatosParaReporte(tipo);
-    const arbol = construirArbolDesdeDatos(datos, tipo);
-    dibujarArbolAVLCompleto(containerId, arbol);
+    const comboBox = document.getElementById('report-options-select');
+    const idEdificio = comboBox ? comboBox.value : null;
+    const nombreEdificio = comboBox ? comboBox.options[comboBox.selectedIndex].text : '';
+
+    if (!idEdificio) {
+        alert('Seleccione un edificio');
+        return;
+    }
+
+    // Llama al endpoint para obtener puertas y niveles
+    fetch('obtenerPuertasyNiveles.php?idEdificio=' + idEdificio)
+        .then(response => response.json())
+        .then(data => {
+            // Construir el árbol solo con puertas y niveles
+            const arbol = {
+                valor: nombreEdificio,
+                nivel: 0,
+                hijos: data.puertas.map(nombrePuerta => ({
+                    valor: nombrePuerta,
+                    nivel: 1,
+                    hijos: data.niveles.map(nivel => ({
+                        valor: `Nivel ${nivel}`,
+                        nivel: 2,
+                        hijos: []
+                    }))
+                }))
+            };
+            dibujarArbolAVLCompleto(containerId, arbol);
+        })
+        .catch(error => {
+            alert('Error al obtener puertas y niveles del edificio');
+            console.error(error);
+        });
 }
 
 // Función mejorada para cargar recursos
@@ -819,7 +861,6 @@ function construirArbolDesdeDatos(datos, tipo) {
     const fechaInput = document.getElementById('report-date-input');
     const fechaSeleccionada = fechaInput ? fechaInput.value : null;
 
-    // Solo un nodo raíz (el seleccionado en el combo)
     const nodoRaiz = {
         valor: valorRaiz,
         nivel: 0,
@@ -828,66 +869,100 @@ function construirArbolDesdeDatos(datos, tipo) {
 
     switch (tipo) {
         case 'historicoEntrada':
-            // Buscar el edificio seleccionado
             const entrada = datos.find(e => e.instalacion === valorRaiz);
             if (entrada) {
-                // Si tiene niveles, cada nivel será hijo directo del nodo raíz
-                if (entrada.niveles && Array.isArray(entrada.niveles)) {
-                    entrada.niveles.forEach(nivel => {
-                        const nodoNivel = {
-                            valor: `Nivel ${nivel.numero}`,
+                // Usuarios solo en el edificio
+                if (entrada.usuarios) {
+                    entrada.usuarios
+                        .filter(u => u.ubicacion === "edificio")
+                        .forEach((usuario, idx) => {
+                            nodoRaiz.hijos.push({
+                                valor: usuario.nombre,
+                                nivel: 1,
+                                data: {
+                                    ...usuario,
+                                    hora: usuario.hora || `${String(8 + idx).padStart(2, '0')}:00`
+                                },
+                                hijos: []
+                            });
+                        });
+                }
+                // Puertas
+                if (entrada.puertas) {
+                    entrada.puertas.forEach((puerta, idxP) => {
+                        const nodoPuerta = {
+                            valor: puerta.nombre,
                             nivel: 1,
-                            data: { foto: IMG_PATHS.nivel(nivel.numero) },
+                            data: { foto: IMG_PATHS.door },
                             hijos: []
                         };
-                        nivel.salones.forEach(salon => {
-                            const nodoSalon = {
-                                valor: `Salón ${salon.numero}`,
+                        // Usuarios en la puerta
+                        (puerta.usuarios || [])
+                            .filter(u => u.ubicacion === "puerta")
+                            .forEach((usuario, idxU) => {
+                                nodoPuerta.hijos.push({
+                                    valor: usuario.nombre,
+                                    nivel: 2,
+                                    data: {
+                                        ...usuario,
+                                        hora: usuario.hora || `${String(8 + idxU).padStart(2, '0')}:00`
+                                    },
+                                    hijos: []
+                                });
+                            });
+                        // Niveles
+                        (puerta.niveles || []).forEach((nivel, idxN) => {
+                            const nodoNivel = {
+                                valor: `Nivel ${nivel.numero}`,
                                 nivel: 2,
-                                data: { foto: IMG_PATHS.classroom },
+                                data: { foto: IMG_PATHS.nivel(nivel.numero) },
                                 hijos: []
                             };
-                            if (salon.usuarios) {
-                                salon.usuarios.forEach((usuario, idx) => {
-                                    nodoSalon.hijos.push({
+                            // Usuarios en el nivel
+                            (nivel.usuarios || [])
+                                .filter(u => u.ubicacion === "nivel")
+                                .forEach((usuario, idxU) => {
+                                    nodoNivel.hijos.push({
                                         valor: usuario.nombre,
                                         nivel: 3,
                                         data: {
                                             ...usuario,
-                                            hora: usuario.hora || `${String(8 + idx).padStart(2, '0')}:00`
+                                            hora: usuario.hora || `${String(8 + idxU).padStart(2, '0')}:00`
                                         },
                                         hijos: []
                                     });
                                 });
-                            }
-                            nodoNivel.hijos.push(nodoSalon);
+                            // Salones
+                            (nivel.salones || []).forEach((salon, idxS) => {
+                                const nodoSalon = {
+                                    valor: `Salón ${salon.numero}`,
+                                    nivel: 3,
+                                    data: { foto: IMG_PATHS.classroom },
+                                    hijos: []
+                                };
+                                // Usuarios en el salón
+                                (salon.usuarios || [])
+                                    .filter(u => u.ubicacion === "salon")
+                                    .forEach((usuario, idxU) => {
+                                        nodoSalon.hijos.push({
+                                            valor: usuario.nombre,
+                                            nivel: 4,
+                                            data: {
+                                                ...usuario,
+                                                hora: usuario.hora || `${String(8 + idxU).padStart(2, '0')}:00`
+                                            },
+                                            hijos: []
+                                        });
+                                    });
+                                nodoNivel.hijos.push(nodoSalon);
+                            });
+                            nodoPuerta.hijos.push(nodoNivel);
                         });
-                        nodoRaiz.hijos.push(nodoNivel);
+                        nodoRaiz.hijos.push(nodoPuerta);
                     });
-                } else if (entrada.puerta) {
-                    // Si no hay niveles, muestra las puertas como antes
-                    const nodoPuerta = {
-                        valor: entrada.puerta,
-                        nivel: 1,
-                        data: { foto: IMG_PATHS.door },
-                        hijos: []
-                    };
-                    (entrada.fechas || []).forEach((fecha, idx) => {
-                        nodoPuerta.hijos.push({
-                            valor: `Usuario ${idx + 1}`,
-                            nivel: 2,
-                            data: {
-                                foto: "imagenes/IMG/users/user.avif",
-                                hora: `${String(8 + idx).padStart(2, '0')}:00`
-                            },
-                            hijos: []
-                        });
-                    });
-                    nodoRaiz.hijos.push(nodoPuerta);
                 }
             }
             break;
-
         case 'fechaEntrada':
             // Solo agregar el primer edificio que coincide y filtrar por fecha
             const entradaFecha = datos.find(e => e.instalacion === valorRaiz && (!fechaSeleccionada || e.fecha === fechaSeleccionada));
@@ -983,6 +1058,91 @@ function construirArbolDesdeDatos(datos, tipo) {
             console.error('Tipo de reporte no reconocido:', tipo);
             break;
     }
+
+    return nodoRaiz;
+}
+
+// Nueva función para construir el árbol de ubicaciones
+function construirArbolUbicaciones(datos, edificioSeleccionado) {
+    // Nodo raíz: el edificio seleccionado
+    const nodoRaiz = {
+        valor: edificioSeleccionado,
+        nivel: 0,
+        hijos: []
+    };
+
+    // Agrupar por puerta, nivel y salón
+    const puertas = {};
+
+    datos.forEach(registro => {
+        if (registro.edificio !== edificioSeleccionado) return;
+
+        // Agrupar por puerta
+        if (!puertas[registro.puerta]) {
+            puertas[registro.puerta] = {};
+        }
+        const niveles = puertas[registro.puerta];
+
+        // Agrupar por nivel
+        if (!niveles[registro.nivel]) {
+            niveles[registro.nivel] = {};
+        }
+        const salones = niveles[registro.nivel];
+
+        // Agrupar por salón
+        if (!salones[registro.salon]) {
+            salones[registro.salon] = [];
+        }
+        // Agregar usuario al salón correspondiente
+        salones[registro.salon].push(registro);
+    });
+
+    // Construir nodos
+    Object.entries(puertas).forEach(([puerta, niveles]) => {
+        const nodoPuerta = {
+            valor: `Puerta ${puerta}`,
+            nivel: 1,
+            data: { foto: IMG_PATHS.door },
+            hijos: []
+        };
+
+        Object.entries(niveles).forEach(([nivel, salones]) => {
+            const nodoNivel = {
+                valor: `Nivel ${nivel}`,
+                nivel: 2,
+                data: { foto: IMG_PATHS.nivel(nivel) },
+                hijos: []
+            };
+
+            Object.entries(salones).forEach(([salon, usuarios]) => {
+                const nodoSalon = {
+                    valor: `Salón ${salon}`,
+                    nivel: 3,
+                    data: { foto: IMG_PATHS.classroom },
+                    hijos: []
+                };
+
+                usuarios.forEach((usuario, idx) => {
+                    nodoSalon.hijos.push({
+                        valor: usuario.nombre,
+                        nivel: 4,
+                        data: {
+                            ...usuario,
+                            hora: usuario.hora || usuario.fecha || "",
+                            foto: usuario.foto || IMG_PATHS.user
+                        },
+                        hijos: []
+                    });
+                });
+
+                nodoNivel.hijos.push(nodoSalon);
+            });
+
+            nodoPuerta.hijos.push(nodoNivel);
+        });
+
+        nodoRaiz.hijos.push(nodoPuerta);
+    });
 
     return nodoRaiz;
 }
@@ -1318,32 +1478,32 @@ function obtenerDatosHistorico() {
     return [
         {
             instalacion: "Edificio B",
-            niveles: [
+            usuarios: [
+                { nombre: "Carlos López", foto: IMG_PATHS.user, ubicacion: "edificio" }
+            ],
+            puertas: [
                 {
-                    numero: 1,
-                    salones: [
+                    nombre: "Puerta 1",
+                    usuarios: [
+                        { nombre: "Ana Torres", foto: IMG_PATHS.user, ubicacion: "puerta" }
+                    ],
+                    niveles: [
                         {
-                            numero: "101",
-                            usuarios: [
-                                { nombre: "Juan Pérez", foto: IMG_PATHS.user },
-                                { nombre: "Ana Torres", foto: IMG_PATHS.user }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    numero: 2,
-                    salones: [
-                        {
-                            numero: "202",
-                            usuarios: [
-                                { nombre: "Carlos López", foto: IMG_PATHS.user }
+                            numero: 1,
+                            usuarios: [],
+                            salones: [
+                                {
+                                    numero: "101",
+                                    usuarios: [
+                                        { nombre: "Juan Pérez", foto: IMG_PATHS.user, ubicacion: "salon" }
+                                    ]
+                                }
                             ]
                         }
                     ]
                 }
             ]
-        },
+        }
     ];
 }
 
@@ -1354,20 +1514,8 @@ function obtenerDatosPorFecha() {
             puerta: "Puerta Principal",
             fecha: "2023-05-01",
             registros: [
-                { 
-                    id: 1, 
-                    nombre: "Juan Pérez", 
-                    correo: "juan@example.com", 
-                    foto: IMG_PATHS.user,
-                    asistencia: true 
-                },
-                { 
-                    id: 2, 
-                    nombre: "María García", 
-                    correo: "maria@example.com", 
-                    foto: IMG_PATHS.user,
-                    asistencia: false 
-                }
+                { nombre: "Juan Pérez", foto: IMG_PATHS.user, asistencia: true },
+                { nombre: "María García", foto: IMG_PATHS.user, asistencia: false }
             ]
         },
         {
@@ -1375,20 +1523,8 @@ function obtenerDatosPorFecha() {
             puerta: "Puerta Secundaria",
             fecha: "2023-05-02",
             registros: [
-                { 
-                    id: 3, 
-                    nombre: "Carlos López", 
-                    correo: "carlos@example.com", 
-                    foto: IMG_PATHS.user,
-                    asistencia: true 
-                },
-                { 
-                    id: 4, 
-                    nombre: "Ana Torres", 
-                    correo: "ana@example.com", 
-                    foto: IMG_PATHS.user,
-                    asistencia: true 
-                }
+                { nombre: "Carlos López", foto: IMG_PATHS.user, asistencia: true },
+                { nombre: "Ana Torres", foto: IMG_PATHS.user, asistencia: true }
             ]
         }
     ];
@@ -1401,18 +1537,8 @@ function obtenerDatosSalonHistorico() {
             nivel: "1",
             salon: "101",
             estudiantes: [
-                { 
-                    id: 1, 
-                    nombre: "Juan Pérez", 
-                    tipo: "estudiante",
-                    foto: IMG_PATHS.user
-                },
-                { 
-                    id: 2, 
-                    nombre: "Prof. Rodríguez", 
-                    tipo: "catedrático",
-                    foto: IMG_PATHS.user
-                }
+                { nombre: "Juan Pérez", tipo: "estudiante", foto: IMG_PATHS.user },
+                { nombre: "Prof. Rodríguez", tipo: "catedrático", foto: IMG_PATHS.user }
             ]
         },
         {
@@ -1420,18 +1546,8 @@ function obtenerDatosSalonHistorico() {
             nivel: "2",
             salon: "202",
             estudiantes: [
-                { 
-                    id: 3, 
-                    nombre: "Carlos López", 
-                    tipo: "estudiante",
-                    foto: IMG_PATHS.user
-                },
-                { 
-                    id: 4, 
-                    nombre: "Prof. García", 
-                    tipo: "catedrático",
-                    foto: IMG_PATHS.user
-                }
+                { nombre: "Carlos López", tipo: "estudiante", foto: IMG_PATHS.user },
+                { nombre: "Prof. García", tipo: "catedrático", foto: IMG_PATHS.user }
             ]
         }
     ];
@@ -1445,18 +1561,18 @@ function obtenerDatosSalonPorFecha() {
             salon: "101",
             fecha: "2023-05-01",
             registros: [
-                { 
-                    id: 1, 
-                    nombre: "Juan Pérez", 
-                    tipo: "estudiante",
-                    foto: IMG_PATHS.user
-                },
-                { 
-                    id: 2, 
-                    nombre: "Prof. Rodríguez", 
-                    tipo: "catedrático",
-                    foto: IMG_PATHS.user
-                }
+                { nombre: "Juan Pérez", tipo: "estudiante", foto: IMG_PATHS.user },
+                { nombre: "Prof. Rodríguez", tipo: "catedrático", foto: IMG_PATHS.user }
+            ]
+        },
+        {
+            instalacion: "Edificio B",
+            nivel: "2",
+            salon: "202",
+            fecha: "2023-05-02",
+            registros: [
+                { nombre: "Carlos López", tipo: "estudiante", foto: IMG_PATHS.user },
+                { nombre: "Prof. García", tipo: "catedrático", foto: IMG_PATHS.user }
             ]
         }
     ];
@@ -1492,7 +1608,7 @@ function abrirRegistroGeneral() {
 }
 
 
-// Función para mostrar estadísticas con gráficos
+// Función para mostrar estadísticas with gráficos
 function abrirEstadisticas() {
     document.getElementById('info-content').innerHTML = `
         <div class="stats-container">
@@ -1742,16 +1858,13 @@ function generarResumenEstadistico(data, tipo) {
 
 function generarContenedoresGraficos(tipo, chartType) {
     let chartsHTML = '';
-    
+       
     if (tipo === 'asistencia') {
         chartsHTML = `
             <div class="chart-row">
                 <div class="chart-container">
                     <canvas id="asistenciaChart"></canvas>
                     <div class="chart-legend">Asistencia diaria</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="asistenciaHoraChart"></canvas>
                     <div class="chart-legend">Asistencia por hora</div>
                 </div>
             </div>
@@ -1774,6 +1887,7 @@ function generarContenedoresGraficos(tipo, chartType) {
                     <div class="chart-legend">Total asistencias</div>
                 </div>
             </div>
+       
         `;
     } else {
         chartsHTML = `
@@ -1810,6 +1924,7 @@ function crearGraficosAsistencia(data, chartType) {
     // Gráfico de asistencia por hora
     crearChart(
         'asistenciaHoraChart',
+
         'line',
         data.horas_dia,
         ['Porcentaje de asistencia'],
@@ -1861,7 +1976,6 @@ function crearGraficosComparativaSalones(data, chartType) {
     );
     
     // Gráfico de total asistencias
-   
     crearChart(
         'totalSalonesChart',
         'doughnut',

@@ -313,5 +313,46 @@ function obtenerTipoUsuario($idTipoUsuario) {
     
     return $tipoUsuario;
 }
+
+// Función para obtener todos los edificios (id y nombre)
+function saberEdificios() {
+    global $conexion;
+    $edificios = [];
+
+    $query = "SELECT idEdificio, Edificio FROM Edificios";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $edificios[] = [
+                'idEdificio' => $row['idEdificio'],
+                'Edificio' => $row['Edificio']
+            ];
+        }
+        $result->free();
+    }
+    return $edificios;
+}
+
+// Función para obtener todos los salones (id y área)
+function saberSalones() {
+    global $conexion;
+    $salones = [];
+
+    $query = "SELECT idSalon, Area FROM Salones";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $salones[] = [
+                'idSalon' => $row['idSalon'],
+                'Area' => $row['Area']
+            ];
+        }
+        $result->free();
+    }
+    return $salones;
+}
  
+
 ?>
