@@ -456,20 +456,21 @@ function mostrarInformacionAdmin(tipo) {
         <p>Aquí se mostraría la información específica para ${tipo}.</p>
     `;
 }
-/*--------------------------------------------------------------------- */
-// Función para cambiar configuración (modificada)
+/*----------------------AQUI SE MUESTRA LO DE OPERACIONES----------------------------------------------- */
+// Función para cambiar configuración
 function cambiarConfiguracion(opcion) {
     // Obtener el área de contenido principal
     const infoContent = document.getElementById('info-content');
     
     // Limpiar contenido anterior
     infoContent.innerHTML = '';
-    
+   
+
     if (opcion === 'datos') {
         // Recuperar los datos del usuario desde sessionStorage
         const usuarioData = JSON.parse(sessionStorage.getItem('usuario'));
         if (usuarioData) {
-            // Mostrar los datos del usuario
+            // Primero mostramos los datos que ya tenemos
             infoContent.innerHTML = `
                 <div class="datos-usuario-container">
                     <h3>Datos Usuario</h3>
@@ -478,25 +479,38 @@ function cambiarConfiguracion(opcion) {
                         <div class="foto-perfil">
                             <img src="data:image/png;base64,${usuarioData.Foto_Usuario}" alt="Foto de perfil">
                         </div>
-                        
-                        <div class="info-personal">
-                            <div class="campo-dato">
-                                <label>Nombre:</label>
-                                <span>${usuarioData.Nombres_Usuario} ${usuarioData.Apellidos_Usuario}</span>
-                            </div>
-                            <div class="campo-dato">
+                        <div class="campo-dato">
                                 <label>Carnet:</label>
                                 <span>${usuarioData.Carnet_Usuario}</span>
                             </div>
+                        <div class="info-personal">
+                            <div class="campo-dato">
+                                <label>Nombre:</label>
+                                <span>${usuarioData.Nombres_Usuario}</span>
+                            </div>
+                            <div class="info-personal">
+                            <div class="campo-dato">
+                                <label>Apellido:</label>
+                                <span>${usuarioData.Apellidos_Usuario}</span>
+                            </div>
+                            
                             <div class="campo-dato">
                                 <label>Correo:</label>
                                 <span>${usuarioData.Correo_Electronico_Usuario}</span>
                             </div>
                             <div class="campo-dato">
-                                <label>Teléfono:</label>
+                                <label>Celular:</label>
                                 <span>${usuarioData.Numero_De_Telefono_Usuario}</span>
                             </div>
-                           
+                            <div class="campo-dato">
+                                <label>Tipo:</label>
+                                <span>${usuarioData.Tipo_Usuario}</span>
+                            </div>
+                            <div class="campo-dato">
+                                <label>Carrera:</label>
+                                <span>${usuarioData.Nombre_Carrera}</span>
+                            </div>
+                            
                             <div class="campo-dato">
                                 <label>Sección:</label>
                                 <span>${usuarioData.Seccion_Usuario}</span>
@@ -511,26 +525,25 @@ function cambiarConfiguracion(opcion) {
             `;
             
             // Configurar evento para el botón adicional
+        document.getElementById('boton-adicional').addEventListener('click', function() {
+            generarPDFAdmin();
+});
+        } else {
+            infoContent.innerHTML = `
+                <div class="datos-usuario-container">
+                    <h3>Datos Usuario</h3>
+                    <p>No se encontraron datos del usuario. Por favor, inicie sesión nuevamente.</p>
+                    <button id="boton-adicional" class="btn-adicional">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                </div>
+            `;
+            
+            // Configurar evento para el botón adicional
             document.getElementById('boton-adicional').addEventListener('click', function() {
                 generarPDFAdmin();
             });
-        } else {
-        infoContent.innerHTML = `
-            <div class="datos-usuario-container">
-                <h3>Datos Usuario</h3>
-                <p>Actualice sus datos personales.</p>
-                <!-- Botón adicional que aparecerá aquí -->
-                <button id="boton-adicional" class="btn-adicional">
-                    <i class="fas fa-file-pdf"></i> Generar PDF
-                </button>
-            </div>
-        `;
         }
-       
-        // Configurar evento para el botón adicional
-        document.getElementById('boton-adicional').addEventListener('click', function() {
-            generarPDFAdmin();
-        });
     } 
     else if (opcion === 'idioma') {
         infoContent.innerHTML = `
