@@ -1433,6 +1433,30 @@ h2::after {
   box-shadow: 0 0 25px #00f0ff;
 }
 
+.tech-button1 {
+  position: fixed;
+  bottom: clamp(0px, 3vw, 20px);
+  right: clamp(10px, 3vw, 20px);
+  background: linear-gradient(45deg, #00f0ff, #0088ff);
+  color: #000;
+  border: 2px solid #00f0ff;
+  border-radius: 10px;
+  padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem);
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00f0ff;
+  transition: all 0.3s ease-in-out;
+  z-index: 10;
+}
+
+.tech-button1:hover {
+  background: #000;
+  color: #00f0ff;
+  box-shadow: 0 0 25px #00f0ff;
+}
+
 /* ========== FORMULARIO DE REGISTRO ADAPTABLE ========== */
 .back-link {
   position: absolute;
