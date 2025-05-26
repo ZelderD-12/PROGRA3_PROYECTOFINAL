@@ -184,6 +184,7 @@ if (isset($_POST['registrar'])) {
 
                 $resultado = generarYEnviarPDF($datosPDF);
                 if ($resultado === true) {
+                    $_SESSION['datos_pdf'] = $datosPDF;
                     header("Location: ../Registro/Impresion.php");
                     exit();
                 } else {
