@@ -1,0 +1,118 @@
+/* =========== DISEÑO DE TABLA ============= */
+.usuarios-container {
+  margin-top: 2rem;
+  background: rgba(15, 18, 28, 0.9);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--light-void);
+  box-shadow: 0 0 12px rgba(0, 200, 208, 0.1);
+  backdrop-filter: blur(4px);
+  color: var(--text-primary);
+}
+
+.usuarios-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.usuarios-busqueda label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.usuarios-busqueda input[type="number"] {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--light-void);
+  background: rgba(37, 42, 63, 0.8);
+  color: var(--text-primary);
+  border-radius: 4px;
+  width: 220px;
+  transition: var(--transition);
+}
+
+.usuarios-busqueda input[type="number"]:focus {
+  border-color: var(--neon-accent);
+  outline: none;
+  box-shadow: var(--border-glow);
+}
+
+.usuarios-busqueda button {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, var(--neon-accent), var(--neon-blue));
+  color: var(--deep-space);
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.usuarios-busqueda button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--neon-accent);
+}
+
+.usuarios-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: rgba(26, 29, 43, 0.95);
+  color: var(--text-primary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.usuarios-tabla th,
+.usuarios-tabla td {
+  border: 1px solid var(--light-void);
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.usuarios-tabla th {
+  background-color: var(--tech-gray);
+  color: rgba(15, 18, 28, 0.9) ;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.usuarios-tabla td {
+  background-color: rgba(20, 24, 35, 0.85);
+}
+
+.usuarios-busqueda button {
+  padding: 0.6rem 1.2rem;
+  background: var(--neon-accent); /* color aqua */
+  color: var(--deep-space); /* texto oscuro */
+  border: 1px solid var(--neon-accent);
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 0 10px var(--neon-accent), 0 0 20px var(--neon-accent);
+  text-transform: uppercase;
+}
+
+.usuarios-busqueda button:hover {
+  background: #00f0ff; /* tono más claro al pasar el mouse */
+  color: #0a0e17;
+  box-shadow: 0 0 15px var(--neon-accent), 0 0 30px var(--neon-accent);
+  transform: translateY(-2px);
+}
+
+
+/* ========== VARIABLES NEO-TECH ========== */
+:root {
+  --deep-space: #0a0e17;
+  --tech-gray: #1a1d2b;
+  --light-void: #252a3f;
+  --neon-blue: #00f0ff;
+  --neon-purple: #7b2dff;
+  --neon-accent: #00c8d0;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a8c0;
+  --transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  --border-glow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
