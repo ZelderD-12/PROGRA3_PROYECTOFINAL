@@ -88,7 +88,6 @@ line {
 
 /* Texto en los nodos */
 .avl-node-group text {
-    user-select: none;
     pointer-events: none;
     font-family: 'Arial', sans-serif;
     fill: #333;
@@ -149,7 +148,7 @@ line {
 
 /* Asegurar que el texto del salón sea visible */
 .avl-node-group text {
-    user-select: none;
+ 
     pointer-events: none;
 }
 /* Estilos para las imágenes de nivel */
