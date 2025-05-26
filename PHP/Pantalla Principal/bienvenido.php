@@ -117,26 +117,10 @@
                         </div>
                     </div>
                     
-                    <!-- Configuración (desplegable) -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
-                            <span><i class="fas fa-cog"></i> Configuración</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="configuracion" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
-                                <i class="fas fa-language"></i> Cambiar Idioma
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
-                                <i class="fas fa-palette"></i> Color de Pantalla
-                            </a>
-                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
-                                 <i class="fas fa-user-edit"></i> Datos Usuario
-                                    </a>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Datos Usuario -->
+                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
+                        <i class="fas fa-user-edit"></i> Datos Usuario
+                    </button>
                 </div>
             `;
 
@@ -179,26 +163,10 @@
                         </div>
                     </div>
                     
-                    <!-- Configuración (misma función que en Administrador) -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
-                            <span><i class="fas fa-cog"></i> Configuración</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="configuracion" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
-                                <i class="fas fa-language"></i> Cambiar Idioma
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
-                                <i class="fas fa-palette"></i> Color de Pantalla
-                            </a>
-                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
-                                 <i class="fas fa-user-edit"></i> Datos Usuario
-                                    </a>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Datos Usuario -->
+                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
+                        <i class="fas fa-user-edit"></i> Datos Usuario
+                    </button>
                 </div>
             `;
 
@@ -214,26 +182,10 @@
                         <i class="fas fa-user-check"></i> Ver Asistencia
                     </button>
                     
-                    <!-- Configuración (misma función que en Administrador) -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
-                            <span><i class="fas fa-cog"></i> Configuración</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="configuracion" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
-                                <i class="fas fa-language"></i> Cambiar Idioma
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
-                                <i class="fas fa-palette"></i> Color de Pantalla
-                            </a>
-                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
-                                 <i class="fas fa-user-edit"></i> Datos Usuario
-                                    </a>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Datos Usuario -->
+                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
+                        <i class="fas fa-user-edit"></i> Datos Usuario
+                    </button>
                 </div>
             `;
                         break;
@@ -319,26 +271,10 @@
                         <i class="fas fa-chart-bar"></i> Estadísticas
                     </button>
                     
-                    <!-- Configuración (misma función que en Administrador) -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
-                            <span><i class="fas fa-cog"></i> Configuración</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="configuracion" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
-                                <i class="fas fa-language"></i> Cambiar Idioma
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
-                                <i class="fas fa-palette"></i> Color de Pantalla
-                            </a>
-                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
-                                 <i class="fas fa-user-edit"></i> Datos Usuario
-                                    </a>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Datos Usuario -->
+                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
+                        <i class="fas fa-user-edit"></i> Datos Usuario
+                    </button>
                 </div>
             `;
                         break;
@@ -348,30 +284,15 @@
                         panelBotones.innerHTML = `
                 <h3>Panel de Servicios</h3>
                 <div class="botones-container">
-                    <!-- Mismos botones que estudiante -->
-                     <!-- Ver Asistencia -->
+                    <!-- Ver Asistencia -->
                     <button onclick="verAsistencia()" class="btn-dev">
                         <i class="fas fa-user-check"></i> Ver Asistencia
                     </button>
                     
-                    <!-- Configuración (misma función que en Administrador) -->
-                    <div class="dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
-                            <span><i class="fas fa-cog"></i> Configuración</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div id="configuracion" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('idioma')">
-                                <i class="fas fa-language"></i> Cambiar Idioma
-                            </a>
-                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('color')">
-                                <i class="fas fa-palette"></i> Color de Pantalla
-                            </a>
-                                    <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
-                                 <i class="fas fa-user-edit"></i> Datos Usuario
-                                    </a>
-                        </div>
-                    </div>
+                    <!-- Datos Usuario -->
+                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
+                        <i class="fas fa-user-edit"></i> Datos Usuario
+                    </button>
                 </div>
             `;
 
@@ -404,18 +325,7 @@
         // Función para la configuración (nueva)
         function cambiarConfiguracion(tipo) {
             switch (tipo) {
-                case 'idioma':
-                    document.getElementById('info-content').innerHTML = `
-                <h3>Cambiar Idioma</h3>
-                <p>Opciones de idioma disponibles.</p>
-            `;
-                    break;
-                case 'color':
-                    document.getElementById('info-content').innerHTML = `
-                <h3>Color de Pantalla</h3>
-                <p>Seleccione un esquema de color para la interfaz.</p>
-            `;
-                    break;
+                
                 case 'datos':
                     document.getElementById('info-content').innerHTML = `
                 <h3>Datos Usuario</h3>
@@ -546,16 +456,6 @@
                         generarPDFAdmin();
                     });
                 }
-            } else if (opcion === 'idioma') {
-                infoContent.innerHTML = `
-            <h3>Cambiar Idioma</h3>
-            <p>Opciones de idioma disponibles.</p>
-        `;
-            } else if (opcion === 'color') {
-                infoContent.innerHTML = `
-            <h3>Color de Pantalla</h3>
-            <p>Seleccione un esquema de color para la interfaz.</p>
-        `;
             }
 
             // Cerrar el dropdown si está abierto
