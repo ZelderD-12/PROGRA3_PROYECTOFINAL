@@ -176,7 +176,8 @@ if (isset($_POST['registrar'])) {
                     'celular' => $celular,
                     'tipo' => $_POST['tipouser'],
                     'carrera' => $_POST['carrera'],
-                    'seccion' => $seccion
+                    'seccion' => $seccion,
+                    'fecha_hora_navegador' => $_POST['fecha_hora_navegador'] ?? ''
                 ];
 
                 include(__DIR__ . '/../Registro/enviar_pdf.php');
