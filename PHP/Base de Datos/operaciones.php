@@ -120,6 +120,7 @@ if (isset($_POST['login'])) {
         }
 
         $stmt->close();
+        //bug
     } else {
         header("Location: ../../index.php?error=" . urlencode("Por favor complete todos los campos"));
         exit();
@@ -176,7 +177,8 @@ if (isset($_POST['registrar'])) {
                     'celular' => $celular,
                     'tipo' => $_POST['tipouser'],
                     'carrera' => $_POST['carrera'],
-                    'seccion' => $seccion
+                    'seccion' => $seccion,
+                    'fecha_hora_navegador' => $_POST['fecha_hora_navegador'] ?? ''
                 ];
 
                 include(__DIR__ . '/../Registro/enviar_pdf.php');

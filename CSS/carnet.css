@@ -1,7 +1,8 @@
 .carnet-container {
+    max-width: 100%;
     width: 850px;
     margin: 20px auto;
-    padding: 30px;
+    padding: 2em;
     background: url('../imagenes/fondo.png') no-repeat center center;
     background-size: cover;
     color: #ffffff;
@@ -154,6 +155,83 @@
     color: #00faff;
     font-family: 'Orbitron', sans-serif;
     opacity: 0.9;
+}
+
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 992px) {
+    .carnet-container {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .carnet-title {
+        font-size: 50px;
+        letter-spacing: 4px;
+    }
+
+    .logo-left,
+    .logo-right {
+        width: 120px;
+    }
+
+    .carnet-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .vertical-arrow {
+        display: none;
+    }
+
+    .user-photo {
+        width: 200px;
+        height: auto;
+    }
+
+    .info-container h1 {
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .info-container h3 {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .info-container p {
+        font-size: 14px;
+        text-align: center;
+    }
+}
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 576px) {
+    .carnet-title {
+        font-size: 36px;
+        text-align: center;
+    }
+
+    .logo-left,
+    .logo-right {
+        width: 80px;
+    }
+
+    .carnet-header-logos {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .user-photo {
+        width: 160px;
+    }
+
+    .fecha-hora {
+        font-size: 12px;
+        right: 5px;
+        bottom: 5px;
+    }
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');

@@ -30,6 +30,7 @@
             <input type="password" id="password" name="password" class="input-field" placeholder="Contraseña" required>
             <button type="submit" class="btn" id="login-btn" name="login">Iniciar sesión</button>
         </form>
+        <a href="PHP/Registro/RecuperarContrasenia.php" >Recuperar Contraseñia</a>
     </div>
  
     <script>

@@ -164,6 +164,41 @@
 document.getElementsByName('celular')[0].addEventListener('input', function (e) {
     this.value = this.value.replace(/\D/g, ''); // Elimina todo lo que no sea número
 });
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Script para generar la fecha y hora del navegador del usuario
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    if (!form) return;
+
+    // Crear input oculto
+    let inputFechaHora = document.createElement('input');
+    inputFechaHora.type = 'hidden';
+    inputFechaHora.name = 'fecha_hora_navegador';
+    form.appendChild(inputFechaHora);
+
+    // Formato: dd/mm/yyyy hh:mm:ss a.m./p.m.
+    function formatearFechaHora(date) {
+        const dia = String(date.getDate()).padStart(2, '0');
+        const mes = String(date.getMonth() + 1).padStart(2, '0');
+        const anio = date.getFullYear();
+
+        let horas = date.getHours();
+        const minutos = String(date.getMinutes()).padStart(2, '0');
+        const segundos = String(date.getSeconds()).padStart(2, '0');
+        const ampm = horas >= 12 ? 'p.m.' : 'a.m.';
+
+        horas = horas % 12;
+        horas = horas ? horas : 12; // 0 -> 12
+        horas = String(horas).padStart(2, '0');
+
+        return `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos} ${ampm}`;
+    }
+
+    // Al enviar el formulario
+    form.addEventListener('submit', () => {
+        inputFechaHora.value = formatearFechaHora(new Date());
+    });
+});
 </script>
     <script src=../../Javascript/foto.js></script>
 </body>

@@ -25,7 +25,7 @@ if (isset($_SESSION['datos_pdf'])) {
 </head>
 
 <body>
-    <button id="toggle-language" class="tech-button">English</button>
+    <button id="return-login" class="tech-button">Login</button>
 
     <div class="carnet-container">
         <div class="carnet-header-logos">
@@ -61,6 +61,11 @@ if (isset($_SESSION['datos_pdf'])) {
     <button id="btnDescargarPDF" class="tech-button1">Imprimir Carnet</button>
 
     <script>
+        // Redirigir al login
+        document.getElementById("return-login").addEventListener("click", function() {
+            window.location.href = "../../index.php";
+        });
+
         //Fecha y Hora Actual del Navegador del Usuario
         function actualizarFechaHora() {
             const ahora = new Date();
@@ -82,11 +87,12 @@ if (isset($_SESSION['datos_pdf'])) {
             const fechaFormateada = ahora.toLocaleDateString('es-ES', opcionesFecha);
             const horaFormateada = `${horas}:${minutos}:${segundos} ${ampm}`;
 
-            document.getElementById("fechaHoraJS").textContent = `${fechaFormateada} ${horaFormateada}`;
+            return `${fechaFormateada} ${horaFormateada}`;
         }
 
-        actualizarFechaHora(); // Llamar una vez
-        setInterval(actualizarFechaHora, 1000); // Actualizar cada segundo
+        // Mostrar fecha y hora solo una vez al cargar
+        const fechaHora = actualizarFechaHora();
+        document.getElementById("fechaHoraJS").textContent = fechaHora;
 
 
         //Función para descargar carnet

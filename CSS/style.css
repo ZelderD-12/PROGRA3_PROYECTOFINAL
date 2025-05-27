@@ -1492,6 +1492,10 @@ h2::after {
   background: linear-gradient(135deg, var(--light-void), var(--tech-gray)) !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--neon-accent);
+  width: 100% !important; /* Forzar que ocupe todo el ancho del contenedor */
+  box-sizing: border-box !important; /* Incluir padding y border en el cálculo del ancho */
+  max-width: 100% !important; /* Evitar que se desborde */
+  margin: 0 !important; /* Eliminar márgenes que puedan causar desbordamiento */
 }
 
 .btn-secondary:hover {
@@ -1512,7 +1516,35 @@ h2::after {
   text-align: center;
   grid-column: 1 / -1;
 }
-
+/* ========== MEDIA boton limiar PARA ESCRITORIO ========== */
+@media (min-width: 768px) {
+  .form-actions {
+    flex-direction: row; /* En escritorio, botones en fila */
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .btn-secondary {
+    width: auto !important; /* En escritorio, ancho automático */
+    flex: 0 1 48%; /* Ocupar máximo 48% del contenedor padre */
+    min-width: 120px; /* Ancho mínimo para legibilidad */
+    max-width: 200px; /* Ancho máximo para evitar desbordamiento */
+  }
+  
+  /* Si necesitas que todos los botones tengan el mismo ancho */
+  .form-actions > * {
+    flex: 1;
+    margin: 0 0.25rem;
+  }
+  
+  .form-actions > *:first-child {
+    margin-left: 0;
+  }
+  
+  .form-actions > *:last-child {
+    margin-right: 0;
+  }
+}
 /* ========== ANIMACIONES ========== */
 @keyframes corePulse {
   0%, 100% { transform: scale(0.95); opacity: 0.7; }
