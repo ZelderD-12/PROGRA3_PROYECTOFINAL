@@ -47,34 +47,28 @@ function generarYEnviarPDF($datos)
         $logoDerecho = __DIR__ . '/../../imagenes/logo.png';
 
         // Inserta los logos en las esquinas
-        $colorCyan = [0, 255, 255]; // RGB cyan
-
+        // Fondo para logo izquierdo
         if (file_exists($logoIzquierdo)) {
-            $x = 10;
-            $y = 10;
-            $w = 30;
-            $h = 30;
-            $pdf->Image($logoIzquierdo, $x, $y, $w);
-            // Borde "neón"
-            $pdf->SetLineStyle(['width' => 1.5, 'color' => $colorCyan]);
-            $pdf->Rect($x - 1, $y - 1, $w + 2, $h + 2);
-            // Opcional: segundo rectángulo más pequeño para efecto glow
-            $pdf->SetLineStyle(['width' => 0.5, 'color' => $colorCyan]);
-            $pdf->Rect($x - 2, $y - 2, $w + 4, $h + 4);
+            $pdf->SetAlpha(0.5); // Fondo con opacidad del 50%
+            $pdf->SetFillColor(0, 204, 204);
+            $pdf->Rect(8, 8, 34, 34, 'F');
+            $pdf->SetAlpha(1); // Restaura opacidad al 100%
+
+            $pdf->Image($logoIzquierdo, 10, 10, 30); // Logo normal
         }
 
+
+        // Fondo para logo derecho
         if (file_exists($logoDerecho)) {
-            $x = 170;
-            $y = 10;
-            $w = 30;
-            $h = 30;
-            $pdf->Image($logoDerecho, $x, $y, $w);
-            // Borde "neón"
-            $pdf->SetLineStyle(['width' => 1.5, 'color' => $colorCyan]);
-            $pdf->Rect($x - 1, $y - 1, $w + 2, $h + 2);
-            $pdf->SetLineStyle(['width' => 0.5, 'color' => $colorCyan]);
-            $pdf->Rect($x - 2, $y - 2, $w + 4, $h + 4);
+            $pdf->SetAlpha(0.5); // Fondo con opacidad del 50%
+            $pdf->SetFillColor(0, 255, 255);
+            $pdf->Rect(168, 8, 34, 34, 'F');
+            $pdf->SetAlpha(1); // Restaura opacidad al 100%
+
+            $pdf->Image($logoDerecho, 170, 10, 30); // Logo normal
         }
+
+
 
 
         // Título centrado
@@ -99,11 +93,6 @@ function generarYEnviarPDF($datos)
     td {
         border: 1px solid #000000;
         padding: 5px;
-    }
-    img {
-        border: 3px solid #00ffff; /* cyan sólido */
-        width: 100px;
-        height: auto;
     }
 </style>
 
@@ -142,7 +131,9 @@ function generarYEnviarPDF($datos)
     </tr>
     <tr>
         <th>Foto</th>
-        <td><img src="' . $fotoPath . '" alt="Foto Usuario"/></td>
+        <td>            
+            <img src="' . $fotoPath . '" alt="Foto Usuario" style="width:auto; height:auto;"/>
+        </td>
     </tr>
 </table>
 ';
