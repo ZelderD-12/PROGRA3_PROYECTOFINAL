@@ -64,12 +64,21 @@
         </div>
         
         <div class="form-actions">
-            <button type="submit" name="recuperar" class="btn" id="btn_recuperar" disabled>Recuperar Contraseña</button>
+            <button type="button" name="recuperar" class="btn" id="btn_recuperar" disabled onclick="recuperarContrasena()">Recuperar Contraseña</button>
             <button type="reset" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
         </div>
     </div>
 
     <script>
+//------------------------------------------------------------------
+        // Función vacía para el botón Recuperar Contraseña
+        function recuperarContrasena() {
+     alert("¡Botón Recuperar Contraseña funcionando aqui trabajas :p.");
+    
+    // Espacio vacío para que tu compañero agregue su funcionalidad
+    
+}
+//--------------------------------------------------------------------
         // Objeto principal para manejar el formulario
         const FormularioRecuperacion = {
             // Obtener datos del formulario------------------------------------------------------------------------------------
@@ -163,6 +172,7 @@
         // Limpiar formulario
         function resetForm() {
             document.getElementById('metodo_recuperacion').value = '';
+             document.querySelector('input[name="carnet"]').value = '';
             document.getElementById('campo_email').style.display = 'none';
             document.getElementById('campo_telefono').style.display = 'none';
             document.getElementById('campos_password').style.display = 'none';
