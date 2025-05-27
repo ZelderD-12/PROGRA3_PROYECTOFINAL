@@ -120,6 +120,7 @@ if (isset($_POST['login'])) {
         }
 
         $stmt->close();
+        //bug
     } else {
         header("Location: ../../index.php?error=" . urlencode("Por favor complete todos los campos"));
         exit();
