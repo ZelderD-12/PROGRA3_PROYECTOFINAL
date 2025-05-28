@@ -366,6 +366,28 @@
             document.getElementById('info-content').innerHTML = `
         <h3>Información de ${tipo}</h3>
         <p>Aquí se mostraría la información específica para ${tipo}.</p>
+        <div class="usuarios-container">
+            <table class="usuarios-tabla">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Carnet</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Celular</th>
+                        <th>Tipo</th>
+                        <th>Carrera</th>
+                        <th>Seccion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     `;
         }
         /*----------------------AQUI SE MUESTRA LO DE OPERACIONES----------------------------------------------- */
