@@ -3,6 +3,8 @@ include '../Base de Datos/operaciones.php';
 $edificios = saberEdificios();
 $salones = saberSalones();
 
+$idArbol = isset($_GET['idArbol']) ? intval($_GET['idArbol']) : 0;
+$resultado = obtenerEstructuraSinUsuarios($idArbol);
 ?>
 
 <!DOCTYPE html>
@@ -500,13 +502,11 @@ $salones = saberSalones();
             let opciones = [];
 
             if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
-                // Usar edificios de la base de datos
                 opciones = edificiosBD.map(edificio => ({
                     id: edificio.idEdificio,
                     nombre: edificio.Edificio
                 }));
             } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
-                // Usar salones de la base de datos
                 opciones = salonesBD.map(salon => ({
                     id: salon.idSalon,
                     nombre: salon.Area
@@ -537,6 +537,13 @@ $salones = saberSalones();
                 option.textContent = opcion.nombre;
                 comboBox.appendChild(option);
             });
+
+            // Listener para mostrar el id seleccionado en consola
+            comboBox.onchange = function() {
+                console.log('ID seleccionado:', comboBox.value);
+                // Si quieres cargar la estructura automáticamente al seleccionar:
+                // obtenerEstructuraSinUsuarios(comboBox.value);
+            };
         }
 
         // Función principal para mostrar reportes
@@ -632,44 +639,21 @@ $salones = saberSalones();
         // Nueva función para manejar el evento del botón "Dibujar"
         function dibujarArbol(containerId, tipo) {
             const comboBox = document.getElementById('report-options-select');
-            const idSalon = comboBox ? comboBox.value : null;
-            const nombreSalon = comboBox ? comboBox.options[comboBox.selectedIndex].text : '';
+            const idEdificio = comboBox ? comboBox.value : null;
+            const nombreEdificio = comboBox ? comboBox.options[comboBox.selectedIndex].text : '';
 
-            // Guardar en variables locales
-            let salonSeleccionado = {
-                id: idSalon,
-                nombre: nombreSalon
-            };
-
-            if (!idSalon) {
-                alert('Seleccione un salón');
+            if (!idEdificio) {
+                alert('Seleccione un edificio');
                 return;
             }
 
-            // Llama al endpoint para obtener puertas y niveles
-            fetch('obtenerPuertasyNiveles.php?idEdificio=' + idSalon)
-                .then(response => response.json())
-                .then(data => {
-                    // Construir el árbol solo con puertas y niveles
-                    const arbol = {
-                        valor: nombreSalon,
-                        nivel: 0,
-                        hijos: data.puertas.map(nombrePuerta => ({
-                            valor: nombrePuerta,
-                            nivel: 1,
-                            hijos: data.niveles.map(nivel => ({
-                                valor: `Nivel ${nivel}`,
-                                nivel: 2,
-                                hijos: []
-                            }))
-                        }))
-                    };
-                    dibujarArbolAVLCompleto(containerId, arbol);
-                })
-                .catch(error => {
-                    alert('Error al obtener puertas y niveles del edificio');
-                    console.error(error);
-                });
+            // Llama a la función que consulta la estructura real
+            obtenerDatosHistorico(idEdificio, function(data) {
+                // Aquí puedes transformar los datos si lo necesitas para tu árbol
+                // Por ejemplo, puedes usar directamente data como el árbol:
+                const arbol = construirArbolDesdeDatos(data, tipo);
+                dibujarArbolAVLCompleto(containerId, arbol);
+            });
         }
 
         // Función mejorada para cargar recursos
@@ -1405,11 +1389,19 @@ function obtenerDatosSalonPorFecha() {
 }
     </script>
     <script>
-    // Pasar los datos PHP a variables JS
-    const edificiosBD = <?php echo json_encode($edificios); ?>;
-    const salonesBD = <?php echo json_encode($salones); ?>;
-    console.log('edificiosBD:', edificiosBD);
-    console.log('salonesBD:', salonesBD);
+const IMG_PATHS = {
+    nivel: num => `imagenes/IMG/level/nivel${num}.png`,
+    classroom: "imagenes/IMG/objetos/classroom.jpg",
+    door: "imagenes/IMG/objetos/door.jpg",
+    edificio: "imagenes/IMG/objetos/edificio.jpeg",
+    user: "imagenes/IMG/users/user.avif"
+};
+
+// Pasar los datos PHP a variables JS
+const edificiosBD = <?php echo json_encode($edificios); ?>;
+const salonesBD = <?php echo json_encode($salones); ?>;
+console.log('edificiosBD:', edificiosBD);
+console.log('salonesBD:', salonesBD);
 </script>
 </head>
 
