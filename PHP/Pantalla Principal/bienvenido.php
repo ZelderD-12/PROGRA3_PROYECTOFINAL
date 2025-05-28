@@ -117,10 +117,25 @@
                         </div>
                     </div>
                     
-                    <!-- Datos Usuario -->
-                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
-                        <i class="fas fa-user-edit"></i> Datos Usuario
-                    </button>
+                    <!-- Configuración (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('Contraseñia')">
+                                <i class="fas fa-language"></i> Restablecer contraseñia
+                            </a>
+                            
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             `;
 
@@ -163,10 +178,25 @@
                         </div>
                     </div>
                     
-                    <!-- Datos Usuario -->
-                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
-                        <i class="fas fa-user-edit"></i> Datos Usuario
-                    </button>
+                    <!-- Configuración (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('Contraseñia')">
+                                <i class="fas fa-language"></i> Restablecer contraseñia
+                            </a>
+                            
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             `;
 
@@ -271,10 +301,25 @@
                         <i class="fas fa-chart-bar"></i> Estadísticas
                     </button>
                     
-                    <!-- Datos Usuario -->
-                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
-                        <i class="fas fa-user-edit"></i> Datos Usuario
-                    </button>
+                    <!-- Configuración (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('Contraseñia')">
+                                <i class="fas fa-language"></i> Restablecer contraseñia
+                            </a>
+                            
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             `;
                         break;
@@ -289,10 +334,25 @@
                         <i class="fas fa-user-check"></i> Ver Asistencia
                     </button>
                     
-                    <!-- Datos Usuario -->
-                    <button onclick="cambiarConfiguracion('datos')" class="btn-dev">
-                        <i class="fas fa-user-edit"></i> Datos Usuario
-                    </button>
+                    <!-- Configuración (desplegable) -->
+                    <div class="dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown('configuracion')">
+                            <span><i class="fas fa-cog"></i> Configuración</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div id="configuracion" class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="cambiarConfiguracion('Contraseñia')">
+                                <i class="fas fa-language"></i> Restablecer contraseñia
+                            </a>
+                            
+                              <a href="#" class="dropdown-item" data-opcion="datos" onclick="cambiarConfiguracion('datos')">
+                                 <i class="fas fa-user-edit"></i> Datos Usuario
+                                    </a>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             `;
 
@@ -325,7 +385,12 @@
         // Función para la configuración (nueva)
         function cambiarConfiguracion(tipo) {
             switch (tipo) {
-                
+                 case 'Contraseñia':
+                    document.getElementById('info-content').innerHTML = `
+                <h3>Restablecer contraseñia</h3>
+                <p>Cambie su contraseñia.</p>
+            `;
+                    break;
                 case 'datos':
                     document.getElementById('info-content').innerHTML = `
                 <h3>Datos Usuario</h3>
@@ -419,14 +484,10 @@
                             </div>
                         <div class="info-personal">
                             <div class="campo-dato">
-                                <label>Nombre:</label>
-                                <span>${usuarioData.Nombres_Usuario}</span>
+                                <label>Nombre y apellido:</label>
+                                <span>${usuarioData.Nombres_Usuario} ${usuarioData.Apellidos_Usuario}</span>
                             </div>
-                            <div class="info-personal">
-                            <div class="campo-dato">
-                                <label>Apellido:</label>
-                                <span>${usuarioData.Apellidos_Usuario}</span>
-                            </div>
+                             
                             
                             <div class="campo-dato">
                                 <label>Correo:</label>
@@ -478,6 +539,40 @@
                         generarPDFAdmin();
                     });
                 }
+                } else if (opcion === 'Contraseñia') {
+                infoContent.innerHTML = `
+        <div class="restablecer-password-container">
+            <h3>Restablecer contraseña</h3>
+            <p>Cambie su contraseña.</p>
+            
+            <form id="form-restablecer-password" class="form-password">
+                <div class="campo-password">
+                    <label for="password-actual">Contraseña actual:</label>
+                    <input type="password" id="password-actual" name="password-actual" required>
+                </div>
+                
+                <div class="campo-password">
+                    <label for="password-nueva">Nueva contraseña:</label>
+                    <input type="password" id="password-nueva" name="password-nueva" required>
+                </div>
+                
+                <div class="campo-password">
+                    <label for="password-confirmar">Confirmar nueva contraseña:</label>
+                    <input type="password" id="password-confirmar" name="password-confirmar" required>
+                </div>
+                
+                <div class="botones-password">
+                    <button type="submit" id="btn-cambiar-password" class="btn-cambiar">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                    <button type="button" id="btn-cancelar-password" class="btn-cancelar">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
             }
 
             // Cerrar el dropdown si está abierto
