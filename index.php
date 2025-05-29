@@ -18,8 +18,6 @@
         <div class="header">
             <img src="imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
-        
-        <a href="PHP/Registro/IngresoDatos.php" class="register-link">Registro</a>
                 
         <h2><span id="login-title">Inicio de Sesión</span></h2>
                 
