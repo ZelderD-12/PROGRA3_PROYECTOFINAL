@@ -1479,22 +1479,29 @@
     `;
         }
 
-        function gestionarUsuarios(accion) {
-            // Botón adicional según acción
-            let botonExtra = "";
-            if (accion.toLowerCase() === "eliminar") {
-                botonExtra = `<button id="btn-eliminar">ELIMINAR</button>`;
-            } else if (accion.toLowerCase() === "agregar") {
-                botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
-            }
-            document.getElementById('info-content').innerHTML = `
+function gestionarUsuarios(accion) {
+    // Botón adicional según acción
+    let botonExtra = "";
+    if (accion.toLowerCase() === "eliminar") {
+        botonExtra = `
+            <button id="btn-eliminar" class="btn-eliminar" disabled>
+                <i class="fas fa-trash-alt"></i> ELIMINAR
+            </button>
+        `;
+    } else if (accion.toLowerCase() === "agregar") {
+        botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
+    }
+    
+    document.getElementById('info-content').innerHTML = `
         <h3>Administración de Usuarios - ${accion}</h3>
         <p>Realizando acción: ${accion}.</p>
         <div class="usuarios-container">
             <div class="usuarios-busqueda">
                 <label for="carnet">CARNET:</label>
-                <input type="number" id="carnet">
-                <button>BUSCAR</button>
+                <input type="text" id="carnet" placeholder="Ingrese el carnet">
+                <button onclick="buscarUsuario('${accion}')">
+                    <i class="fas fa-search"></i> BUSCAR
+                </button>
                 ${botonExtra}
             </div>
             <table class="usuarios-tabla">
@@ -1508,19 +1515,134 @@
                         <th>Celular</th>
                         <th>Tipo</th>
                         <th>Carrera</th>
-                        <th>Seccion</th>
+                        <th>Sección</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="usuarios-tbody">
                     <tr>
-                        <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
+                        <td colspan="9" style="text-align:center;">Ingrese un carnet y haga clic en BUSCAR</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     `;
-        }
 
+    // Configurar evento de eliminación si es la acción correspondiente
+    if (accion.toLowerCase() === "eliminar") {
+        document.getElementById('btn-eliminar').addEventListener('click', eliminarUsuario);
+    }
+}
+
+let usuarioActual = null;
+
+async function buscarUsuario(accion) {
+    const carnet = document.getElementById('carnet').value.trim();
+    const tbody = document.getElementById('usuarios-tbody');
+    const btnEliminar = document.getElementById('btn-eliminar');
+    
+    if (!carnet) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Por favor ingrese un carnet</td></tr>`;
+        if (btnEliminar) btnEliminar.disabled = true;
+        return;
+    }
+    
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Buscando usuario...</td></tr>`;
+    
+    try {
+        const response = await fetch(`../Base de datos/buscar_usuario.php?carnet=${encodeURIComponent(carnet)}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+            if (btnEliminar) btnEliminar.disabled = true;
+            return;
+        }
+        
+        if (!data.usuarios || data.usuarios.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No se encontraron usuarios con ese carnet</td></tr>`;
+            if (btnEliminar) btnEliminar.disabled = true;
+            return;
+        }
+        
+        // Guardar usuario encontrado para posible eliminación
+        usuarioActual = data.usuarios[0];
+        
+        // Mostrar resultados en la tabla
+        tbody.innerHTML = data.usuarios.map((usuario, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${usuario.Carnet_Usuario}</td>
+                <td>${usuario.Nombres_Usuario}</td>
+                <td>${usuario.Apellidos_Usuario}</td>
+                <td>${usuario.Correo_Electronico_Usuario}</td>
+                <td>${usuario.Numero_De_Telefono_Usuario}</td>
+                <td>${usuario.Tipo_De_Usuario}</td>
+                <td>${usuario.Nombre_Carrera}</td>
+                <td>${usuario.Seccion_Usuario}</td>
+            </tr>
+        `).join('');
+        
+        // Habilitar botón de eliminar si estamos en esa acción
+        if (btnEliminar) {
+            btnEliminar.disabled = false;
+            btnEliminar.setAttribute('data-carnet', usuarioActual.Carnet_Usuario);
+        }
+        
+    } catch (error) {
+        console.error('Error al buscar usuario:', error);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+        if (btnEliminar) btnEliminar.disabled = true;
+    }
+}
+
+async function eliminarUsuario() {
+    const carnet = this.getAttribute('data-carnet');
+    const tbody = document.getElementById('usuarios-tbody');
+    const btnEliminar = document.getElementById('btn-eliminar');
+    
+    if (!carnet || !confirm(`¿Está seguro que desea eliminar al usuario con carnet ${carnet}?`)) {
+        return;
+    }
+    
+    btnEliminar.disabled = true;
+    btnEliminar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Eliminando usuario...</td></tr>`;
+    
+    try {
+        const response = await fetch('../Base de datos/eliminar_usuario.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `carnet=${encodeURIComponent(carnet)}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+            btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+            return;
+        }
+        
+        // Mostrar mensaje de éxito
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green;">
+            <i class="fas fa-check-circle"></i> Usuario con carnet ${carnet} eliminado correctamente
+        </td></tr>`;
+        
+        // Resetear el formulario
+        document.getElementById('carnet').value = '';
+        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+        btnEliminar.disabled = true;
+        usuarioActual = null;
+        
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+        btnEliminar.disabled = false;
+    }
+}
 
         function abrirRegistroGeneral() {
             // Muestra el registro general
