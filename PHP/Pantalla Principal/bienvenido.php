@@ -733,24 +733,120 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
 
         // Nueva función para manejar el evento del botón "Dibujar"
         function dibujarArbol(containerId, tipo) {
-            const comboBox = document.getElementById('report-options-select');
-            const idEdificio = comboBox ? comboBox.value : null;
-            const nombreEdificio = comboBox ? comboBox.options[comboBox.selectedIndex].text : '';
+            // Usar la función que ahora sí devuelve la estructura real
+            const arbolEstructura = obtenerDatosHistorico();
 
-            if (!idEdificio) {
-                alert('Seleccione un edificio');
+            // Obtener el edificio seleccionado del combo (si existe)
+            const combo = document.getElementById('report-options-select');
+            let edificioSeleccionado = null;
+            if (combo && combo.value) {
+                edificioSeleccionado = arbolEstructura.find(e => e.instalacion === combo.options[combo.selectedIndex].text);
+            }
+            if (!edificioSeleccionado && arbolEstructura.length > 0) {
+                edificioSeleccionado = arbolEstructura[0];
+            }
+            if (!edificioSeleccionado) {
+                alert("No hay datos para mostrar el árbol.");
                 return;
             }
 
-            // Llama a la función que consulta la estructura real
-            obtenerDatosHistorico(idEdificio, function(data) {
-                // Aquí puedes transformar los datos si lo necesitas para tu árbol
-                // Por ejemplo, puedes usar directamente data como el árbol:
-                const arbol = construirArbolDesdeDatos(data, tipo);
-                dibujarArbolAVLCompleto(containerId, arbol);
-            });
-        }
+            // Construir el nodo raíz del árbol
+            const nodoRaiz = {
+                valor: edificioSeleccionado.instalacion,
+                nivel: 0,
+                hijos: []
+            };
 
+            // Usuarios en el edificio
+            if (edificioSeleccionado.usuarios && edificioSeleccionado.usuarios.length > 0) {
+                edificioSeleccionado.usuarios.forEach(usuario => {
+                    nodoRaiz.hijos.push({
+                        valor: usuario.nombre,
+                        nivel: 1,
+                        data: usuario,
+                        hijos: []
+                    });
+                });
+            }
+
+            // Puertas
+            if (edificioSeleccionado.puertas && edificioSeleccionado.puertas.length > 0) {
+                edificioSeleccionado.puertas.forEach(puerta => {
+                    const nodoPuerta = {
+                        valor: puerta.nombre,
+                        nivel: 1,
+                        hijos: []
+                    };
+
+                    // Usuarios en la puerta
+                    if (puerta.usuarios && puerta.usuarios.length > 0) {
+                        puerta.usuarios.forEach(usuario => {
+                            nodoPuerta.hijos.push({
+                                valor: usuario.nombre,
+                                nivel: 2,
+                                data: usuario,
+                                hijos: []
+                            });
+                        });
+                    }
+
+                    // Niveles
+                    if (puerta.niveles && puerta.niveles.length > 0) {
+                        puerta.niveles.forEach(nivel => {
+                            const nodoNivel = {
+                                valor: `Nivel ${nivel.numero}`,
+                                nivel: 2,
+                                hijos: []
+                            };
+
+                            // Usuarios en el nivel
+                            if (nivel.usuarios && nivel.usuarios.length > 0) {
+                                nivel.usuarios.forEach(usuario => {
+                                    nodoNivel.hijos.push({
+                                        valor: usuario.nombre,
+                                        nivel: 3,
+                                        data: usuario,
+                                        hijos: []
+                                    });
+                                });
+                            }
+
+                            // Salones
+                            if (nivel.salones && nivel.salones.length > 0) {
+                                nivel.salones.forEach(salon => {
+                                    const nodoSalon = {
+                                        valor: `Salón ${salon.numero}`,
+                                        nivel: 3,
+                                        hijos: []
+                                    };
+
+                                    // Usuarios en el salón
+                                    if (salon.usuarios && salon.usuarios.length > 0) {
+                                        salon.usuarios.forEach(usuario => {
+                                            nodoSalon.hijos.push({
+                                                valor: usuario.nombre,
+                                                nivel: 4,
+                                                data: usuario,
+                                                hijos: []
+                                            });
+                                        });
+                                    }
+
+                                    nodoNivel.hijos.push(nodoSalon);
+                                });
+                            }
+
+                            nodoPuerta.hijos.push(nodoNivel);
+                        });
+                    }
+
+                    nodoRaiz.hijos.push(nodoPuerta);
+                });
+            }
+
+            // Dibuja el árbol usando tu función de renderizado
+            dibujarArbolAVLCompleto(containerId, nodoRaiz);
+        }
         // Función mejorada para cargar recursos
         function cargarRecursosAVL(cssPath, jsPath, callback) {
             let recursosCargados = 0;
@@ -1324,64 +1420,8 @@ function mostrarNumeroSalon(numeroSalon) {
 
 // Funciones para obtener datos (se mantienen iguales)
 function obtenerDatosHistorico() {
-    return [
-        {
-            instalacion: "Edificio B",
-            usuarios: [
-                { nombre: "Carlos López", foto: IMG_PATHS.user, ubicacion: "edificio" }
-            ],
-            puertas: [
-                {
-                    nombre: "Puerta 1",
-                    usuarios: [
-                        { nombre: "Ana Torres", foto: IMG_PATHS.user, ubicacion: "puerta" }
-                    ],
-                    niveles: [
-                        {
-                            numero: 1,
-                            usuarios: [],
-                            salones: [
-                                {
-                                    numero: "101",
-                                    usuarios: [
-                                        { nombre: "Juan Pérez", foto: IMG_PATHS.user, ubicacion: "salon" }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            instalacion: "Edificio A",
-            usuarios: [
-                { nombre: "María García", foto: IMG_PATHS.user, ubicacion: "edificio" }
-            ],
-            puertas: [
-                {
-                    nombre: "Puerta Principal",
-                    usuarios: [
-                        { nombre: "Luis Gómez", foto: IMG_PATHS.user, ubicacion: "puerta" }
-                    ],
-                    niveles: [
-                        {
-                            numero: 2,
-                            usuarios: [],
-                            salones: [
-                                {
-                                    numero: "201",
-                                    usuarios: [
-                                        { nombre: "Sofía Martínez", foto: IMG_PATHS.user, ubicacion: "salon" }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+    // Devuelve la estructura del árbol usando el vector real
+    return ensamblarArbolDesdeVectores(vectores);
 }
 
 function obtenerDatosPorFecha() {
@@ -1482,14 +1522,235 @@ function obtenerDatosSalonPorFecha() {
         }
     ];
 }
-    </script>
+
+function obtenerDatosGeneralesEjemplo() {
+    return [
+        {
+            edificio: {
+                id: 1,
+                nombre: "Edificio Central",
+                usuarios: [
+                    { nombre: "Admin Edificio", tipo: "administrador", foto: IMG_PATHS.user }
+                ]
+            },
+            puertas: [
+                {
+                    id: 10,
+                    nombre: "Puerta Principal",
+                    usuarios: [
+                        { nombre: "Guardia 1", tipo: "guardia", foto: IMG_PATHS.user }
+                    ],
+                    niveles: [
+                        {
+                            numero: 1,
+                            usuarios: [
+                                { nombre: "Encargado Nivel 1", tipo: "encargado", foto: IMG_PATHS.user }
+                            ],
+                            salones: [
+                                {
+                                    id: 101,
+                                    nombre: "Salón 101",
+                                    usuarios: [
+                                        { nombre: "Estudiante 1", tipo: "estudiante", foto: IMG_PATHS.user },
+                                        { nombre: "Catedrático 1", tipo: "catedrático", foto: IMG_PATHS.user }
+                                    ]
+                                },
+                                {
+                                    id: 102,
+                                    nombre: "Salón 102",
+                                    usuarios: [
+                                        { nombre: "Estudiante 2", tipo: "estudiante", foto: IMG_PATHS.user }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            numero: 2,
+                            usuarios: [],
+                            salones: [
+                                {
+                                    id: 201,
+                                    nombre: "Salón 201",
+                                    usuarios: [
+                                        { nombre: "Estudiante 3", tipo: "estudiante", foto: IMG_PATHS.user }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 11,
+                    nombre: "Puerta Lateral",
+                    usuarios: [
+                        { nombre: "Guardia 2", tipo: "guardia", foto: IMG_PATHS.user }
+                    ],
+                    niveles: [
+                        {
+                            numero: 1,
+                            usuarios: [],
+                            salones: [
+                                {
+                                    id: 103,
+                                    nombre: "Salón 103",
+                                    usuarios: [
+                                        { nombre: "Estudiante 4", tipo: "estudiante", foto: IMG_PATHS.user }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ];
+}
+
+// Devuelve la fecha de hoy en formato YYYY-MM-DD
+function obtenerFechaHoy() {
+    const hoy = new Date();
+    return hoy.toISOString().slice(0, 10);
+}
+
+// Ensambla el árbol a partir de un vector plano
+function ensamblarArbolDesdeVectores(vectores) {
+    const fechaHoy = obtenerFechaHoy();
+    const arbol = [];
+
+    vectores.forEach(item => {
+        if (item.fecha !== fechaHoy) return;
+
+        // Buscar o crear el edificio
+        let edificio = arbol.find(e => e.instalacion === item.edificio);
+        if (!edificio) {
+            edificio = {
+                instalacion: item.edificio,
+                usuarios: [],
+                puertas: []
+            };
+            arbol.push(edificio);
+        }
+
+        // Si el usuario está en el edificio
+
+        // Si el usuario está en el edificio
+        if (!item.puerta) {
+            edificio.usuarios.push(item.usuario); // Permite repetidos
+            return;
+        }
+
+        // Buscar o crear la puerta
+        let puerta = edificio.puertas.find(p => p.nombre === item.puerta);
+        if (!puerta) {
+            puerta = {
+                nombre: item.puerta,
+                usuarios: [],
+                niveles: []
+            };
+            edificio.puertas.push(puerta);
+        }
+
+        // Si el usuario está en la puerta
+        if (!item.nivel) {
+            puerta.usuarios.push(item.usuario); // Permite repetidos
+            return;
+        }
+
+        // Buscar o crear el nivel
+        let nivel = puerta.niveles.find(n => n.numero === item.nivel);
+        if (!nivel) {
+            nivel = {
+                numero: item.nivel,
+                usuarios: [],
+                salones: []
+            };
+            puerta.niveles.push(nivel);
+        }
+
+        // Si el usuario está en el nivel
+        if (!item.salon) {
+            nivel.usuarios.push(item.usuario); // Permite repetidos
+            return;
+        }
+
+        // Buscar o crear el salón
+        let salon = nivel.salones.find(s => s.numero === item.salon);
+        if (!salon) {
+            salon = {
+                numero: item.salon,
+                usuarios: []
+            };
+            nivel.salones.push(salon);
+        }
+
+        // Usuario en el salón
+        salon.usuarios.push(item.usuario); // Permite repetidos
+    });
+
+    return arbol;
+}
+
+// Agrega un usuario al array si no existe ya (por nombre)
+function agregarUsuarioEnArbol(arrayUsuarios, usuario) {
+    if (!arrayUsuarios.some(u => u.nombre === usuario.nombre)) {
+        arrayUsuarios.push(usuario);
+    }
+}
+
+// Ejemplo de uso:
+const vectores = [
+    // Usuarios en el edificio
+    {edificio: "Edificio Central", usuario: {nombre: "Admin Edificio", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
+    {edificio: "Edificio Central", usuario: {nombre: "Invitado", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
+    // Usuarios en la puerta
+    {edificio: "Edificio Central", puerta: "Puerta 1", usuario: {nombre: "Guardia 1", foto: IMG_PATHS.user, ubicacion: "puerta"}, fecha: obtenerFechaHoy()},
+    // Usuarios en el salón
+    {edificio: "Edificio Central", puerta: "Puerta 1", nivel: 1, salon: "101", usuario: {nombre: "Estudiante 1", foto: IMG_PATHS.user, ubicacion: "salon"}, fecha: obtenerFechaHoy()},
+    {edificio: "Edificio Central", puerta: "Puerta 1", nivel: 1, salon: "101", usuario: {nombre: "Estudiante 2", foto: IMG_PATHS.user, ubicacion: "salon"}, fecha: obtenerFechaHoy()},
+    // El mismo usuario en edificio y salón
+    {edificio: "Edificio Central", usuario: {nombre: "Estudiante 1", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
+];
+
+function agregarUsuario(vectores, usuario, ubicacion) {
+    // ubicacion: { edificio, puerta, nivel, salon }
+    // usuario: { nombre, foto, ubicacion }
+    // fecha: siempre la de hoy
+    const nuevoRegistro = {
+        edificio: ubicacion.edificio,
+        puerta: ubicacion.puerta,
+        nivel: ubicacion.nivel,
+        salon: ubicacion.salon,
+        usuario: usuario,
+        fecha: obtenerFechaHoy()
+    };
+    vectores.push(nuevoRegistro);
+}
+
+function moverUsuario(vectores, nombreUsuario, nuevaUbicacion) {
+    // Elimina el usuario de su ubicación anterior (solo para hoy)
+    for (let i = vectores.length - 1; i >= 0; i--) {
+        if (
+            vectores[i].usuario.nombre === nombreUsuario &&
+            vectores[i].fecha === obtenerFechaHoy()
+        ) {
+            vectores.splice(i, 1);
+        }
+    }
+    // Agrega el usuario en la nueva ubicación
+    agregarUsuario(
+        vectores,
+        { nombre: nombreUsuario, foto: IMG_PATHS.user, ubicacion: nuevaUbicacion.ubicacion },
+        nuevaUbicacion
+    );
+}
+</script>
     <script>
 const IMG_PATHS = {
-    nivel: num => `imagenes/IMG/level/nivel${num}.png`,
-    classroom: "imagenes/IMG/objetos/classroom.jpg",
-    door: "imagenes/IMG/objetos/door.jpg",
-    edificio: "imagenes/IMG/objetos/edificio.jpeg",
-    user: "imagenes/IMG/users/user.avif"
+    nivel: num => `../../imagenes/IMG/level/nivel${num}.png`,
+    classroom: "../../imagenes/IMG/objetos/classroom.jpg",
+    door: "../../imagenes/IMG/objetos/door.jpg",
+    edificio: "../../imagenes/IMG/objetos/edificio.jpeg",
+    user: "../../imagenes/IMG/users/user1.png"
 };
 
 // Pasar los datos PHP a variables JS
@@ -1497,6 +1758,9 @@ const edificiosBD = <?php echo json_encode($edificios); ?>;
 const salonesBD = <?php echo json_encode($salones); ?>;
 console.log('edificiosBD:', edificiosBD);
 console.log('salonesBD:', salonesBD);
+
+// ...AQUÍ van todas tus funciones JS, incluyendo obtenerDatosHistorico, etc...
+// Asegúrate de que todas usen IMG_PATHS (mayúscula)
 </script>
 </head>
 
