@@ -1,12 +1,3 @@
-<?php
-include '../Base de Datos/operaciones.php';
-$edificios = saberEdificios();
-$salones = saberSalones();
-
-$idArbol = isset($_GET['idArbol']) ? intval($_GET['idArbol']) : 0;
-$resultado = obtenerEstructuraSinUsuarios($idArbol);
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -286,16 +277,16 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos
+                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos 
+                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso por fecha
+                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso de salon
+                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
                             </a>
                         </div>
                     </div>
@@ -594,31 +585,89 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
         }
         //----------------------------------------------------------------------------------------------------------------
         function cargarCombobox(tipoReporte) {
+            // Lista de opciones según el tipo de reporte
             let opciones = [];
+            switch (tipoReporte) {
+                case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
+                    opciones = [{
+                            id: 'edificioA',
+                            nombre: "Edificio A - Nivel I"
+                        },
+                        {
+                            id: 'edificioB',
+                            nombre: "Edificio B - Nivel I"
+                        },
+                        {
+                            id: 'puertaPrincipal',
+                            nombre: "Puerta Principal - Nivel II"
+                        },
+                        {
+                            id: 'puertaSecundaria',
+                            nombre: "Puerta Secundaria - Nivel II"
+                        }
+                    ];
+                    break;
 
-            if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
-                opciones = edificiosBD.map(edificio => ({
-                    id: edificio.idEdificio,
-                    nombre: edificio.Edificio
-                }));
-            } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
-                opciones = salonesBD.map(salon => ({
-                    id: salon.idSalon,
-                    nombre: salon.Area
-                }));
-            } else {
-                console.error('Tipo de reporte no reconocido:', tipoReporte);
-                return;
+                case 'fechaEntrada': // Mostrar solo edificios
+                    opciones = [{
+                            id: 'edificioA',
+                            nombre: "Edificio A - Nivel I"
+                        },
+                        {
+                            id: 'edificioB',
+                            nombre: "Edificio B - Nivel I"
+                        },
+                        {
+                            id: 'edificioC',
+                            nombre: "Edificio C - Nivel I"
+                        }
+                    ];
+                    break;
+
+                case 'historicoSalon': // Mostrar salones y puertas según el nivel
+                    opciones = [{
+                            id: 'salon101',
+                            nombre: "Salón 101 - Nivel I"
+                        },
+                        {
+                            id: 'salon202',
+                            nombre: "Salón 202 - Nivel II"
+                        },
+                        {
+                            id: 'puertaPrincipal',
+                            nombre: "Puerta Principal - Nivel II"
+                        },
+                        {
+                            id: 'puertaEmergencia',
+                            nombre: "Puerta Emergencia - Nivel I"
+                        }
+                    ];
+                    break;
+
+                case 'fechaSalon': // Mostrar solo salones de un nivel específico
+                    opciones = [{
+                            id: 'salon101',
+                            nombre: "Salón 101 - Nivel I"
+                        },
+                        {
+                            id: 'salon202',
+                            nombre: "Salón 202 - Nivel II"
+                        }
+                    ];
+                    break;
+
+                default:
+                    console.error('Tipo de reporte no reconocido:', tipoReporte);
+                    return;
             }
 
+            // Obtener el combo box por su ID
             const comboBox = document.getElementById('report-options-select');
-            if (!comboBox) {
-                console.error('No se encontró el combo box');
-                return;
-            }
 
+            // Limpiar las opciones existentes
             comboBox.innerHTML = '';
 
+            // Agregar una opción por defecto
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = 'Seleccione una opción';
@@ -626,19 +675,13 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
             defaultOption.selected = true;
             comboBox.appendChild(defaultOption);
 
+            // Agregar las opciones dinámicamente
             opciones.forEach(opcion => {
                 const option = document.createElement('option');
                 option.value = opcion.id;
                 option.textContent = opcion.nombre;
                 comboBox.appendChild(option);
             });
-
-            // Listener para mostrar el id seleccionado en consola
-            comboBox.onchange = function() {
-                console.log('ID seleccionado:', comboBox.value);
-                // Si quieres cargar la estructura automáticamente al seleccionar:
-                // obtenerEstructuraSinUsuarios(comboBox.value);
-            };
         }
 
         // Función principal para mostrar reportes
@@ -733,120 +776,11 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
 
         // Nueva función para manejar el evento del botón "Dibujar"
         function dibujarArbol(containerId, tipo) {
-            // Usar la función que ahora sí devuelve la estructura real
-            const arbolEstructura = obtenerDatosHistorico();
-
-            // Obtener el edificio seleccionado del combo (si existe)
-            const combo = document.getElementById('report-options-select');
-            let edificioSeleccionado = null;
-            if (combo && combo.value) {
-                edificioSeleccionado = arbolEstructura.find(e => e.instalacion === combo.options[combo.selectedIndex].text);
-            }
-            if (!edificioSeleccionado && arbolEstructura.length > 0) {
-                edificioSeleccionado = arbolEstructura[0];
-            }
-            if (!edificioSeleccionado) {
-                alert("No hay datos para mostrar el árbol.");
-                return;
-            }
-
-            // Construir el nodo raíz del árbol
-            const nodoRaiz = {
-                valor: edificioSeleccionado.instalacion,
-                nivel: 0,
-                hijos: []
-            };
-
-            // Usuarios en el edificio
-            if (edificioSeleccionado.usuarios && edificioSeleccionado.usuarios.length > 0) {
-                edificioSeleccionado.usuarios.forEach(usuario => {
-                    nodoRaiz.hijos.push({
-                        valor: usuario.nombre,
-                        nivel: 1,
-                        data: usuario,
-                        hijos: []
-                    });
-                });
-            }
-
-            // Puertas
-            if (edificioSeleccionado.puertas && edificioSeleccionado.puertas.length > 0) {
-                edificioSeleccionado.puertas.forEach(puerta => {
-                    const nodoPuerta = {
-                        valor: puerta.nombre,
-                        nivel: 1,
-                        hijos: []
-                    };
-
-                    // Usuarios en la puerta
-                    if (puerta.usuarios && puerta.usuarios.length > 0) {
-                        puerta.usuarios.forEach(usuario => {
-                            nodoPuerta.hijos.push({
-                                valor: usuario.nombre,
-                                nivel: 2,
-                                data: usuario,
-                                hijos: []
-                            });
-                        });
-                    }
-
-                    // Niveles
-                    if (puerta.niveles && puerta.niveles.length > 0) {
-                        puerta.niveles.forEach(nivel => {
-                            const nodoNivel = {
-                                valor: `Nivel ${nivel.numero}`,
-                                nivel: 2,
-                                hijos: []
-                            };
-
-                            // Usuarios en el nivel
-                            if (nivel.usuarios && nivel.usuarios.length > 0) {
-                                nivel.usuarios.forEach(usuario => {
-                                    nodoNivel.hijos.push({
-                                        valor: usuario.nombre,
-                                        nivel: 3,
-                                        data: usuario,
-                                        hijos: []
-                                    });
-                                });
-                            }
-
-                            // Salones
-                            if (nivel.salones && nivel.salones.length > 0) {
-                                nivel.salones.forEach(salon => {
-                                    const nodoSalon = {
-                                        valor: `Salón ${salon.numero}`,
-                                        nivel: 3,
-                                        hijos: []
-                                    };
-
-                                    // Usuarios en el salón
-                                    if (salon.usuarios && salon.usuarios.length > 0) {
-                                        salon.usuarios.forEach(usuario => {
-                                            nodoSalon.hijos.push({
-                                                valor: usuario.nombre,
-                                                nivel: 4,
-                                                data: usuario,
-                                                hijos: []
-                                            });
-                                        });
-                                    }
-
-                                    nodoNivel.hijos.push(nodoSalon);
-                                });
-                            }
-
-                            nodoPuerta.hijos.push(nodoNivel);
-                        });
-                    }
-
-                    nodoRaiz.hijos.push(nodoPuerta);
-                });
-            }
-
-            // Dibuja el árbol usando tu función de renderizado
-            dibujarArbolAVLCompleto(containerId, nodoRaiz);
+            const datos = obtenerDatosParaReporte(tipo);
+            const arbol = construirArbolDesdeDatos(datos, tipo);
+            dibujarArbolAVLCompleto(containerId, arbol);
         }
+
         // Función mejorada para cargar recursos
         function cargarRecursosAVL(cssPath, jsPath, callback) {
             let recursosCargados = 0;
@@ -1153,7 +1087,7 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
                 if (nodo.hijos && nodo.hijos.length > 0) {
                     const totalHijos = nodo.hijos.length;
                     const espacioRequerido = Math.max(
-                        (TREE_CONFIG.HORIZONTAL_SPACING + TREE_CONFIG.NODE_SPACING) * (totalHijos - 1), 
+                        (TREE_CONFIG.HORIZONTAL_SPACING + TREE_CONFIG.NODE_SPACING) * (totalHijos - 1),
                         espacioDisponible / totalHijos
                     );
 
@@ -1227,541 +1161,1012 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
             // Función mejorada para expandir imágenes
             function expandirImagen(event, imgSrc) {
                 event.stopPropagation();
-                
+
                 const overlay = document.createElement('div');
                 overlay.className = 'image-overlay';
-                
+
                 const expandedImg = document.createElement('img');
                 expandedImg.src = imgSrc;
                 expandedImg.className = 'expanded-image';
-                
+
                 overlay.appendChild(expandedImg);
                 document.body.appendChild(overlay);
-                
+
                 overlay.addEventListener('click', () => {
                     document.body.removeChild(overlay);
                 });
             }
 
             // Dibujar nodos mejorados con imágenes específicas para edificios y puertas
-   // En la función dibujarNodos, modifica esta parte:
-async function dibujarNodos(nodo, g) {
-    if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
+            // En la función dibujarNodos, modifica esta parte:
+            async function dibujarNodos(nodo, g) {
+                if (!nodo || nodo.x === undefined || nodo.y === undefined) return;
 
-    const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    nodeGroup.setAttribute('class', 'avl-node-group');
-    nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
+                const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                nodeGroup.setAttribute('class', 'avl-node-group');
+                nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
 
-    // Detectar si es un nodo de nivel (ejemplo: "Nivel 1", "Nivel 2", ...)
-    const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
-    let esNivel = false;
-    let nivelNumero = 0;
-    if (nivelMatch) {
-        esNivel = true;
-        nivelNumero = parseInt(nivelMatch[1]);
-    }
+                // Detectar si es un nodo de nivel (ejemplo: "Nivel 1", "Nivel 2", ...)
+                const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
+                let esNivel = false;
+                let nivelNumero = 0;
+                if (nivelMatch) {
+                    esNivel = true;
+                    nivelNumero = parseInt(nivelMatch[1]);
+                }
 
-    // Crear el círculo base para todos los nodos
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
-    circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
-    circle.setAttribute('stroke-width', '2');
-    circle.setAttribute('class', 'node-circle');
+                // Crear el círculo base para todos los nodos
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
+                circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('class', 'node-circle');
 
-    if (esNivel && nivelNumero >= 1 && nivelNumero <= 5) {
-        // Imagen de nivel correspondiente
-        const imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelNumero}.png`);
-        const imageSize = TREE_CONFIG.IMAGE_SIZE;
-        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-        image.setAttribute('href', imagenUrl);
-        image.setAttribute('width', imageSize);
-        image.setAttribute('height', imageSize);
-        image.setAttribute('x', -imageSize / 2);
-        image.setAttribute('y', -imageSize / 2);
-        image.setAttribute('class', 'node-image');
-        image.style.cursor = 'pointer';
-        nodeGroup.appendChild(circle);
-        nodeGroup.appendChild(image);
+                if (esNivel && nivelNumero >= 1 && nivelNumero <= 5) {
+                    // Imagen de nivel correspondiente
+                    const imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelNumero}.png`);
+                    const imageSize = TREE_CONFIG.IMAGE_SIZE;
+                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    image.setAttribute('href', imagenUrl);
+                    image.setAttribute('width', imageSize);
+                    image.setAttribute('height', imageSize);
+                    image.setAttribute('x', -imageSize / 2);
+                    image.setAttribute('y', -imageSize / 2);
+                    image.setAttribute('class', 'node-image');
+                    image.style.cursor = 'pointer';
+                    nodeGroup.appendChild(circle);
+                    nodeGroup.appendChild(image);
 
-        // Texto del nivel debajo de la imagen
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'hanging');
-        text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
-        text.setAttribute('fill', '#333');
-        text.setAttribute('font-size', '12px');
-        text.setAttribute('font-weight', 'bold');
-        text.textContent = nodo.valor;
-        nodeGroup.appendChild(text);
-    } else {
-        // Configuración para otros nodos (edificios, puertas, personas)
-        circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default);
-        nodeGroup.appendChild(circle);
+                    // Texto del nivel debajo de la imagen
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'hanging');
+                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('font-size', '12px');
+                    text.setAttribute('font-weight', 'bold');
+                    text.textContent = nodo.valor;
+                    nodeGroup.appendChild(text);
+                } else {
+                    // Configuración para otros nodos (edificios, puertas, personas)
+                    circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default);
+                    nodeGroup.appendChild(circle);
 
-        // Determinar la imagen a mostrar
-        let imagenUrl = 'imagenes/IMG/users/user.png';
-        if (nodo.data && nodo.data.foto) {
-            imagenUrl = await cargarImagenSegura(nodo.data.foto);
-        } else if (nodo.valor.includes("Edificio")) {
-            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
-        } else if (nodo.valor.includes("Puerta")) {
-            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
-        } else if (nodo.valor.includes("Salón")) {
-            imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+                    // Determinar la imagen a mostrar
+                    let imagenUrl = 'imagenes/IMG/users/user.png';
+                    if (nodo.data && nodo.data.foto) {
+                        imagenUrl = await cargarImagenSegura(nodo.data.foto);
+                    } else if (nodo.valor.includes("Edificio")) {
+                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
+                    } else if (nodo.valor.includes("Puerta")) {
+                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
+                    } else if (nodo.valor.includes("Salón")) {
+                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+                    }
+
+                    // Crear elemento de imagen
+                    const imageSize = TREE_CONFIG.IMAGE_SIZE;
+                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    image.setAttribute('href', imagenUrl);
+                    image.setAttribute('width', imageSize);
+                    image.setAttribute('height', imageSize);
+                    image.setAttribute('x', -imageSize / 2);
+                    image.setAttribute('y', -imageSize / 2);
+                    image.setAttribute('class', 'node-image');
+                    image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
+                    image.style.cursor = 'pointer';
+                    image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+                    nodeGroup.appendChild(image);
+
+                    // Texto del nodo (debajo de la imagen)
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'hanging');
+                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('font-size', '12px');
+                    text.setAttribute('font-weight', 'bold');
+
+                    // Acortar texto largo
+                    const textoMostrar = nodo.valor.length > 15 ?
+                        nodo.valor.substring(0, 12) + '...' : nodo.valor;
+                    text.textContent = textoMostrar;
+
+                    nodeGroup.appendChild(text);
+                }
+
+                g.appendChild(nodeGroup);
+
+                // Dibujar hijos recursivamente
+                if (nodo.hijos) {
+                    for (const hijo of nodo.hijos) {
+                        await dibujarNodos(hijo, g);
+                    }
+                }
+            }
+
+            // Función para mostrar el número de salón completo (se mantiene igual)
+            function mostrarNumeroSalon(numeroSalon) {
+                // Crear overlay
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                overlay.style.display = 'flex';
+                overlay.style.justifyContent = 'center';
+                overlay.style.alignItems = 'center';
+                overlay.style.zIndex = '1000';
+                overlay.style.cursor = 'pointer';
+
+                // Crear contenedor del número
+                const numeroContainer = document.createElement('div');
+                numeroContainer.style.backgroundColor = 'white';
+                numeroContainer.style.padding = '40px 80px';
+                numeroContainer.style.borderRadius = '10px';
+                numeroContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+                numeroContainer.style.fontSize = '48px';
+                numeroContainer.style.fontWeight = 'bold';
+                numeroContainer.style.color = '#2196F3';
+                numeroContainer.textContent = numeroSalon;
+
+                // Cerrar al hacer clic
+                overlay.addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                });
+
+                overlay.appendChild(numeroContainer);
+                document.body.appendChild(overlay);
+            }
+
+            // Iniciar el dibujo del árbol
+            (async () => {
+                await dibujarNodos(arbol, g);
+
+                // Ajustar tamaño del SVG según el árbol
+                const bbox = g.getBBox();
+                const svgWidth = Math.max(bbox.width + 200, container.offsetWidth);
+                const svgHeight = Math.max(bbox.height + 200, 600);
+
+                svg.setAttribute('width', svgWidth);
+                svg.setAttribute('height', svgHeight);
+
+                // Centrar el árbol si es más pequeño que el contenedor
+                if (bbox.width < container.offsetWidth) {
+                    g.setAttribute('transform', `translate(${(container.offsetWidth - bbox.width) / 2}, 80)`);
+                }
+            })();
         }
 
-        // Crear elemento de imagen
-        const imageSize = TREE_CONFIG.IMAGE_SIZE;
-        const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-        image.setAttribute('href', imagenUrl);
-        image.setAttribute('width', imageSize);
-        image.setAttribute('height', imageSize);
-        image.setAttribute('x', -imageSize/2);
-        image.setAttribute('y', -imageSize/2);
-        image.setAttribute('class', 'node-image');
-        image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
-        image.style.cursor = 'pointer';
-        image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
-        nodeGroup.appendChild(image);
-
-        // Texto del nodo (debajo de la imagen)
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'hanging');
-        text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
-        text.setAttribute('fill', '#333');
-        text.setAttribute('font-size', '12px');
-        text.setAttribute('font-weight', 'bold');
-        
-        // Acortar texto largo
-        const textoMostrar = nodo.valor.length > 15 ? 
-            nodo.valor.substring(0, 12) + '...' : nodo.valor;
-        text.textContent = textoMostrar;
-        
-        nodeGroup.appendChild(text);
-    }
-
-    // Agregado: Mostrar la hora si está disponible
-    if (nodo.data && nodo.data.hora) {
-        const horaText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        horaText.setAttribute('text-anchor', 'middle');
-        horaText.setAttribute('dominant-baseline', 'hanging');
-        horaText.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 28);
-        horaText.setAttribute('fill', '#1976d2');
-        horaText.setAttribute('font-size', '11px');
-        horaText.textContent = nodo.data.hora;
-        nodeGroup.appendChild(horaText);
-    }
-
-    g.appendChild(nodeGroup);
-
-    // Dibujar hijos recursivamente
-    if (nodo.hijos) {
-        for (const hijo of nodo.hijos) {
-            await dibujarNodos(hijo, g);
-        }
-    }
-}
-
-// Función para mostrar el número de salón completo (se mantiene igual)
-function mostrarNumeroSalon(numeroSalon) {
-    // Crear overlay
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-    overlay.style.zIndex = '1000';
-    overlay.style.cursor = 'pointer';
-    
-    // Crear contenedor del número
-    const numeroContainer = document.createElement('div');
-    numeroContainer.style.backgroundColor = 'white';
-    numeroContainer.style.padding = '40px 80px';
-    numeroContainer.style.borderRadius = '10px';
-    numeroContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    numeroContainer.style.fontSize = '48px';
-    numeroContainer.style.fontWeight = 'bold';
-    numeroContainer.style.color = '#2196F3';
-    numeroContainer.textContent = numeroSalon;
-    
-    // Cerrar al hacer clic
-    overlay.addEventListener('click', () => {
-        document.body.removeChild(overlay);
-    });
-    
-    overlay.appendChild(numeroContainer);
-    document.body.appendChild(overlay);
-}
-
-    // Iniciar el dibujo del árbol
-    (async () => {
-        await dibujarNodos(arbol, g);
-        
-        // Ajustar tamaño del SVG según el árbol
-        const bbox = g.getBBox();
-        const svgWidth = Math.max(bbox.width + 200, container.offsetWidth);
-        const svgHeight = Math.max(bbox.height + 200, 600);
-        
-        svg.setAttribute('width', svgWidth);
-        svg.setAttribute('height', svgHeight);
-        
-        // Centrar el árbol si es más pequeño que el contenedor
-        if (bbox.width < container.offsetWidth) {
-            g.setAttribute('transform', `translate(${(container.offsetWidth - bbox.width) / 2}, 80)`);
-        }
-    })();
-}
-
-// Funciones para obtener datos (se mantienen iguales)
-function obtenerDatosHistorico() {
-    // Devuelve la estructura del árbol usando el vector real
-    return ensamblarArbolDesdeVectores(vectores);
-}
-
-function obtenerDatosPorFecha() {
-    return [
-        {
-            instalacion: "Edificio A",
-            puerta: "Puerta Principal",
-            fecha: "2023-05-01",
-            registros: [
-                { nombre: "Juan Pérez", foto: IMG_PATHS.user, asistencia: true },
-                { nombre: "María García", foto: IMG_PATHS.user, asistencia: false }
-            ]
-        },
-        {
-            instalacion: "Edificio B",
-            puerta: "Puerta Secundaria",
-            fecha: "2023-05-02",
-            registros: [
-                { nombre: "Carlos López", foto: IMG_PATHS.user, asistencia: true },
-                { nombre: "Ana Torres", foto: IMG_PATHS.user, asistencia: true }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            puerta: "Puerta Emergencia",
-            fecha: "2023-05-03",
-            registros: [
-                { nombre: "Luis Gómez", foto: IMG_PATHS.user, asistencia: false },
-                { nombre: "Sofía Martínez", foto: IMG_PATHS.user, asistencia: true }
-            ]
-        }
-    ];
-}
-
-function obtenerDatosSalonHistorico() {
-    return [
-        {
-            instalacion: "Edificio A",
-            nivel: "1",
-            salon: "101",
-            estudiantes: [
-                { nombre: "Juan Pérez", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. Rodríguez", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        },
-        {
-            instalacion: "Edificio B",
-            nivel: "2",
-            salon: "202",
-            estudiantes: [
-                { nombre: "Carlos López", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. García", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            nivel: "3",
-            salon: "303",
-            estudiantes: [
-                { nombre: "Luis Gómez", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. Martínez", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        }
-    ];
-}
-
-function obtenerDatosSalonPorFecha() {
-    return [
-        {
-            instalacion: "Edificio A",
-            nivel: "1",
-            salon: "101",
-            fecha: "2023-05-01",
-            registros: [
-                { nombre: "Juan Pérez", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. Rodríguez", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        },
-        {
-            instalacion: "Edificio B",
-            nivel: "2",
-            salon: "202",
-            fecha: "2023-05-02",
-            registros: [
-                { nombre: "Carlos López", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. García", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        },
-        {
-            instalacion: "Edificio C",
-            nivel: "3",
-            salon: "303",
-            fecha: "2023-05-03",
-            registros: [
-                { nombre: "Luis Gómez", tipo: "estudiante", foto: IMG_PATHS.user },
-                { nombre: "Prof. Martínez", tipo: "catedrático", foto: IMG_PATHS.user }
-            ]
-        }
-    ];
-}
-
-function obtenerDatosGeneralesEjemplo() {
-    return [
-        {
-            edificio: {
-                id: 1,
-                nombre: "Edificio Central",
-                usuarios: [
-                    { nombre: "Admin Edificio", tipo: "administrador", foto: IMG_PATHS.user }
-                ]
-            },
-            puertas: [
+        // Funciones para obtener datos (se mantienen iguales)
+        function obtenerDatosHistorico() {
+            return [{
+                    instalacion: "Edificio A",
+                    puerta: "Puerta Principal",
+                    fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
+                },
                 {
-                    id: 10,
-                    nombre: "Puerta Principal",
-                    usuarios: [
-                        { nombre: "Guardia 1", tipo: "guardia", foto: IMG_PATHS.user }
-                    ],
-                    niveles: [
-                        {
-                            numero: 1,
-                            usuarios: [
-                                { nombre: "Encargado Nivel 1", tipo: "encargado", foto: IMG_PATHS.user }
-                            ],
-                            salones: [
-                                {
-                                    id: 101,
-                                    nombre: "Salón 101",
-                                    usuarios: [
-                                        { nombre: "Estudiante 1", tipo: "estudiante", foto: IMG_PATHS.user },
-                                        { nombre: "Catedrático 1", tipo: "catedrático", foto: IMG_PATHS.user }
-                                    ]
-                                },
-                                {
-                                    id: 102,
-                                    nombre: "Salón 102",
-                                    usuarios: [
-                                        { nombre: "Estudiante 2", tipo: "estudiante", foto: IMG_PATHS.user }
-                                    ]
-                                }
-                            ]
+                    instalacion: "Edificio B",
+                    puerta: "Puerta Secundaria",
+                    fechas: ["2023-05-01", "2023-05-04"]
+                },
+                {
+                    instalacion: "Edificio C",
+                    puerta: "Puerta Emergencia",
+                    fechas: ["2023-05-02", "2023-05-03"]
+                }
+            ];
+        }
+
+        function obtenerDatosPorFecha() {
+            return [{
+                    instalacion: "Edificio A",
+                    puerta: "Puerta Principal",
+                    fecha: "2023-05-01",
+                    registros: [{
+                            id: 1,
+                            nombre: "Juan Pérez",
+                            correo: "juan@example.com",
+                            foto: "imagenes/IMG/users/user.avif",
+                            asistencia: true
                         },
                         {
-                            numero: 2,
-                            usuarios: [],
-                            salones: [
-                                {
-                                    id: 201,
-                                    nombre: "Salón 201",
-                                    usuarios: [
-                                        { nombre: "Estudiante 3", tipo: "estudiante", foto: IMG_PATHS.user }
-                                    ]
-                                }
-                            ]
+                            id: 2,
+                            nombre: "María García",
+                            correo: "maria@example.com",
+                            foto: "imagenes/IMG/users/user.avif",
+                            asistencia: false
                         }
                     ]
                 },
                 {
-                    id: 11,
-                    nombre: "Puerta Lateral",
-                    usuarios: [
-                        { nombre: "Guardia 2", tipo: "guardia", foto: IMG_PATHS.user }
-                    ],
-                    niveles: [
+                    instalacion: "Edificio B",
+                    puerta: "Puerta Secundaria",
+                    fecha: "2023-05-02",
+                    registros: [{
+                            id: 3,
+                            nombre: "Carlos López",
+                            correo: "carlos@example.com",
+                            foto: "imagenes/IMG/users/user.avif",
+                            asistencia: true
+                        },
                         {
-                            numero: 1,
-                            usuarios: [],
-                            salones: [
-                                {
-                                    id: 103,
-                                    nombre: "Salón 103",
-                                    usuarios: [
-                                        { nombre: "Estudiante 4", tipo: "estudiante", foto: IMG_PATHS.user }
-                                    ]
-                                }
-                            ]
+                            id: 4,
+                            nombre: "Ana Torres",
+                            correo: "ana@example.com",
+                            foto: "imagenes/IMG/users/user.avif",
+                            asistencia: true
                         }
                     ]
                 }
-            ]
+            ];
         }
-    ];
+
+        function obtenerDatosSalonHistorico() {
+            return [{
+                    instalacion: "Edificio A",
+                    nivel: "1",
+                    salon: "101",
+                    estudiantes: [{
+                            id: 1,
+                            nombre: "Juan Pérez",
+                            tipo: "estudiante",
+                            foto: "imagenes/IMG/users/user.avif"
+                        },
+                        {
+                            id: 2,
+                            nombre: "Prof. Rodríguez",
+                            tipo: "catedrático",
+                            foto: "imagenes/IMG/users/user.avif"
+                        }
+                    ]
+                },
+                {
+                    instalacion: "Edificio B",
+                    nivel: "2",
+                    salon: "202",
+                    estudiantes: [{
+                            id: 3,
+                            nombre: "Carlos López",
+                            tipo: "estudiante",
+                            foto: "imagenes/IMG/users/user.avif"
+                        },
+                        {
+                            id: 4,
+                            nombre: "Prof. García",
+                            tipo: "catedrático",
+                            foto: "imagenes/IMG/users/user.avif"
+                        }
+                    ]
+                }
+            ];
+        }
+
+        function obtenerDatosSalonPorFecha() {
+            return [{
+                instalacion: "Edificio A",
+                nivel: "1",
+                salon: "101",
+                fecha: "2023-05-01",
+                registros: [{
+                        id: 1,
+                        nombre: "Juan Pérez",
+                        tipo: "estudiante",
+                        foto: "imagenes/IMG/users/user.avif"
+                    },
+                    {
+                        id: 2,
+                        nombre: "Prof. Rodríguez",
+                        tipo: "catedrático",
+                        foto: "imagenes/IMG/users/user.avif"
+                    }
+                ]
+            }];
+        }
+        //----------------------------------------------------------------------------------------------------------------
+        function tomarAsistencia() {
+            // Función para tomar asistencia (compartida entre estudiante y servicios)
+            alert('Tomando asistencia...');
+        }
+
+        function verAsistencia() {
+            // Muestra el historial de asistencia
+            document.getElementById('info-content').innerHTML = `
+        <h3>Asistencia</h3>
+        <p>Historial de asistencia.</p>
+    `;
+        }
+
+        function gestionarUsuarios(accion) {
+            // Botón adicional según acción
+            let botonExtra = "";
+            if (accion.toLowerCase() === "eliminar") {
+                botonExtra = `<button id="btn-eliminar">ELIMINAR</button>`;
+            } else if (accion.toLowerCase() === "agregar") {
+                botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
+            }
+            document.getElementById('info-content').innerHTML = `
+        <h3>Administración de Usuarios - ${accion}</h3>
+        <p>Realizando acción: ${accion}.</p>
+        <div class="usuarios-container">
+            <div class="usuarios-busqueda">
+                <label for="carnet">CARNET:</label>
+                <input type="number" id="carnet">
+                <button>BUSCAR</button>
+                ${botonExtra}
+            </div>
+            <table class="usuarios-tabla">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Carnet</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Celular</th>
+                        <th>Tipo</th>
+                        <th>Carrera</th>
+                        <th>Seccion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+        }
+
+
+        function abrirRegistroGeneral() {
+            // Muestra el registro general
+            document.getElementById('info-content').innerHTML = `
+        <h3>Registro General</h3>
+        <p>Información completa del registro general.</p>
+    `;
+        }
+
+
+        // Función para mostrar estadísticas con gráficos
+        function abrirEstadisticas() {
+            document.getElementById('info-content').innerHTML = `
+        <div class="stats-container">
+            <h3>Estadísticas de Asistencia</h3>
+            
+            <div class="stats-controls">
+                <div class="form-group">
+                    <label for="report-type">Tipo de Reporte:</label>
+                    <select id="report-type" class="form-control" onchange="cambiarTipoReporte()">
+                        <option value="asistencia">Asistencia por Salón</option>
+                        <option value="comparativa-salones">Comparativa entre Salones</option>
+                        <option value="comparativa-docentes">Comparativa entre Docentes</option>
+                    </select>
+                </div>
+                
+                <div id="salon-control" class="form-group">
+                    <label for="salon-select">Seleccionar Salón:</label>
+                    <select id="salon-select" class="form-control">
+                        <option value="" disabled selected>-- Seleccione --</option>
+                        <option value="101">Salón 101</option>
+                        <option value="202">Salón 202</option>
+                        <option value="303">Salón 303</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="chart-type">Tipo de Gráfico:</label>
+                    <select id="chart-type" class="form-control">
+                        <option value="bar">Barras</option>
+                        <option value="line">Líneas</option>
+                        <option value="pie">Circular</option>
+                        <option value="doughnut">Dona</option>
+                        <option value="radar">Radar</option>
+                    </select>
+                </div>
+                
+                <div class="form-group date-range">
+                    <label for="rango-fechas">Rango de Fechas:</label>
+                    <div class="date-inputs">
+                        <input type="date" id="fecha-inicio" class="form-control">
+                        <span>a</span>
+                        <input type="date" id="fecha-fin" class="form-control">
+                    </div>
+                </div>
+                
+                <button onclick="cargarEstadisticas()" class="btn-generar">
+                    <i class="fas fa-chart-bar"></i> Generar Grafico
+                </button>
+            </div>
+            
+            <div id="loading-spinner" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Generando estadísticas...</p>
+            </div>
+            
+            <div id="stats-results" class="stats-results">
+                <div class="placeholder-message">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>Seleccione los parámetros para generar el reporte estadístico</p>
+                </div>
+            </div>
+            
+            <div id="stats-error" class="stats-error"></div>
+        </div>
+    `;
+
+            // Establecer fechas por defecto (últimos 7 días)
+            const hoy = new Date();
+            const hace7Dias = new Date();
+            hace7Dias.setDate(hoy.getDate() - 7);
+
+            document.getElementById('fecha-inicio').valueAsDate = hace7Dias;
+            document.getElementById('fecha-fin').valueAsDate = hoy;
+
+            // Ocultar spinner inicialmente
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+
+        function cambiarTipoReporte() {
+            const tipo = document.getElementById('report-type').value;
+            const salonControl = document.getElementById('salon-control');
+
+            if (tipo === 'asistencia') {
+                salonControl.style.display = 'block';
+            } else {
+                salonControl.style.display = 'none';
+            }
+        }
+
+        function cargarEstadisticas() {
+            const tipo = document.getElementById('report-type').value;
+            const salon = tipo === 'asistencia' ? document.getElementById('salon-select').value : '';
+            const fechaInicio = document.getElementById('fecha-inicio').value;
+            const fechaFin = document.getElementById('fecha-fin').value;
+            const chartType = document.getElementById('chart-type').value;
+
+            // Validaciones
+            if (tipo === 'asistencia' && !salon) {
+                mostrarError('Por favor seleccione un salón');
+                return;
+            }
+
+            if (!fechaInicio || !fechaFin) {
+                mostrarError('Por favor seleccione un rango de fechas válido');
+                return;
+            }
+
+            if (new Date(fechaFin) < new Date(fechaInicio)) {
+                mostrarError('La fecha final no puede ser anterior a la fecha inicial');
+                return;
+            }
+
+            // Mostrar spinner de carga
+            document.getElementById('loading-spinner').style.display = 'flex';
+            document.getElementById('stats-results').innerHTML = '';
+            document.getElementById('stats-error').innerHTML = '';
+
+            // Realizar petición al servidor
+            fetch(`get_stats.php?tipo=${tipo}&salon=${salon}&inicio=${fechaInicio}&fin=${fechaFin}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error del servidor: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    mostrarResultadosEstadisticas(data, tipo, chartType);
+                })
+                .catch(error => {
+                    console.error('Error al cargar estadísticas:', error);
+                    mostrarError(`Error al generar el reporte: ${error.message}`);
+                })
+                .finally(() => {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                });
+        }
+
+        function mostrarResultadosEstadisticas(data, tipo, chartType) {
+            const container = document.getElementById('stats-results');
+
+            // Plantilla base para el resumen estadístico
+            let htmlContent = `
+        <div class="stats-summary">
+            <h4>Reporte: ${obtenerTituloReporte(tipo)} (${data.fecha_inicio} a ${data.fecha_fin})</h4>
+            <div class="stats-grid">
+                ${generarResumenEstadistico(data, tipo)}
+            </div>
+        </div>
+        <div class="stats-charts">
+            <h4>Visualización de Datos</h4>
+            ${generarContenedoresGraficos(tipo, chartType)}
+        </div>
+    `;
+
+            container.innerHTML = htmlContent;
+
+            // Crear los gráficos según el tipo
+            switch (tipo) {
+                case 'asistencia':
+                    crearGraficosAsistencia(data, chartType);
+                    break;
+                case 'comparativa-salones':
+                    crearGraficosComparativaSalones(data, chartType);
+                    break;
+                case 'comparativa-docentes':
+                    crearGraficosComparativaDocentes(data, chartType);
+                    break;
+            }
+        }
+
+        function obtenerTituloReporte(tipo) {
+            const titulos = {
+                'asistencia': `Asistencia Salón ${document.getElementById('salon-select').value}`,
+                'comparativa-salones': 'Comparativa entre Salones',
+                'comparativa-docentes': 'Comparativa entre Docentes'
+            };
+            return titulos[tipo] || 'Reporte Estadístico';
+        }
+
+        function generarResumenEstadistico(data, tipo) {
+            if (tipo === 'asistencia') {
+                return `
+            <div class="stat-item">
+                <span class="stat-label">Total Estudiantes:</span>
+                <span class="stat-value">${data.total_estudiantes || 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Asistencia Promedio:</span>
+                <span class="stat-value">${data.asistencia_promedio ? data.asistencia_promedio + '%' : 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Día con más asistencia:</span>
+                <span class="stat-value">${data.dia_max_asistencia || 'N/A'} (${data.max_asistencia || 0} estudiantes)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Día con menos asistencia:</span>
+                <span class="stat-value">${data.dia_min_asistencia || 'N/A'} (${data.min_asistencia || 0} estudiantes)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Estudiante con mejor asistencia:</span>
+                <span class="stat-value">${data.estudiante_top?.nombre || 'N/A'} (${data.estudiante_top?.asistencias || 0} asistencias)</span>
+            </div>
+        `;
+            } else if (tipo === 'comparativa-salones') {
+                return `
+            <div class="stat-item">
+                <span class="stat-label">Total Estudiantes:</span>
+                <span class="stat-value">${data.total_estudiantes || 'N/A'}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Salón con más asistencia:</span>
+                <span class="stat-value">${data.salon_max_asistencia || 'N/A'} (${data.max_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Salón con menos asistencia:</span>
+                <span class="stat-value">${data.salon_min_asistencia || 'N/A'} (${data.min_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Diferencia porcentual:</span>
+                <span class="stat-value">${(data.max_asistencia - data.min_asistencia).toFixed(2) || 0}%</span>
+            </div>
+        `;
+            } else {
+                return `
+            <div class="stat-item">
+                <span class="stat-label">Docente con mejor asistencia:</span>
+                <span class="stat-value">${data.docente_max_asistencia || 'N/A'} (${data.max_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Docente con menor asistencia:</span>
+                <span class="stat-value">${data.docente_min_asistencia || 'N/A'} (${data.min_asistencia || 0}%)</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-label">Diferencia porcentual:</span>
+                <span class="stat-value">${data.diferencia || 0}%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total estudiantes:</span>
+                <span class="stat-value">${data.estudiantes_por_docente?.reduce((a, b) => a + b, 0) || 'N/A'}</span>
+            </div>
+        `;
+            }
+        }
+
+        function generarContenedoresGraficos(tipo, chartType) {
+            let chartsHTML = '';
+
+            if (tipo === 'asistencia') {
+                chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="asistenciaChart"></canvas>
+                    <div class="chart-legend">Asistencia diaria</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="asistenciaHoraChart"></canvas>
+                    <div class="chart-legend">Asistencia por hora</div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="topEstudiantesChart"></canvas>
+                    <div class="chart-legend">Top 5 estudiantes</div>
+                </div>
+            </div>
+        `;
+            } else if (tipo === 'comparativa-salones') {
+                chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="comparativaSalonesChart"></canvas>
+                    <div class="chart-legend">Comparativa porcentual</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="totalSalonesChart"></canvas>
+                    <div class="chart-legend">Total asistencias</div>
+                </div>
+            </div>
+        `;
+            } else {
+                chartsHTML = `
+            <div class="chart-row">
+                <div class="chart-container">
+                    <canvas id="comparativaDocentesChart"></canvas>
+                    <div class="chart-legend">Comparativa porcentual</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="estudiantesDocentesChart"></canvas>
+                    <div class="chart-legend">Estudiantes por docente</div>
+                </div>
+            </div>
+        `;
+            }
+
+            return chartsHTML;
+        }
+
+        function crearGraficosAsistencia(data, chartType) {
+            // Gráfico de asistencia diaria
+            crearChart(
+                'asistenciaChart',
+                chartType,
+                data.dias_semana,
+                ['Estudiantes presentes'],
+                [data.asistencias_diarias],
+                'Asistencia Diaria',
+                'Número de estudiantes',
+                ['rgba(54, 162, 235, 0.7)'],
+                true
+            );
+
+            // Gráfico de asistencia por hora
+            crearChart(
+                'asistenciaHoraChart',
+                'line',
+                data.horas_dia,
+                ['Porcentaje de asistencia'],
+                [data.asistencia_por_hora],
+                'Asistencia por Hora',
+                'Porcentaje de asistencia',
+                ['rgba(255, 99, 132, 0.7)'],
+                true
+            );
+
+            // Gráfico de top estudiantes
+            const topEstudiantes = [...data.estudiantes]
+                .sort((a, b) => b.asistencias - a.asistencias)
+                .slice(0, 5);
+
+            crearChart(
+                'topEstudiantesChart',
+                'bar',
+                topEstudiantes.map(e => e.nombre),
+                ['Asistencias', 'Inasistencias'],
+                [
+                    topEstudiantes.map(e => e.asistencias),
+                    topEstudiantes.map(e => e.inasistencias)
+                ],
+                'Top 5 Estudiantes',
+                'Número de días',
+                ['rgba(75, 192, 192, 0.7)', 'rgba(255, 159, 64, 0.7)'],
+                true
+            );
+        }
+
+        function crearGraficosComparativaSalones(data, chartType) {
+            // Gráfico comparativo porcentual
+            crearChart(
+                'comparativaSalonesChart',
+                chartType,
+                data.salones,
+                ['Porcentaje de asistencia'],
+                [data.porcentajes_asistencia],
+                'Comparativa entre Salones',
+                'Porcentaje de asistencia',
+                [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
+                ],
+                true
+            );
+
+            // Gráfico de total asistencias
+            crearChart(
+                'totalSalonesChart',
+                'doughnut',
+                data.salones,
+                ['Total asistencias'],
+                [data.total_asistencias],
+                'Total de Asistencias',
+                'Número de asistencias',
+                [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
+                ],
+                false
+            );
+        }
+
+        function crearGraficosComparativaDocentes(data, chartType) {
+            // Gráfico comparativo porcentual
+            crearChart(
+                'comparativaDocentesChart',
+                chartType,
+                data.docentes,
+                ['Porcentaje de asistencia'],
+                [data.porcentajes_asistencia],
+                'Comparativa entre Docentes',
+                'Porcentaje de asistencia',
+                [
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ],
+                true
+            );
+
+            // Gráfico de estudiantes por docente
+            crearChart(
+                'estudiantesDocentesChart',
+                'pie',
+                data.docentes,
+                ['Estudiantes'],
+                [data.estudiantes_por_docente],
+                'Estudiantes por Docente',
+                'Número de estudiantes',
+                [
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ],
+                false
+            );
+        }
+
+        function crearChart(canvasId, type, labels, datasetsLabels, datasetsData, title, yLabel, colors, showLegend) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            // Preparar datasets
+            const datasets = [];
+            for (let i = 0; i < datasetsLabels.length; i++) {
+                datasets.push({
+                    label: datasetsLabels[i],
+                    data: datasetsData[i],
+                    backgroundColor: colors[i % colors.length],
+                    borderColor: colors[i % colors.length].replace('0.7', '1'),
+                    borderWidth: 1,
+                    fill: type === 'line'
+                });
+            }
+
+            // Configuración común
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: showLegend,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: !!yLabel,
+                            text: yLabel
+                        }
+                    }
+                }
+            };
+
+            // Configuración específica para radar
+            if (type === 'radar') {
+                commonOptions.scales = {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                };
+            }
+
+            new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: commonOptions
+            });
+        }
+
+        function mostrarError(mensaje) {
+            const errorContainer = document.getElementById('stats-error');
+            errorContainer.innerHTML = `
+        <div class="error-message">
+            <i class="fas fa-times-circle"></i>
+            <p>${mensaje}</p>
+            <button onclick="cargarEstadisticas()" class="btn-reintentar">
+                <i class="fas fa-sync-alt"></i> Reintentar
+            </button>
+        </div>
+    `;
+        }
+
+        // Añadir estilos al documento
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar Chart.js dinámicamente
+            const chartScript = document.createElement('script');
+            chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            chartScript.onload = function() {
+                // Cargar animaciones adicionales
+                const chartAnimationScript = document.createElement('script');
+                chartAnimationScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-animation@1.1.1';
+                document.head.appendChild(chartAnimationScript);
+            };
+            document.head.appendChild(chartScript);
+
+            // Agregar estilos CSS
+            const styleElement = document.createElement('style');
+            styleElement.innerHTML = `
+        .stats-container {
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 100%;
+    overflow: hidden;
 }
 
-// Devuelve la fecha de hoy en formato YYYY-MM-DD
-function obtenerFechaHoy() {
-    const hoy = new Date();
-    return hoy.toISOString().slice(0, 10);
+/* Controles responsivos */
+.stats-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
-// Ensambla el árbol a partir de un vector plano
-function ensamblarArbolDesdeVectores(vectores) {
-    const fechaHoy = obtenerFechaHoy();
-    const arbol = [];
-
-    vectores.forEach(item => {
-        if (item.fecha !== fechaHoy) return;
-
-        // Buscar o crear el edificio
-        let edificio = arbol.find(e => e.instalacion === item.edificio);
-        if (!edificio) {
-            edificio = {
-                instalacion: item.edificio,
-                usuarios: [],
-                puertas: []
-            };
-            arbol.push(edificio);
-        }
-
-        // Si el usuario está en el edificio
-
-        // Si el usuario está en el edificio
-        if (!item.puerta) {
-            edificio.usuarios.push(item.usuario); // Permite repetidos
-            return;
-        }
-
-        // Buscar o crear la puerta
-        let puerta = edificio.puertas.find(p => p.nombre === item.puerta);
-        if (!puerta) {
-            puerta = {
-                nombre: item.puerta,
-                usuarios: [],
-                niveles: []
-            };
-            edificio.puertas.push(puerta);
-        }
-
-        // Si el usuario está en la puerta
-        if (!item.nivel) {
-            puerta.usuarios.push(item.usuario); // Permite repetidos
-            return;
-        }
-
-        // Buscar o crear el nivel
-        let nivel = puerta.niveles.find(n => n.numero === item.nivel);
-        if (!nivel) {
-            nivel = {
-                numero: item.nivel,
-                usuarios: [],
-                salones: []
-            };
-            puerta.niveles.push(nivel);
-        }
-
-        // Si el usuario está en el nivel
-        if (!item.salon) {
-            nivel.usuarios.push(item.usuario); // Permite repetidos
-            return;
-        }
-
-        // Buscar o crear el salón
-        let salon = nivel.salones.find(s => s.numero === item.salon);
-        if (!salon) {
-            salon = {
-                numero: item.salon,
-                usuarios: []
-            };
-            nivel.salones.push(salon);
-        }
-
-        // Usuario en el salón
-        salon.usuarios.push(item.usuario); // Permite repetidos
-    });
-
-    return arbol;
+/* Contenedor de gráficos ajustado */
+.chart-container {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    height: 300px; /* Altura fija */
+    display: flex;
+    flex-direction: column;
 }
 
-// Agrega un usuario al array si no existe ya (por nombre)
-function agregarUsuarioEnArbol(arrayUsuarios, usuario) {
-    if (!arrayUsuarios.some(u => u.nombre === usuario.nombre)) {
-        arrayUsuarios.push(usuario);
+/* Ajuste específico para móviles */
+@media (max-width: 768px) {
+    .stats-container {
+        padding: 12px;
+    }
+    
+    .stats-controls {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .chart-container {
+        height: 280px;
+        padding: 12px;
+    }
+    
+    /* Animaciones optimizadas para móvil */
+    .stat-item:hover {
+        transform: none; /* Desactiva hover en móvil */
+    }
+    
+    .btn-generar:hover {
+        transform: none;
     }
 }
 
-// Ejemplo de uso:
-const vectores = [
-    // Usuarios en el edificio
-    {edificio: "Edificio Central", usuario: {nombre: "Admin Edificio", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
-    {edificio: "Edificio Central", usuario: {nombre: "Invitado", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
-    // Usuarios en la puerta
-    {edificio: "Edificio Central", puerta: "Puerta 1", usuario: {nombre: "Guardia 1", foto: IMG_PATHS.user, ubicacion: "puerta"}, fecha: obtenerFechaHoy()},
-    // Usuarios en el salón
-    {edificio: "Edificio Central", puerta: "Puerta 1", nivel: 1, salon: "101", usuario: {nombre: "Estudiante 1", foto: IMG_PATHS.user, ubicacion: "salon"}, fecha: obtenerFechaHoy()},
-    {edificio: "Edificio Central", puerta: "Puerta 1", nivel: 1, salon: "101", usuario: {nombre: "Estudiante 2", foto: IMG_PATHS.user, ubicacion: "salon"}, fecha: obtenerFechaHoy()},
-    // El mismo usuario en edificio y salón
-    {edificio: "Edificio Central", usuario: {nombre: "Estudiante 1", foto: IMG_PATHS.user, ubicacion: "edificio"}, fecha: obtenerFechaHoy()},
-];
-
-function agregarUsuario(vectores, usuario, ubicacion) {
-    // ubicacion: { edificio, puerta, nivel, salon }
-    // usuario: { nombre, foto, ubicacion }
-    // fecha: siempre la de hoy
-    const nuevoRegistro = {
-        edificio: ubicacion.edificio,
-        puerta: ubicacion.puerta,
-        nivel: ubicacion.nivel,
-        salon: ubicacion.salon,
-        usuario: usuario,
-        fecha: obtenerFechaHoy()
-    };
-    vectores.push(nuevoRegistro);
-}
-
-function moverUsuario(vectores, nombreUsuario, nuevaUbicacion) {
-    // Elimina el usuario de su ubicación anterior (solo para hoy)
-    for (let i = vectores.length - 1; i >= 0; i--) {
-        if (
-            vectores[i].usuario.nombre === nombreUsuario &&
-            vectores[i].fecha === obtenerFechaHoy()
-        ) {
-            vectores.splice(i, 1);
-        }
+/* Animaciones mejoradas */
+@keyframes smoothAppear {
+    0% { 
+        opacity: 0;
+        transform: translateY(10px);
     }
-    // Agrega el usuario en la nueva ubicación
-    agregarUsuario(
-        vectores,
-        { nombre: nombreUsuario, foto: IMG_PATHS.user, ubicacion: nuevaUbicacion.ubicacion },
-        nuevaUbicacion
-    );
+    100% { 
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
-</script>
-    <script>
-const IMG_PATHS = {
-    nivel: num => `../../imagenes/IMG/level/nivel${num}.png`,
-    classroom: "../../imagenes/IMG/objetos/classroom.jpg",
-    door: "../../imagenes/IMG/objetos/door.jpg",
-    edificio: "../../imagenes/IMG/objetos/edificio.jpeg",
-    user: "../../imagenes/IMG/users/user1.png"
-};
 
-// Pasar los datos PHP a variables JS
-const edificiosBD = <?php echo json_encode($edificios); ?>;
-const salonesBD = <?php echo json_encode($salones); ?>;
-console.log('edificiosBD:', edificiosBD);
-console.log('salonesBD:', salonesBD);
+.stats-results {
+    animation: smoothAppear 0.4s ease-out;
+}
 
-// ...AQUÍ van todas tus funciones JS, incluyendo obtenerDatosHistorico, etc...
-// Asegúrate de que todas usen IMG_PATHS (mayúscula)
-</script>
+/* Spinner optimizado */
+.loading-spinner {
+    height: 200px;
+    animation: smoothAppear 0.3s ease-out;
+}
+
+/* Efectos hover solo para desktop */
+@media (min-width: 769px) {
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .btn-generar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .chart-container:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+}
+    `;
+            document.head.appendChild(styleElement);
+        });
+
+
+
+        // Inicializar cuando Chart.js esté cargado
+        if (typeof Chart !== 'undefined') {
+            initEstadisticasButton();
+        } else {
+            const checkChartLoaded = setInterval(() => {
+                if (typeof Chart !== 'undefined') {
+                    clearInterval(checkChartLoaded);
+                    initEstadisticasButton();
+                }
+            }, 100);
+        }
+    </script>
 </head>
 
 <body>
