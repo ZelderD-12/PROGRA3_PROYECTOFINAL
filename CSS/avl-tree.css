@@ -86,6 +86,7 @@ line {
     to { transform: scale(1); }
 }
 
+<<<<<<< HEAD
 /* Texto en los nodos */
 .avl-node-group text {
     pointer-events: none;
@@ -93,6 +94,9 @@ line {
     fill: #333;
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
+=======
+
+>>>>>>> COMBINADA
 
 /* Botones y controles */
 .report-options {
@@ -146,12 +150,16 @@ line {
     transform: scale(1.05);
 }
 
+<<<<<<< HEAD
 /* Asegurar que el texto del salón sea visible */
 .avl-node-group text {
  
     pointer-events: none;
 }
 /* Estilos para las imágenes de nivel */
+=======
+stilos para las imágenes de nivel */
+>>>>>>> COMBINADA
 .nivel-1-image {
     border: 2px solid #9C27B0;
 }
