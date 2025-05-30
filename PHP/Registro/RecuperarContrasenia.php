@@ -163,6 +163,37 @@
         });
 
         /*-------- Actualizar Contraseña ------*/
+        document.getElementById('btn_recuperar').addEventListener('click', async () => {
+            const carnet = document.querySelector('input[name="carnet"]').value.trim();
+            const email = document.querySelector('input[name="email"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value;
+            const confirm_password = document.querySelector('input[name="confirm_password"]').value;
+
+            if (!carnet || !email || !password || !confirm_password) {
+                alert('Por favor, complete todos los campos.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('carnet', carnet);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('confirm_password', confirm_password);
+
+            try {
+                const res = await fetch('recuperar_password.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'success') {
+                    // Opcional: redireccionar al login o resetear formulario
+                }
+            } catch (e) {
+                alert('Error en la conexión: ' + e.message);
+            }
+        });
     </script>
 </body>
 
