@@ -1371,122 +1371,58 @@ function agregarUsuariosArbol(arbol, usuarios) {
                     return; // IMPORTANTE: no sigas con el bloque general
                 }
 
-                // Resto de nodos normales (edificio, puerta, salón, etc)
-                // Crear el círculo base para todos los nodos
+                // --- NODOS NORMALES (edificio, puerta, nivel, salón, etc) ---
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
                 circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
                 circle.setAttribute('stroke-width', '2');
                 circle.setAttribute('class', 'node-circle');
+                circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default); // Fondo verde
+                nodeGroup.appendChild(circle);
 
+                // Imagen del nodo
+                let imagenUrl = 'imagenes/IMG/users/user1.png';
                 if (nodo.data && nodo.data.foto) {
-                    // Si el nodo tiene foto, usarla
-                    const imagenUrl = await cargarImagenSegura(nodo.data.foto);
-                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    image.setAttribute('href', imagenUrl);
-                    image.setAttribute('width', TREE_CONFIG.IMAGE_SIZE);
-                    image.setAttribute('height', TREE_CONFIG.IMAGE_SIZE);
-                    image.setAttribute('x', -TREE_CONFIG.IMAGE_SIZE / 2);
-                    image.setAttribute('y', -TREE_CONFIG.IMAGE_SIZE / 2);
-                    image.setAttribute('class', 'node-image');
-                    image.style.cursor = 'pointer';
-                    image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
-                    nodeGroup.appendChild(image);
-                } else {
-                    // Determinar la imagen a mostrar
-                    let imagenUrl = 'imagenes/IMG/users/user1.png';
-                    if (nodo.valor.includes("Edificio")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
-                    } else if (nodo.valor.includes("Puerta")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
-                    } else if (nodo.valor.includes("Salón")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+                    imagenUrl = await cargarImagenSegura(nodo.data.foto);
+                } else if (nodo.valor.includes("Edificio")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
+                } else if (nodo.valor.includes("Puerta")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
+                } else if (nodo.valor.includes("Salón")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+                } else if (/^Nivel\s*\d+/i.test(nodo.valor)) {
+                    // Si es un nodo de nivel
+                    const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
+                    if (nivelMatch) {
+                        imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelMatch[1]}.png`);
                     }
-
-                    // Crear elemento de imagen
-                    const imageSize = TREE_CONFIG.IMAGE_SIZE;
-                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    image.setAttribute('href', imagenUrl);
-                    image.setAttribute('width', imageSize);
-                    image.setAttribute('height', imageSize);
-                    image.setAttribute('x', -imageSize / 2);
-                    image.setAttribute('y', -imageSize / 2);
-                    image.setAttribute('class', 'node-image');
-                    image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
-                    image.style.cursor = 'pointer';
-                    image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
-                    nodeGroup.appendChild(image);
                 }
+
+                const imageSize = TREE_CONFIG.IMAGE_SIZE;
+                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('href', imagenUrl);
+                image.setAttribute('width', imageSize);
+                image.setAttribute('height', imageSize);
+                image.setAttribute('x', -imageSize / 2);
+                image.setAttribute('y', -imageSize / 2);
+                image.setAttribute('class', 'node-image');
+                image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
+                image.style.cursor = 'pointer';
+                image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+                nodeGroup.appendChild(image);
 
                 // Texto del nodo (debajo de la imagen)
-                if (!(nodo.data && nodo.data.idUsuario)) {
-    // Texto del nodo (debajo de la imagen) SOLO para nodos que NO son usuario
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('dominant-baseline', 'hanging');
-    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
-    text.setAttribute('fill', '#333');
-    text.setAttribute('font-size', '12px');
-    text.setAttribute('font-weight', 'bold');
-    const textoMostrar = nodo.valor.length > 15 ?
-        nodo.valor.substring(0, 12) + '...' : nodo.valor;
-    text.textContent = textoMostrar;
-    nodeGroup.appendChild(text);
-}
-
-                // Si el nodo tiene datos de usuario, mostrar información adicional
-                if (nodo.data && nodo.data.idUsuario) {
-                    // Nodo usuario
-                    circle.setAttribute('fill', '#2196F3');
-                    nodeGroup.appendChild(circle);
-
-                    // Imagen de usuario
-                    const imageSize = TREE_CONFIG.IMAGE_SIZE;
-                    const imagenUrl = await cargarImagenSegura(nodo.data.foto);
-                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    image.setAttribute('href', imagenUrl);
-                    image.setAttribute('width', imageSize);
-                    image.setAttribute('height', imageSize);
-                    image.setAttribute('x', -imageSize / 2);
-                    image.setAttribute('y', -imageSize / 2);
-                    image.setAttribute('class', 'node-image');
-                    image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
-                    image.style.cursor = 'pointer';
-                    image.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        mostrarInfoUsuario(e, nodo.data, imagenUrl);
-                    });
-                    nodeGroup.appendChild(image);
-
-                    // Nombre debajo (solo nombres, sin apellidos)
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('dominant-baseline', 'hanging');
-                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 5);
-                    text.setAttribute('fill', '#333');
-                    text.setAttribute('font-size', '12px');
-                    text.setAttribute('font-weight', 'bold');
-                    text.textContent = nodo.data.nombre || nodo.valor; // Solo nombres
-                    nodeGroup.appendChild(text);
-
-                    // Hora debajo del nombre
-                    const horaText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    horaText.setAttribute('text-anchor', 'middle');
-                    horaText.setAttribute('dominant-baseline', 'hanging');
-                    horaText.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 22);
-                    horaText.setAttribute('fill', '#666');
-                    horaText.setAttribute('font-size', '11px');
-                    horaText.textContent = nodo.data.hora || '';
-                    nodeGroup.appendChild(horaText);
-
-                    nodeGroup.style.cursor = 'pointer';
-                    nodeGroup.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        mostrarInfoUsuario(e, nodo.data, imagenUrl);
-                    });
-                } else {
-                    // ...resto de nodos normales...
-                }
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'hanging');
+                text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+                text.setAttribute('fill', '#333');
+                text.setAttribute('font-size', '12px');
+                text.setAttribute('font-weight', 'bold');
+                const textoMostrar = nodo.valor.length > 15 ?
+                    nodo.valor.substring(0, 12) + '...' : nodo.valor;
+                text.textContent = textoMostrar;
+                nodeGroup.appendChild(text);
 
                 g.appendChild(nodeGroup);
 
