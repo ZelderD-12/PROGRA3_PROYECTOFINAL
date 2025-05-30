@@ -160,10 +160,50 @@
 
             metodoSelect.addEventListener('change', mostrarCampos);
 
-        });
 
-        /*-------- Actualizar Contraseña ------*/
-       
+            /*-------- Actualizar Contraseña ------*/
+
+            btnRecuperar.addEventListener('click', async () => {
+                const carnet = document.querySelector('input[name="carnet"]').value.trim();
+                const password = document.querySelector('input[name="password"]').value;
+                const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+                if (!carnet || !password || !confirmPassword) {
+                    alert("Todos los campos son obligatorios.");
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    alert("Las contraseñas no coinciden.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('carnet', carnet);
+                formData.append('password', password);
+                formData.append('confirm_password', confirmPassword);
+
+                try {
+                    const response = await fetch('../Base de Datos/actualizar_password.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message);
+                        window.location.href = '../../index.php';
+                    } else {
+                        alert("Error: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error en la solicitud:", error);
+                    alert("Error inesperado al actualizar la contraseña.");
+                }
+            });
+
+        });
     </script>
 </body>
 
