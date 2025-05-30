@@ -358,108 +358,53 @@ function saberSalones() {
 }
 
 
-function obtenerEstructuraSinUsuarios($idArbol) {
+function obtenerUbicacionesPorEdificio($idEdificio) {
     global $conexion;
-    
+
     // Limpiar resultados pendientes
     while ($conexion->more_results()) {
         $conexion->next_result();
     }
-    
-    $estructura = array();
-    
-    // Consulta para obtener todos los edificios asociados al árbol
-    $queryEdificios = "SELECT DISTINCT e.idEdificio, e.Edificio 
-                       FROM Busqueda b
-                       JOIN Edificios e ON b.idEdificio = e.idEdificio
-                       WHERE b.idBusqueda = ?";
-    
-    $stmtEdificios = $conexion->prepare($queryEdificios);
-    
-    if ($stmtEdificios) {
-        $stmtEdificios->bind_param("i", $idArbol);
-        $stmtEdificios->execute();
-        $resultEdificios = $stmtEdificios->get_result();
-        
-        while ($edificio = $resultEdificios->fetch_assoc()) {
-            $edificioActual = array(
-                'instalacion' => $edificio['Edificio'],
-                'puertas' => array()
-            );
-            
-            // Obtener puertas del edificio
-            $queryPuertas = "SELECT DISTINCT p.idPuerta, p.Puerta 
-                             FROM Busqueda b
-                             JOIN Puertas p ON b.idPuerta = p.idPuerta
-                             WHERE b.idBusqueda = ? AND b.idEdificio = ? AND b.idPuerta IS NOT NULL";
-            
-            $stmtPuertas = $conexion->prepare($queryPuertas);
-            if ($stmtPuertas) {
-                $stmtPuertas->bind_param("ii", $idArbol, $edificio['idEdificio']);
-                $stmtPuertas->execute();
-                $resultPuertas = $stmtPuertas->get_result();
-                
-                while ($puerta = $resultPuertas->fetch_assoc()) {
-                    $puertaActual = array(
-                        'nombre' => $puerta['Puerta'],
-                        'niveles' => array()
-                    );
-                    
-                    // Obtener niveles de la puerta
-                    $queryNiveles = "SELECT DISTINCT b.Nivel 
-                                     FROM Busqueda b
-                                     WHERE b.idBusqueda = ? AND b.idEdificio = ? AND b.idPuerta = ? AND b.Nivel IS NOT NULL
-                                     ORDER BY b.Nivel";
-                    
-                    $stmtNiveles = $conexion->prepare($queryNiveles);
-                    if ($stmtNiveles) {
-                        $stmtNiveles->bind_param("iii", $idArbol, $edificio['idEdificio'], $puerta['idPuerta']);
-                        $stmtNiveles->execute();
-                        $resultNiveles = $stmtNiveles->get_result();
-                        
-                        while ($nivel = $resultNiveles->fetch_assoc()) {
-                            $nivelActual = array(
-                                'numero' => $nivel['Nivel'],
-                                'salones' => array()
-                            );
-                            
-                            // Obtener salones del nivel
-                            $querySalones = "SELECT DISTINCT s.idSalon, s.Area 
-                                            FROM Busqueda b
-                                            JOIN Salones s ON b.idSalon = s.idSalon
-                                            WHERE b.idBusqueda = ? AND b.idEdificio = ? AND b.idPuerta = ? AND b.Nivel = ? AND b.idSalon IS NOT NULL";
-                            
-                            $stmtSalones = $conexion->prepare($querySalones);
-                            if ($stmtSalones) {
-                                $stmtSalones->bind_param("iiii", $idArbol, $edificio['idEdificio'], $puerta['idPuerta'], $nivel['Nivel']);
-                                $stmtSalones->execute();
-                                $resultSalones = $stmtSalones->get_result();
-                                
-                                while ($salon = $resultSalones->fetch_assoc()) {
-                                    $salonActual = array(
-                                        'numero' => $salon['Area']
-                                    );
-                                    
-                                    $nivelActual['salones'][] = $salonActual;
-                                }
-                                $stmtSalones->close();
-                            }
-                            
-                            $puertaActual['niveles'][] = $nivelActual;
-                        }
-                        $stmtNiveles->close();
-                    }
-                    
-                    $edificioActual['puertas'][] = $puertaActual;
-                }
-                $stmtPuertas->close();
-            }
-            
-            $estructura[] = $edificioActual;
+
+    $ubicaciones = [];
+
+    // Consulta para obtener todas las rutas de un edificio específico
+    $query = "SELECT 
+                COALESCE(e.idEdificio, 0) AS idEdificio,
+                COALESCE(e.Edificio, '') AS edificio,
+                COALESCE(p.idPuerta, 0) AS idPuerta,
+                COALESCE(p.Puerta, '') AS puerta,
+                COALESCE(b.Nivel, 0) AS nivel,
+                COALESCE(s.idSalon, 0) AS idSalon,
+                COALESCE(s.Area, '') AS salon
+            FROM Busqueda b
+            LEFT JOIN Edificios e ON b.idEdificio = e.idEdificio
+            LEFT JOIN Puertas p ON b.idPuerta = p.idPuerta
+            LEFT JOIN Salones s ON b.idSalon = s.idSalon
+            WHERE b.idEdificio = ?";
+
+    $stmt = $conexion->prepare($query);
+    if ($stmt) {
+        $stmt->bind_param("i", $idEdificio);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $ubicaciones[] = [
+                'idEdificio' => (int)$row['idEdificio'],
+                'edificio'   => $row['edificio'],
+                'idPuerta'   => (int)$row['idPuerta'],
+                'puerta'     => $row['puerta'],
+                'nivel'      => (int)$row['nivel'],
+                'idSalon'    => (int)$row['idSalon'],
+                'salon'      => $row['salon']
+            ];
         }
-        $stmtEdificios->close();
+        $stmt->close();
     }
-    
-    return $estructura;
+
+    return [
+        'ubicaciones' => $ubicaciones
+    ];
 }
 ?>

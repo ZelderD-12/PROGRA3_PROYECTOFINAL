@@ -3,8 +3,45 @@ include '../Base de Datos/operaciones.php';
 $edificios = saberEdificios();
 $salones = saberSalones();
 
-$idArbol = isset($_GET['idArbol']) ? intval($_GET['idArbol']) : 0;
-$resultado = obtenerEstructuraSinUsuarios($idArbol);
+function transformarUbicaciones($ubicacionesBD) {
+    $ubicacionesPlanas = [];
+
+    if (isset($ubicacionesBD['ubicaciones'])) {
+        foreach ($ubicacionesBD['ubicaciones'] as $ubicacion) {
+            // Normaliza los valores vacíos a 0 o ""
+            $idEdificio = !empty($ubicacion['idEdificio']) ? (int)$ubicacion['idEdificio'] : 0;
+            $edificio   = !empty($ubicacion['edificio']) ? $ubicacion['edificio'] : '';
+            $idPuerta   = !empty($ubicacion['idPuerta']) ? (int)$ubicacion['idPuerta'] : 0;
+            $puerta     = !empty($ubicacion['puerta']) ? $ubicacion['puerta'] : '';
+            $nivel      = !empty($ubicacion['nivel']) ? (int)$ubicacion['nivel'] : 0;
+            $idSalon    = !empty($ubicacion['idSalon']) ? (int)$ubicacion['idSalon'] : 0;
+            $salon      = !empty($ubicacion['salon']) ? $ubicacion['salon'] : '';
+
+            $ubicacionesPlanas[] = [
+                'idEdificio' => $idEdificio,
+                'edificio'   => $edificio,
+                'idPuerta'   => $idPuerta,
+                'puerta'     => $puerta,
+                'nivel'      => $nivel,
+                'idSalon'    => $idSalon,
+                'salon'      => $salon
+            ];
+        }
+    }
+
+    return $ubicacionesPlanas;
+}
+
+// Obtener datos del edificio (ejemplo con ID 1)
+$idEdificio = 1;
+$ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+$ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+
+// Preparar los datos para JavaScript
+$datosParaJS = [
+    'ubicaciones' => $ubicacionesTransformadas,
+    'usuarios' => [] // Array vacío por ahora
+];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -659,7 +696,12 @@ $resultado = obtenerEstructuraSinUsuarios($idArbol);
             id: this.value,
             nombre: this.options[this.selectedIndex].text
         };
-        console.log('Seleccionado:', window.selectedCombo);
+        // Guardar el edificio seleccionado globalmente
+        window.edificioSeleccionado = {
+            id: parseInt(this.value),
+            nombre: this.options[this.selectedIndex].text
+        };
+        console.log('Edificio seleccionado:', window.edificioSeleccionado);
     };
 }
 
@@ -764,10 +806,14 @@ function mostrarReporte(tipo) {
 
         // Nueva función para manejar el evento del botón "Dibujar"
         function dibujarArbol(containerId, tipo) {
-            const datos = obtenerDatosParaReporte(tipo);
-            const arbol = construirArbolDesdeDatos(datos, tipo);
-            dibujarArbolAVLCompleto(containerId, arbol);
-        }
+            if (tipo === 'historicoEntrada' && !window.edificioSeleccionado) {
+        alert('Por favor, selecciona un edificio.');
+        return;
+    }
+    const datos = obtenerDatosParaReporte(tipo);
+    const arbol = construirArbolDesdeDatos(datos, tipo);
+    dibujarArbolAVLCompleto(containerId, arbol);
+}
 
         // Función mejorada para cargar recursos
         function cargarRecursosAVL(cssPath, jsPath, callback) {
@@ -837,13 +883,21 @@ function mostrarReporte(tipo) {
 
         // Función para construir la estructura del árbol desde los datos
         function construirArbolDesdeDatos(datos, tipo) {
-            // Para los reportes históricos y por fecha
-    if (tipo === 'historicoEntrada' || tipo === 'fechaEntrada' || tipo === 'historicoSalon' || tipo === 'fechaSalon') {
+            // Solo para reportes históricos de entrada
+    if (tipo === 'historicoEntrada') {
         const ubicaciones = datos.ubicaciones || [];
         const usuarios = datos.usuarios || [];
         let arbol = cargarUbicacionesArbol(ubicaciones);
         arbol = agregarUsuariosArbol(arbol, usuarios);
-        // El nodo raíz puede ser un objeto con hijos
+
+        // Si hay edificio seleccionado, la raíz es ese edificio
+        if (window.edificioSeleccionado && arbol.hijos) {
+            const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
+            if (edificioNodo) {
+                return edificioNodo; // Solo ese edificio como raíz
+            }
+        }
+        // Si no hay selección, muestra todo
         return {
             valor: "Ubicaciones",
             nivel: 0,
@@ -952,11 +1006,10 @@ function mostrarReporte(tipo) {
                         };
 
                         const nodoSalon = {
-                            valor: `Salón ${salon.salon}`,
+                            id: item.idSalon,
+                            valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
                             nivel: 3,
-                            data: {
-                                foto: "imagenes/IMG/objetos/classroom.png"
-                            }, // Imagen de salón
+                            data: { foto: IMG_PATHS.classroom },
                             hijos: []
                         };
 
@@ -996,11 +1049,10 @@ function mostrarReporte(tipo) {
                         };
 
                         const nodoSalon = {
-                            valor: `Salón ${salon.salon}`,
+                            id: item.idSalon,
+                            valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
                             nivel: 3,
-                            data: {
-                                foto: "imagenes/IMG/objetos/classroom.png"
-                            }, // Imagen de salón
+                            data: { foto: IMG_PATHS.classroom },
                             hijos: []
                         };
 
@@ -1043,6 +1095,10 @@ function mostrarReporte(tipo) {
             };
             arbol.hijos.push(edificio);
         }
+
+        // Si no hay puerta, solo es edificio
+        if (!item.idPuerta || item.idPuerta === 0) return;
+
         // Busca o crea la puerta
         let puerta = edificio.hijos.find(p => p.id === item.idPuerta);
         if (!puerta) {
@@ -1055,6 +1111,10 @@ function mostrarReporte(tipo) {
             };
             edificio.hijos.push(puerta);
         }
+
+        // Si no hay salón, solo es puerta (no crear nivel ni salón)
+        if (!item.idSalon || item.idSalon === 0) return;
+
         // Busca o crea el nivel
         let nivel = puerta.hijos.find(n => n.id === item.nivel);
         if (!nivel) {
@@ -1067,12 +1127,13 @@ function mostrarReporte(tipo) {
             };
             puerta.hijos.push(nivel);
         }
-        // Busca o crea el salón
+
+        // Crea el salón solo si tiene nombre y id
         let salon = nivel.hijos.find(s => s.id === item.idSalon);
-        if (!salon) {
+        if (!salon && item.salon) {
             salon = {
                 id: item.idSalon,
-                valor: `Salón ${item.salon}`,
+                valor: item.salon, // nombre real del salón
                 nivel: 3,
                 data: { foto: IMG_PATHS.classroom },
                 hijos: []
@@ -1084,16 +1145,12 @@ function mostrarReporte(tipo) {
 }
 
 function agregarUsuariosArbol(arbol, usuarios) {
-    // Filtrar por fecha seleccionada si existe
-    let fecha = window.fechaSeleccionada || new Date().toISOString().slice(0, 10);
-    usuarios = usuarios.filter(u => !u.fecha || u.fecha === fecha);
-
     usuarios.forEach(usuario => {
         // Buscar el edificio
         const edificio = arbol.hijos.find(e => e.id === usuario.idEdificio);
         if (!edificio) return;
 
-        // Si no hay puerta, nivel ni salón, va directo al edificio
+        // Si el usuario está a nivel de edificio (no tiene puerta)
         if (!usuario.idPuerta || usuario.idPuerta === 0) {
             edificio.hijos.push({
                 id: usuario.idUsuario,
@@ -1109,8 +1166,23 @@ function agregarUsuariosArbol(arbol, usuarios) {
         const puerta = edificio.hijos.find(p => p.id === usuario.idPuerta);
         if (!puerta) return;
 
-        // Si no hay nivel ni salón, va a la puerta
-        if (!usuario.nivel || usuario.nivel === 0) {
+        // Si el usuario está a nivel de puerta (no tiene salón)
+        if (!usuario.idSalon || usuario.idSalon === 0) {
+            // Si tiene nivel, buscar el nivel
+            if (usuario.nivel && usuario.nivel !== 0) {
+                const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
+                if (nivel) {
+                    nivel.hijos.push({
+                        id: usuario.idUsuario,
+                        valor: usuario.nombre,
+                        nivel: 3,
+                        data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
+                        hijos: []
+                    });
+                    return;
+                }
+            }
+            // Si no tiene nivel, va en la puerta
             puerta.hijos.push({
                 id: usuario.idUsuario,
                 valor: usuario.nombre,
@@ -1125,33 +1197,18 @@ function agregarUsuariosArbol(arbol, usuarios) {
         const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
         if (!nivel) return;
 
-        // Si no hay salón, va al nivel
-        if (!usuario.idSalon || usuario.idSalon === 0) {
-            nivel.hijos.push({
-                id: usuario.idUsuario,
-                valor: usuario.nombre,
-                nivel: 3,
-                data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
-                hijos: []
-            });
-            return;
-        }
-
         // Buscar el salón
         const salon = nivel.hijos.find(s => s.id === usuario.idSalon);
         if (!salon) return;
 
-        // Solo los salones pueden tener hasta 2 usuarios hijos, crecerán hacia abajo
-        if (!salon.hijos) salon.hijos = [];
-        if (salon.hijos.length < 2) {
-            salon.hijos.push({
-                id: usuario.idUsuario,
-                valor: usuario.nombre,
-                nivel: 4,
-                data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
-                hijos: []
-            });
-        }
+        // Usuario en el salón
+        salon.hijos.push({
+            id: usuario.idUsuario,
+            valor: usuario.nombre,
+            nivel: 4,
+            data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
+            hijos: []
+        });
     });
     return arbol;
 }
@@ -1184,19 +1241,16 @@ function agregarUsuariosArbol(arbol, usuarios) {
             // Crear elemento SVG para el árbol con scroll
             const svgWrapper = document.createElement('div');
             svgWrapper.style.width = '100%';
-            svgWrapper.style.height = '600px';
+            svgWrapper.style.height = '100%';
             svgWrapper.style.overflow = 'auto';
-            svgWrapper.style.border = '1px solid #ddd';
-            svgWrapper.style.borderRadius = '8px';
-            svgWrapper.style.padding = '10px';
             svgWrapper.style.backgroundColor = '#f9f9f9';
 
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('width', '100%');
-            svg.setAttribute('height', '800');
+            svg.setAttribute('height', '100%');
             svg.style.display = 'block';
-            svg.style.margin = '0 auto';
-            svg.style.minWidth = '1000px'; // Ancho mínimo para asegurar el scroll horizontal
+            svg.style.minWidth = '1000px';
+            svg.style.minHeight = '600px';
 
             // Grupo principal
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -1205,7 +1259,7 @@ function agregarUsuariosArbol(arbol, usuarios) {
             svgWrapper.appendChild(svg);
             container.appendChild(svgWrapper);
 
-            // Calcular posiciones con más espacio
+            // Calcular posiciones with more space
             function calcularPosiciones(nodo, nivel, posX, espacioDisponible) {
                 if (!nodo) return;
 
@@ -1380,6 +1434,11 @@ function agregarUsuariosArbol(arbol, usuarios) {
                 circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default); // Fondo verde
                 nodeGroup.appendChild(circle);
 
+                // Evento para mostrar el recuadro con el nombre del nodo
+                nodeGroup.addEventListener('click', function(e) {
+    mostrarInfoNodoArbol(e, nodo.valor);
+});
+
                 // Imagen del nodo
                 let imagenUrl = 'imagenes/IMG/users/user1.png';
                 if (nodo.data && nodo.data.foto) {
@@ -1425,6 +1484,11 @@ function agregarUsuariosArbol(arbol, usuarios) {
                 nodeGroup.appendChild(text);
 
                 g.appendChild(nodeGroup);
+
+                // Evento para mostrar el recuadro con el nombre del nodo
+                nodeGroup.addEventListener('click', function(e) {
+    mostrarInfoNodoArbol(e, nodo.valor);
+});
 
                 // Dibujar hijos recursivamente
                 if (nodo.hijos) {
@@ -1491,19 +1555,7 @@ function agregarUsuariosArbol(arbol, usuarios) {
 
         // Funciones para obtener datos (se mantienen iguales)
         function obtenerDatosHistorico() {
-            // Ejemplo de estructura separada
-            return {
-                ubicaciones: [
-                    { idEdificio: 1, edificio: "Edificio A", idPuerta: 2, puerta: "Puerta Principal", nivel: 1, idSalon: 4, salon: "100" },
-                    { idEdificio: 1, edificio: "Edificio A", idPuerta: 2, puerta: "Puerta Principal", nivel: 1, idSalon: 5, salon: "101" },
-                    { idEdificio: 2, edificio: "Edificio B", idPuerta: 3, puerta: "Puerta Secundaria", nivel: 2, idSalon: 6, salon: "200" }
-                ],
-                usuarios: [
-                    { idUsuario: 10, nombre: "Juan Pérez", idEdificio: 1, idPuerta: 2, nivel: 1, idSalon: 4, foto: "imagenes/IMG/users/user.avif" },
-                    { idUsuario: 11, nombre: "María García", idEdificio: 1, idPuerta: 2, nivel: 1, idSalon: 5, foto: "" },
-                    { idUsuario: 12, nombre: "Carlos López", idEdificio: 2, idPuerta: 3, nivel: 2, idSalon: 6, foto: "imagenes/IMG/users/user.avif" }
-                ]
-            };
+          return <?php echo json_encode($datosParaJS, JSON_PRETTY_PRINT); ?>;
         }
 
         function obtenerDatosPorFecha() {
@@ -1815,6 +1867,9 @@ async function eliminarUsuario() {
             
             <div class="stats-controls">
                 <div class="form-group">
+
+
+
                     <label for="report-type">Tipo de Reporte:</label>
                     <select id="report-type" class="form-control" onchange="cambiarTipoReporte()">
                         <option value="asistencia">Asistencia por Salón</option>
@@ -1850,8 +1905,10 @@ async function eliminarUsuario() {
                         <input type="date" id="fecha-inicio" class="form-control">
                         <span>a</span>
                         <input type="date" id="fecha-fin" class="form-control">
+
                     </div>
                 </div>
+                
                 
                 <button onclick="cargarEstadisticas()" class="btn-generar">
                     <i class="fas fa-chart-bar"></i> Generar Grafico
@@ -2336,7 +2393,7 @@ async function eliminarUsuario() {
     padding: 15px;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 100%;
     overflow: hidden;
@@ -2474,6 +2531,11 @@ async function eliminarUsuario() {
         </div>
     </div>
 
+    <div id="dashboard-arbol" class="dashboard-arbol">
+        <!-- Aquí se dibuja el árbol -->
+    </div>
+    <button onclick="expandirDashboardArbol()" class="btn-expandir-arbol">Expandir árbol</button>
+
     <script>
         function mostrarInfoUsuario(event, data, imagenUrl) {
     event.stopPropagation();
@@ -2559,6 +2621,74 @@ async function eliminarUsuario() {
         if (e.target === overlay) overlay.remove();
     });
 }
+
+function mostrarInfoNodoArbol(event, nombreNodo) {
+    event.stopPropagation();
+
+    // Elimina overlay anterior si existe
+    const oldOverlay = document.getElementById('info-nodo-arbol-overlay');
+    if (oldOverlay) oldOverlay.remove();
+
+    // Overlay semitransparente
+    const overlay = document.createElement('div');
+    overlay.id = 'info-nodo-arbol-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.4)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = 2100;
+
+    // Cuadro blanco centrado
+    const infoBox = document.createElement('div');
+    infoBox.style.background = '#fff';
+    infoBox.style.borderRadius = '12px';
+    infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+    infoBox.style.padding = '32px 32px 32px 24px';
+    infoBox.style.width = '350px';
+    infoBox.style.display = 'flex';
+    infoBox.style.flexDirection = 'column';
+    infoBox.style.alignItems = 'center';
+    infoBox.style.position = 'relative';
+
+    // Nombre del nodo
+    const nombre = document.createElement('div');
+    nombre.textContent = nombreNodo;
+    nombre.style.fontWeight = 'bold';
+    nombre.style.fontSize = '20px';
+    nombre.style.marginBottom = '8px';
+    nombre.style.textAlign = 'center';
+    infoBox.appendChild(nombre);
+
+    // Botón cerrar
+    const btnCerrar = document.createElement('button');
+    btnCerrar.textContent = 'Cerrar';
+    btnCerrar.style.marginTop = '24px';
+    btnCerrar.style.padding = '8px 24px';
+    btnCerrar.style.background = '#2196F3';
+    btnCerrar.style.color = '#fff';
+    btnCerrar.style.border = 'none';
+    btnCerrar.style.borderRadius = '6px';
+    btnCerrar.style.cursor = 'pointer';
+    btnCerrar.onclick = () => overlay.remove();
+    infoBox.appendChild(btnCerrar);
+
+    overlay.appendChild(infoBox);
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+// Obtener y mostrar los datos de ubicaciones y usuarios en consola
+const datos = obtenerDatosHistorico();
+console.log("Ubicaciones:", datos.ubicaciones);
+console.log("Usuarios:", datos.usuarios); // Array vacío por ahora
     </script>
 </body>
 
