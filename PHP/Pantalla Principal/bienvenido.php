@@ -1,3 +1,11 @@
+<?php
+include '../Base de Datos/operaciones.php';
+$edificios = saberEdificios();
+$salones = saberSalones();
+
+$idArbol = isset($_GET['idArbol']) ? intval($_GET['idArbol']) : 0;
+$resultado = obtenerEstructuraSinUsuarios($idArbol);
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -7,6 +15,10 @@
     <title>Bienvenido</title>
     <link rel="stylesheet" href="../../CSS/style2.css">
     <link rel="stylesheet" href="../../CSS/tabla.css">
+    <script>
+        const edificiosBD = <?php echo json_encode($edificios); ?>;
+        const salonesBD = <?php echo json_encode($salones); ?>;
+    </script>
     <script>
         // Verificar autenticación
         document.addEventListener('DOMContentLoaded', function() {
@@ -607,104 +619,49 @@
         }
         //----------------------------------------------------------------------------------------------------------------
         function cargarCombobox(tipoReporte) {
-            // Lista de opciones según el tipo de reporte
             let opciones = [];
-            switch (tipoReporte) {
-                case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
-                    opciones = [{
-                            id: 'edificioA',
-                            nombre: "Edificio A - Nivel I"
-                        },
-                        {
-                            id: 'edificioB',
-                            nombre: "Edificio B - Nivel I"
-                        },
-                        {
-                            id: 'puertaPrincipal',
-                            nombre: "Puerta Principal - Nivel II"
-                        },
-                        {
-                            id: 'puertaSecundaria',
-                            nombre: "Puerta Secundaria - Nivel II"
-                        }
-                    ];
-                    break;
 
-                case 'fechaEntrada': // Mostrar solo edificios
-                    opciones = [{
-                            id: 'edificioA',
-                            nombre: "Edificio A - Nivel I"
-                        },
-                        {
-                            id: 'edificioB',
-                            nombre: "Edificio B - Nivel I"
-                        },
-                        {
-                            id: 'edificioC',
-                            nombre: "Edificio C - Nivel I"
-                        }
-                    ];
-                    break;
+    if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
+        opciones = edificiosBD.map(edificio => ({
+            id: edificio.idEdificio,      // <-- nombre correcto
+            nombre: edificio.Edificio     // <-- nombre correcto
+        }));
+    } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
+        opciones = salonesBD.map(salon => ({
+            id: salon.idSalon,
+            nombre: salon.Area
+        }));
+    } else {
+        return;
+    }
 
-                case 'historicoSalon': // Mostrar salones y puertas según el nivel
-                    opciones = [{
-                            id: 'salon101',
-                            nombre: "Salón 101 - Nivel I"
-                        },
-                        {
-                            id: 'salon202',
-                            nombre: "Salón 202 - Nivel II"
-                        },
-                        {
-                            id: 'puertaPrincipal',
-                            nombre: "Puerta Principal - Nivel II"
-                        },
-                        {
-                            id: 'puertaEmergencia',
-                            nombre: "Puerta Emergencia - Nivel I"
-                        }
-                    ];
-                    break;
+    const comboBox = document.getElementById('report-options-select');
+    if (!comboBox) return;
 
-                case 'fechaSalon': // Mostrar solo salones de un nivel específico
-                    opciones = [{
-                            id: 'salon101',
-                            nombre: "Salón 101 - Nivel I"
-                        },
-                        {
-                            id: 'salon202',
-                            nombre: "Salón 202 - Nivel II"
-                        }
-                    ];
-                    break;
+    comboBox.innerHTML = '';
 
-                default:
-                    console.error('Tipo de reporte no reconocido:', tipoReporte);
-                    return;
-            }
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Seleccione una opción';
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    comboBox.appendChild(defaultOption);
 
-            // Obtener el combo box por su ID
-            const comboBox = document.getElementById('report-options-select');
+    opciones.forEach(opcion => {
+        const option = document.createElement('option');
+        option.value = opcion.id;
+        option.textContent = opcion.nombre;
+        comboBox.appendChild(option);
+    });
 
-            // Limpiar las opciones existentes
-            comboBox.innerHTML = '';
-
-            // Agregar una opción por defecto
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Seleccione una opción';
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            comboBox.appendChild(defaultOption);
-
-            // Agregar las opciones dinámicamente
-            opciones.forEach(opcion => {
-                const option = document.createElement('option');
-                option.value = opcion.id;
-                option.textContent = opcion.nombre;
-                comboBox.appendChild(option);
-            });
-        }
+    comboBox.onchange = function() {
+        window.selectedCombo = {
+            id: this.value,
+            nombre: this.options[this.selectedIndex].text
+        };
+        console.log('Seleccionado:', window.selectedCombo);
+    };
+}
 
         // Función principal para mostrar reportes
         function mostrarReporte(tipo) {
@@ -1675,7 +1632,7 @@ async function eliminarUsuario() {
         }
 
 
-        // Función para mostrar estadísticas con gráficos
+        // Función para mostrar estadísticas with gráficos
         function abrirEstadisticas() {
             document.getElementById('info-content').innerHTML = `
         <div class="stats-container">
