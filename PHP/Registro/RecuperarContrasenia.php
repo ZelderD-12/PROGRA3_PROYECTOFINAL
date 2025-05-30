@@ -66,7 +66,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="button" name="recuperar" class="btn" id="btn_recuperar" disabled onclick="recuperarContrasena()">Recuperar Contraseña</button>
+            <button type="button" name="recuperar" class="btn" id="btn_recuperar" disabled>Recuperar Contraseña</button>
             <button type="reset" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
         </div>
     </div>
