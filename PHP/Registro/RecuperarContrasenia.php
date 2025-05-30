@@ -161,6 +161,8 @@
             metodoSelect.addEventListener('change', mostrarCampos);
 
         });
+
+        /*-------- Actualizar Contraseña ------*/
     </script>
 </body>
 
