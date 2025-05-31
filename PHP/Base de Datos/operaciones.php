@@ -418,18 +418,21 @@ function obtenerUbicacionesPorSalon($idSalon) {
 
     $ubicaciones = [];
 
-    // Consulta para obtener todos los registros donde idSalon coincide, incluyendo el nombre del salón
+    // Consulta mejorada: une con Edificios y Puertas para obtener toda la información
     $query = "SELECT 
-                b.idBusqueda, 
-                b.idEdificio, 
-                b.idPuerta, 
-                b.idSalon, 
-                b.Nivel, 
-                b.Ruta,
+                COALESCE(e.idEdificio, 0) AS idEdificio,
+                COALESCE(e.Edificio, '') AS edificio,
+                COALESCE(p.idPuerta, 0) AS idPuerta,
+                COALESCE(p.Puerta, '') AS puerta,
+                COALESCE(b.Nivel, 0) AS nivel,
+                COALESCE(s.idSalon, 0) AS idSalon,
                 COALESCE(s.Area, '') AS salon
             FROM Busqueda b
+            LEFT JOIN Edificios e ON b.idEdificio = e.idEdificio
+            LEFT JOIN Puertas p ON b.idPuerta = p.idPuerta
             LEFT JOIN Salones s ON b.idSalon = s.idSalon
             WHERE b.idSalon = ?";
+
     $stmt = $conexion->prepare($query);
     $stmt->bind_param("i", $idSalon);
     $stmt->execute();
@@ -437,13 +440,13 @@ function obtenerUbicacionesPorSalon($idSalon) {
 
     while ($row = $result->fetch_assoc()) {
         $ubicaciones[] = [
-            'idBusqueda' => (int)$row['idBusqueda'],
             'idEdificio' => (int)$row['idEdificio'],
+            'edificio'   => $row['edificio'],
             'idPuerta'   => (int)$row['idPuerta'],
+            'puerta'     => $row['puerta'],
+            'nivel'      => (int)$row['nivel'],
             'idSalon'    => (int)$row['idSalon'],
-            'nivel'      => (int)$row['Nivel'],
-            'ruta'       => $row['Ruta'],
-            'salon'      => $row['salon'] // Ahora sí trae el nombre del salón
+            'salon'      => $row['salon']
         ];
     }
     $stmt->close();

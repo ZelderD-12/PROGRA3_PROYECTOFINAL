@@ -1047,204 +1047,24 @@ $datosParaJS = [
 
         // Función para construir la estructura del árbol desde los datos
         function construirArbolDesdeDatos(datos, tipo) {
-            // Solo para reportes históricos de entrada
-            if (tipo === 'historicoEntrada') {
-                const ubicaciones = datos.ubicaciones || [];
-                const usuarios = datos.usuarios || [];
-                let arbol = cargarUbicacionesArbol(ubicaciones);
-                arbol = agregarUsuariosArbol(arbol, usuarios);
+            // Siempre usa ubicaciones y usuarios
+            const ubicaciones = datos.ubicaciones || [];
+            const usuarios = datos.usuarios || [];
+            let arbol = cargarUbicacionesArbol(ubicaciones);
+            arbol = agregarUsuariosArbol(arbol, usuarios);
 
-                // Si hay edificio seleccionado, la raíz es ese edificio
-                if (window.edificioSeleccionado && arbol.hijos) {
-                    const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
-                    if (edificioNodo) {
-                        return edificioNodo; // Solo ese edificio como raíz
-                    }
+            // Si hay selección (edificio/salón), filtra la raíz
+            if (window.edificioSeleccionado && arbol.hijos) {
+                const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
+                if (edificioNodo) {
+                    return edificioNodo;
                 }
-                // Si no hay selección, muestra todo
-                return {
-                    valor: "Ubicaciones",
-                    nivel: 0,
-                    hijos: arbol.hijos
-                };
             }
-            const comboBox = document.getElementById('report-options-select');
-            const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
-
-            const nodoRaiz = {
-                valor: valorRaiz,
+            return {
+                valor: "Ubicaciones",
                 nivel: 0,
-                hijos: []
+                hijos: arbol.hijos
             };
-
-            switch (tipo) {
-                case 'historicoEntrada':
-                    datos.forEach(entrada => {
-                        // Determinar la imagen según si es edificio o puerta
-                        const esEdificio = entrada.instalacion.includes("Edificio");
-                        const imagen = esEdificio ? "imagenes/IMG/objetos/edificio.jpeg" : "imagenes/IMG/objetos/door.jpg";
-
-                        const nodoInstalacion = {
-                            valor: entrada.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: imagen
-                            },
-                            hijos: []
-                        };
-
-                        const nodoPuerta = {
-                            valor: entrada.puerta,
-                            nivel: 2,
-                            data: {
-                                foto: "imagenes/IMG/objetos/door.jpg"
-                            },
-                            hijos: []
-                        };
-
-                        entrada.fechas.forEach(fecha => {
-                            nodoPuerta.hijos.push({
-                                valor: fecha,
-                                nivel: 3,
-                                hijos: []
-                            });
-                        });
-
-                        nodoInstalacion.hijos.push(nodoPuerta);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                case 'fechaEntrada':
-                    datos.forEach(entrada => {
-                        const nodoInstalacion = {
-                            valor: entrada.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
-
-                        const nodoFecha = {
-                            valor: entrada.fecha,
-                            nivel: 2,
-                            hijos: []
-                        };
-
-                        entrada.registros.forEach(registro => {
-                            nodoFecha.hijos.push({
-                                valor: registro.nombre,
-                                nivel: 5,
-                                data: {
-                                    ...registro,
-                                    foto: registro.foto
-                                },
-                                hijos: []
-                            });
-                        });
-
-                        nodoInstalacion.hijos.push(nodoFecha);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                case 'historicoSalon':
-                    datos.forEach(salon => {
-                        const nodoInstalacion = {
-                            valor: salon.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
-
-                        const nodoNivel = {
-                            valor: `Nivel ${salon.nivel}`,
-                            nivel: 2,
-                            data: {
-                                foto: `imagenes/IMG/level/nivel${salon.nivel}.png`
-                            }, // Imagen de nivel
-                            hijos: []
-                        };
-
-                        const nodoSalon = {
-                            id: item.idSalon,
-                            valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
-                            nivel: 3,
-                            data: {
-                                foto: IMG_PATHS.classroom
-                            },
-                            hijos: []
-                        };
-
-                        salon.estudiantes.forEach(est => {
-                            nodoSalon.hijos.push({
-                                valor: `${est.nombre} (${est.tipo})`,
-                                nivel: 4,
-                                data: est,
-                                hijos: []
-                            });
-                        });
-
-                        nodoNivel.hijos.push(nodoSalon);
-                        nodoInstalacion.hijos.push(nodoNivel);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                case 'fechaSalon':
-                    datos.forEach(salon => {
-                        const nodoInstalacion = {
-                            valor: salon.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
-
-                        const nodoNivel = {
-                            valor: `Nivel ${salon.nivel}`,
-                            nivel: 2,
-                            data: {
-                                foto: `imagenes/IMG/level/nivel${salon.nivel}.png`
-                            }, // Imagen de nivel
-                            hijos: []
-                        };
-
-                        const nodoSalon = {
-                            id: item.idSalon,
-                            valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
-                            nivel: 3,
-                            data: {
-                                foto: IMG_PATHS.classroom
-                            },
-                            hijos: []
-                        };
-
-                        salon.registros.forEach(reg => {
-                            nodoSalon.hijos.push({
-                                valor: `${reg.nombre} (${reg.tipo}) - ${salon.fecha}`,
-                                nivel: 4,
-                                data: reg,
-                                hijos: []
-                            });
-                        });
-
-                        nodoNivel.hijos.push(nodoSalon);
-                        nodoInstalacion.hijos.push(nodoNivel);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                default:
-                    console.error('Tipo de reporte no reconocido:', tipo);
-                    break;
-            }
-
-            return nodoRaiz;
         }
 
         function cargarUbicacionesArbol(datos) {
@@ -1745,114 +1565,53 @@ $datosParaJS = [
 
         // Funciones para obtener datos (se mantienen iguales)
         function obtenerDatosHistorico() {
-            return <?php echo json_encode($datosParaJS, JSON_PRETTY_PRINT); ?>;
-        }
-
-        function obtenerDatosPorFecha() {
-            return [{
-                    instalacion: "Edificio A",
-                    puerta: "Puerta Principal",
-                    fecha: "2023-05-01",
-                    registros: [{
-                            id: 1,
-                            nombre: "Juan Pérez",
-                            correo: "juan@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        },
-                        {
-                            id: 2,
-                            nombre: "María García",
-                            correo: "maria@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: false
-                        }
-                    ]
-                },
-                {
-                    instalacion: "Edificio B",
-                    puerta: "Puerta Secundaria",
-                    fecha: "2023-05-02",
-                    registros: [{
-                            id: 3,
-                            nombre: "Carlos López",
-                            correo: "carlos@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        },
-                        {
-                            id: 4,
-                            nombre: "Ana Torres",
-                            correo: "ana@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        }
-                    ]
-                }
-            ];
-        }
-
-        function obtenerDatosSalonHistorico() {
-            return [{
-                    instalacion: "Edificio A",
-                    nivel: "1",
-                    salon: "101",
-                    estudiantes: [{
-                            id: 1,
-                            nombre: "Juan Pérez",
-                            tipo: "estudiante",
-                            foto: "imagenes/IMG/users/user.avif"
-                        },
-                        {
-                            id: 2,
-                            nombre: "Prof. Rodríguez",
-                            tipo: "catedrático",
-                            foto: "imagenes/IMG/users/user.avif"
-                        }
-                    ]
-                },
-                {
-                    instalacion: "Edificio B",
-                    nivel: "2",
-                    salon: "202",
-                    estudiantes: [{
-                            id: 3,
-                            nombre: "Carlos López",
-                            tipo: "estudiante",
-                            foto: "imagenes/IMG/users/user.avif"
-                        },
-                        {
-                            id: 4,
-                            nombre: "Prof. García",
-                            tipo: "catedrático",
-                            foto: "imagenes/IMG/users/user.avif"
-                        }
-                    ]
-                }
-            ];
-        }
-
-        function obtenerDatosSalonPorFecha() {
-            return [{
-                instalacion: "Edificio A",
-                nivel: "1",
-                salon: "101",
-                fecha: "2023-05-01",
-                registros: [{
-                        id: 1,
-                        nombre: "Juan Pérez",
-                        tipo: "estudiante",
-                        foto: "imagenes/IMG/users/user.avif"
-                    },
-                    {
-                        id: 2,
-                        nombre: "Prof. Rodríguez",
-                        tipo: "catedrático",
-                        foto: "imagenes/IMG/users/user.avif"
-                    }
-                ]
-            }];
-        }
+            // Usar ubicaciones por edificio
+            return <?php
+        $idEdificio = 1; // O el que corresponda
+        $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+        echo json_encode([
+            'ubicaciones' => $ubicacionesTransformadas,
+            'usuarios' => []
+        ], JSON_PRETTY_PRINT);
+    ?>;
+}
+function obtenerDatosPorFecha() {
+    // Usar ubicaciones por edificio
+    return <?php
+        $idEdificio = 1; // O el que corresponda
+        $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+        echo json_encode([
+            'ubicaciones' => $ubicacionesTransformadas,
+            'usuarios' => []
+        ], JSON_PRETTY_PRINT);
+    ?>;
+}
+function obtenerDatosSalonHistorico() {
+    // Usar ubicaciones por salón
+    return <?php
+        $idSalon = 1; // O el que corresponda
+        $ubicacionesBD = obtenerUbicacionesPorSalon($idSalon);
+        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+        echo json_encode([
+            'ubicaciones' => $ubicacionesTransformadas,
+            'usuarios' => []
+        ], JSON_PRETTY_PRINT);
+    ?>;
+}
+function obtenerDatosSalonPorFecha() {
+    // Usar ubicaciones por salón
+    return <?php
+        $idSalon = 1; // O el que corresponda
+        $ubicacionesBD = obtenerUbicacionesPorSalon($idSalon);
+        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+        echo json_encode([
+            'ubicaciones' => $ubicacionesTransformadas,
+            'usuarios' => []
+        ], JSON_PRETTY_PRINT);
+    ?>;
+}
         //----------------------------------------------------------------------------------------------------------------
         function tomarAsistencia() {
             // Función para tomar asistencia (compartida entre estudiante y servicios)
@@ -2031,6 +1790,7 @@ $datosParaJS = [
                 btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
                 btnEliminar.disabled = true;
                 usuarioActual = null;
+
 
             } catch (error) {
                 console.error('Error al eliminar usuario:', error);
