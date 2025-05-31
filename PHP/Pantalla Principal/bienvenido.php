@@ -79,7 +79,7 @@ $datosParaJS = [
                 const mensajeDiv = document.getElementById('mensaje-tipo');
                 const panelBotones = document.getElementById('panel-botones');
 
-                switch (tipoUsuario) {
+switch (tipoUsuario) {
                     case 1: // Administrador
                         mensajeDiv.innerHTML = "<strong>Eres un Administrador</strong>. Tienes acceso completo al sistema.";
                         panelBotones.innerHTML = `
@@ -152,16 +152,18 @@ $datosParaJS = [
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
@@ -213,16 +215,18 @@ $datosParaJS = [
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
@@ -324,18 +328,20 @@ $datosParaJS = [
                             <span><i class="fas fa-chart-line"></i> Reportes</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
-                        <div id="generadorReportes" class="dropdown-content">
+                       <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
