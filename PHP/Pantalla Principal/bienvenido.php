@@ -653,7 +653,11 @@ $datosParaJS = [
                     });
                 }
             } else if (opcion === 'Contraseñia') {
-                infoContent.innerHTML = `
+
+                // Recuperar los datos del usuario desde sessionStorage
+                const usuarioData = JSON.parse(sessionStorage.getItem('usuario'));
+                if (usuarioData) {
+                    infoContent.innerHTML = `
         <div class="restablecer-password-container">
             <h3>Restablecer contraseña</h3>
             <p>Cambie su contraseña.</p>
@@ -661,7 +665,7 @@ $datosParaJS = [
             <form id="form-restablecer-password" class="form-password">
                 <div class="campo-password">
                     <label for="carnet">Carnet:</label>
-                    <input type="text" id="carnet" name="carnet" required>
+                    <input type="text" id="carnet" name="carnet" required value="${usuarioData.Carnet_Usuario}" disabled>
                 </div>
                 
                 <div class="campo-password">
@@ -698,68 +702,72 @@ $datosParaJS = [
                 </div>
             </form>
         </div>
-    `;
+    `
+                };
 
-                // JavaScript para manejar el cambio dinámico de campos
+
+                // Selección de elementos del DOM
                 const metodoSelect = document.getElementById('metodo-verificacion');
                 const camposDinamicos = document.getElementById('campos-dinamicos');
 
-                metodoSelect.addEventListener('change', function() {
-                    const valor = this.value;
+                // Variable global para almacenar datos del SP
+                let datosUsuarioSP = null;
+
+                // Función para renderizar campos dinámicos con valores precargados
+                function renderizarCampos(valor) {
                     let contenido = '';
 
-                    switch (valor) {
-                        case 'correo':
-                            contenido = `
-                    <div class="campo-password">
-                        <label for="correo">Correo electrónico:</label>
-                        <input type="email" id="correo" name="correo" required>
-                    </div>
-                `;
-                            break;
+                    if (valor === 'correo' || valor === 'ambos') {
+                        const correoValor = datosUsuarioSP?.correo || '';
+                        contenido += `
+            <div class="campo-password">
+                <label for="correo">Correo electrónico:</label>
+                <input type="email" id="correo" name="correo" required value="${correoValor}" readonly>
+            </div>
+        `;
+                    }
 
-                        case 'telefono':
-                            contenido = `
-                    <div class="campo-password">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" required>
-                    </div>
-                `;
-                            break;
-
-                        case 'ambos':
-                            contenido = `
-                    <div class="campo-password">
-                        <label for="correo">Correo electrónico:</label>
-                        <input type="email" id="correo" name="correo" required>
-                    </div>
-                    <div class="campo-password">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" required>
-                    </div>
-                `;
-                            break;
-
-                        default:
-                            contenido = '';
+                    if (valor === 'telefono' || valor === 'ambos') {
+                        const telefonoValor = datosUsuarioSP?.celular || '';
+                        contenido += `
+            <div class="campo-password">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" required value="${telefonoValor}" readonly>
+            </div>
+        `;
                     }
 
                     camposDinamicos.innerHTML = contenido;
+                }
+
+                // ✅ Paso 4: Listener para el select
+                metodoSelect.addEventListener('change', function() {
+                    const valor = this.value;
+                    renderizarCampos(valor);
                 });
 
-                // FUNCIÓN COMÚN para obtener todos los datos del formulario
-                function obtenerDatosFormulario() {
-                    const datos = {
-                        carnet: document.getElementById('carnet')?.value || '',
-                        metodoVerificacion: document.getElementById('metodo-verificacion')?.value || '',
-                        correo: document.getElementById('correo')?.value || null,
-                        telefono: document.getElementById('telefono')?.value || null,
-                        passwordNueva: document.getElementById('password-nueva')?.value || '',
-                        passwordConfirmar: document.getElementById('password-confirmar')?.value || ''
-                    };
 
-                    return datos;
-                }
+                fetch(`../Base de Datos/buscar_datos_carnet.php?carnet=${encodeURIComponent(usuarioData.Carnet_Usuario)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.correo || data.celular) {
+                            datosUsuarioSP = data;
+                            console.log("Datos encontrados:", datosUsuarioSP);
+
+                            // Si ya hay una opción seleccionada, forzar renderizado
+                            const selectedValue = metodoSelect.value;
+                            if (selectedValue) {
+                                renderizarCampos(selectedValue);
+                            }
+                        } else {
+                            console.warn("No se encontró información para este carnet.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al consultar datos:", error);
+                    });
+
+
 
             }
 
