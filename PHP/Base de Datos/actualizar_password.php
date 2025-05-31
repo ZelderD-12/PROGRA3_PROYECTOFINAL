@@ -85,3 +85,4 @@ if (
         "message" => "Datos inválidos o contraseñas no coinciden."
     ]);
 }
+?>
