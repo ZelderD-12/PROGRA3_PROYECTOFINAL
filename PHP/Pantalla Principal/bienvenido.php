@@ -969,12 +969,18 @@ $datosParaJS = [
         }
 
         // Nueva función para manejar el evento del botón "Dibujar"
-        function dibujarArbol(containerId, tipo) {
+        async function dibujarArbol(containerId, tipo) {
             if (tipo === 'historicoEntrada' && !window.edificioSeleccionado) {
                 alert('Por favor, selecciona un edificio.');
                 return;
             }
-            const datos = obtenerDatosParaReporte(tipo);
+            // Espera los datos si la función es async
+            let datos;
+            if (tipo === 'historicoSalon' || tipo === 'fechaSalon') {
+                datos = await obtenerDatosParaReporte(tipo);
+            } else {
+                datos = obtenerDatosParaReporte(tipo);
+            }
             const arbol = construirArbolDesdeDatos(datos, tipo);
             dibujarArbolAVLCompleto(containerId, arbol);
         }
@@ -1047,19 +1053,19 @@ $datosParaJS = [
 
         // Función para construir la estructura del árbol desde los datos
         function construirArbolDesdeDatos(datos, tipo) {
-            // Siempre usa ubicaciones y usuarios
             const ubicaciones = datos.ubicaciones || [];
             const usuarios = datos.usuarios || [];
             let arbol = cargarUbicacionesArbol(ubicaciones);
             arbol = agregarUsuariosArbol(arbol, usuarios);
 
-            // Si hay selección (edificio/salón), filtra la raíz
-            if (window.edificioSeleccionado && arbol.hijos) {
+            // Solo filtra por edificio si es reporte por edificio
+            if ((tipo === 'historicoEntrada' || tipo === 'fechaEntrada') && window.edificioSeleccionado && arbol.hijos) {
                 const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
                 if (edificioNodo) {
                     return edificioNodo;
                 }
             }
+            // Para reportes por salón, retorna el árbol completo
             return {
                 valor: "Ubicaciones",
                 nivel: 0,
@@ -1588,29 +1594,17 @@ function obtenerDatosPorFecha() {
         ], JSON_PRETTY_PRINT);
     ?>;
 }
-function obtenerDatosSalonHistorico() {
-    // Usar ubicaciones por salón
-    return <?php
-        $idSalon = 1; // O el que corresponda
-        $ubicacionesBD = obtenerUbicacionesPorSalon($idSalon);
-        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
-        echo json_encode([
-            'ubicaciones' => $ubicacionesTransformadas,
-            'usuarios' => []
-        ], JSON_PRETTY_PRINT);
-    ?>;
+async function obtenerDatosSalonHistorico() {
+    const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+    const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+    const data = await response.json();
+    console.log("Respuesta de obtenerUbicacionesPorSalon:", data);
+    return data;
 }
-function obtenerDatosSalonPorFecha() {
-    // Usar ubicaciones por salón
-    return <?php
-        $idSalon = 1; // O el que corresponda
-        $ubicacionesBD = obtenerUbicacionesPorSalon($idSalon);
-        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
-        echo json_encode([
-            'ubicaciones' => $ubicacionesTransformadas,
-            'usuarios' => []
-        ], JSON_PRETTY_PRINT);
-    ?>;
+async function obtenerDatosSalonPorFecha() {
+    const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+    const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+    return await response.json();
 }
         //----------------------------------------------------------------------------------------------------------------
         function tomarAsistencia() {
@@ -1781,7 +1775,7 @@ function obtenerDatosSalonPorFecha() {
                 }
 
                 // Mostrar mensaje de éxito
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green;">
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green">
             <i class="fas fa-check-circle"></i> Usuario con carnet ${carnet} eliminado correctamente
         </td></tr>`;
 
@@ -1872,19 +1866,28 @@ function obtenerDatosSalonPorFecha() {
             
             <div id="stats-results" class="stats-results">
                 <div class="placeholder-message">
+
                     <i class="fas fa-chart-pie"></i>
                     <p>Seleccione los parámetros para generar el reporte estadístico</p>
                 </div>
             </div>
             
-            <div id="stats-error" class="stats-error"></div>
+            <div id="stats-error" class="stats-error">
+                <!-- Aquí se mostrarán los mensajes de error -->
+            </div>
         </div>
     `;
 
-            // Establecer fechas por defecto (últimos 7 días)
+            // Inicializar select2 para los selects
+            $('#salon-select').select2({
+                placeholder: '-- Seleccione --',
+                allowClear: true
+            });
+
+            // Rango de fechas: últimos 7 días
             const hoy = new Date();
             const hace7Dias = new Date();
-            hace7Dias.setDate(hoy.getDate() - 7);
+            hace7Dias.setDate(hoy.getDate() - 6); // Desde hace 6 días hasta hoy
 
             document.getElementById('fecha-inicio').valueAsDate = hace7Dias;
             document.getElementById('fecha-fin').valueAsDate = hoy;
@@ -2435,7 +2438,6 @@ function obtenerDatosSalonPorFecha() {
     `;
             document.head.appendChild(styleElement);
         });
-
 
 
         // Inicializar cuando Chart.js esté cargado
