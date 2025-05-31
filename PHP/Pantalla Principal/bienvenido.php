@@ -43,6 +43,8 @@ $datosParaJS = [
     'ubicaciones' => $ubicacionesTransformadas,
     'usuarios' => [] // Array vacío por ahora
 ];
+
+
 ?>
 <!DOCTYPE html>
 <html lang="es">

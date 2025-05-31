@@ -407,4 +407,49 @@ function obtenerUbicacionesPorEdificio($idEdificio) {
         'ubicaciones' => $ubicaciones
     ];
 }
+
+function obtenerUbicacionesPorSalon($idSalon) {
+    global $conexion;
+
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+
+    $ubicaciones = [];
+
+    // Consulta para obtener todos los registros donde idSalon coincide, incluyendo el nombre del salón
+    $query = "SELECT 
+                b.idBusqueda, 
+                b.idEdificio, 
+                b.idPuerta, 
+                b.idSalon, 
+                b.Nivel, 
+                b.Ruta,
+                COALESCE(s.Area, '') AS salon
+            FROM Busqueda b
+            LEFT JOIN Salones s ON b.idSalon = s.idSalon
+            WHERE b.idSalon = ?";
+    $stmt = $conexion->prepare($query);
+    $stmt->bind_param("i", $idSalon);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $ubicaciones[] = [
+            'idBusqueda' => (int)$row['idBusqueda'],
+            'idEdificio' => (int)$row['idEdificio'],
+            'idPuerta'   => (int)$row['idPuerta'],
+            'idSalon'    => (int)$row['idSalon'],
+            'nivel'      => (int)$row['Nivel'],
+            'ruta'       => $row['Ruta'],
+            'salon'      => $row['salon'] // Ahora sí trae el nombre del salón
+        ];
+    }
+    $stmt->close();
+
+    return [
+        'ubicaciones' => $ubicaciones
+    ];
+}
 ?>
