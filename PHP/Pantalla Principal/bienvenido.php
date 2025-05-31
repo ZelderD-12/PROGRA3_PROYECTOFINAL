@@ -3,7 +3,8 @@ include '../Base de Datos/operaciones.php';
 $edificios = saberEdificios();
 $salones = saberSalones();
 
-function transformarUbicaciones($ubicacionesBD) {
+function transformarUbicaciones($ubicacionesBD)
+{
     $ubicacionesPlanas = [];
 
     if (isset($ubicacionesBD['ubicaciones'])) {
@@ -440,7 +441,7 @@ switch (tipoUsuario) {
         // Función para la configuración (nueva)
         function cambiarConfiguracion(tipo) {
             switch (tipo) {
-                 case 'Contraseñia':
+                case 'Contraseñia':
                     document.getElementById('info-content').innerHTML = `
                 <h3>Restablecer contraseñia</h3>
                 <p>Cambie su contraseñia.</p>
@@ -480,7 +481,7 @@ switch (tipoUsuario) {
         }
 
 
-
+        //Mostrar Tablas
         function mostrarInformacionAdmin(tipo) {
             // Muestra información específica para administradores
             document.getElementById('info-content').innerHTML = `
@@ -501,7 +502,7 @@ switch (tipoUsuario) {
                         <th>Seccion</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabla-usuarios-body">
                     <tr>
                         <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
                     </tr>
@@ -509,6 +510,17 @@ switch (tipoUsuario) {
             </table>
         </div>
     `;
+
+            // Hacer la petición al archivo PHP
+            fetch('../Base de Datos/obtener_usuarios.php?tipo=' + encodeURIComponent(tipo))
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('tabla-usuarios-body').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
+                    document.getElementById('tabla-usuarios-body').innerHTML = "<tr><td colspan='9' style='text-align:center;'>Error al cargar datos</td></tr>";
+                });
         }
         /*----------------------AQUI SE MUESTRA LO DE OPERACIONES----------------------------------------------- */
         // Función para cambiar configuración
@@ -739,80 +751,80 @@ switch (tipoUsuario) {
         function cargarCombobox(tipoReporte) {
             let opciones = [];
 
-    if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
-        opciones = edificiosBD.map(edificio => ({
-            id: edificio.idEdificio,      // <-- nombre correcto
-            nombre: edificio.Edificio     // <-- nombre correcto
-        }));
-    } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
-        opciones = salonesBD.map(salon => ({
-            id: salon.idSalon,
-            nombre: salon.Area
-        }));
-    } else {
-        return;
-    }
+            if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
+                opciones = edificiosBD.map(edificio => ({
+                    id: edificio.idEdificio, // <-- nombre correcto
+                    nombre: edificio.Edificio // <-- nombre correcto
+                }));
+            } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
+                opciones = salonesBD.map(salon => ({
+                    id: salon.idSalon,
+                    nombre: salon.Area
+                }));
+            } else {
+                return;
+            }
 
-    const comboBox = document.getElementById('report-options-select');
-    if (!comboBox) return;
+            const comboBox = document.getElementById('report-options-select');
+            if (!comboBox) return;
 
-    comboBox.innerHTML = '';
+            comboBox.innerHTML = '';
 
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'Seleccione una opción';
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    comboBox.appendChild(defaultOption);
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccione una opción';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            comboBox.appendChild(defaultOption);
 
-    opciones.forEach(opcion => {
-        const option = document.createElement('option');
-        option.value = opcion.id;
-        option.textContent = opcion.nombre;
-        comboBox.appendChild(option);
-    });
+            opciones.forEach(opcion => {
+                const option = document.createElement('option');
+                option.value = opcion.id;
+                option.textContent = opcion.nombre;
+                comboBox.appendChild(option);
+            });
 
-    comboBox.onchange = function() {
-        window.selectedCombo = {
-            id: this.value,
-            nombre: this.options[this.selectedIndex].text
-        };
-        // Guardar el edificio seleccionado globalmente
-        window.edificioSeleccionado = {
-            id: parseInt(this.value),
-            nombre: this.options[this.selectedIndex].text
-        };
-        console.log('Edificio seleccionado:', window.edificioSeleccionado);
-    };
-}
+            comboBox.onchange = function() {
+                window.selectedCombo = {
+                    id: this.value,
+                    nombre: this.options[this.selectedIndex].text
+                };
+                // Guardar el edificio seleccionado globalmente
+                window.edificioSeleccionado = {
+                    id: parseInt(this.value),
+                    nombre: this.options[this.selectedIndex].text
+                };
+                console.log('Edificio seleccionado:', window.edificioSeleccionado);
+            };
+        }
 
         // Función principal para mostrar reportes
         let fechaSeleccionada = ""; // Variable global para la fecha
 
-function mostrarReporte(tipo) {
-    const baseCSSPath = '../../CSS/avl-tree.css';
-    const baseJSPath = '../../Javascript/avl-tree.js';
+        function mostrarReporte(tipo) {
+            const baseCSSPath = '../../CSS/avl-tree.css';
+            const baseJSPath = '../../Javascript/avl-tree.js';
 
-    let contenido = '';
-    let containerId = '';
-    let fechaSelector = '';
-    let fechaHoy = new Date().toISOString().slice(0, 10);
+            let contenido = '';
+            let containerId = '';
+            let fechaSelector = '';
+            let fechaHoy = new Date().toISOString().slice(0, 10);
 
-    // Solo los reportes por fecha muestran el selector
-    if (tipo === 'fechaEntrada' || tipo === 'fechaSalon') {
-        fechaSelector = `
+            // Solo los reportes por fecha muestran el selector
+            if (tipo === 'fechaEntrada' || tipo === 'fechaSalon') {
+                fechaSelector = `
             <label for="fecha-reporte">Fecha:</label>
             <input type="date" id="fecha-reporte" onchange="fechaSeleccionada = this.value;" value="${fechaHoy}">
         `;
-    } else {
-        // Para los históricos, la fecha es la de hoy automáticamente
-        fechaSeleccionada = fechaHoy;
-    }
+            } else {
+                // Para los históricos, la fecha es la de hoy automáticamente
+                fechaSeleccionada = fechaHoy;
+            }
 
-    switch (tipo) {
-        case 'historicoEntrada':
-            containerId = 'avl-tree-historico';
-            contenido = `
+            switch (tipo) {
+                case 'historicoEntrada':
+                    containerId = 'avl-tree-historico';
+                    contenido = `
                 <h3>Reporte Histórico de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos históricos de ingresos (fecha: ${fechaHoy}).</p>
                 <div class="report-options">
@@ -823,10 +835,10 @@ function mostrarReporte(tipo) {
                 <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            break;
-        case 'fechaEntrada':
-            containerId = 'avl-tree-fecha';
-            contenido = `
+                    break;
+                case 'fechaEntrada':
+                    containerId = 'avl-tree-fecha';
+                    contenido = `
                 <h3>Reporte por Fecha de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos por fecha de ingresos.</p>
                 <div class="report-options">
@@ -838,10 +850,10 @@ function mostrarReporte(tipo) {
                 <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            break;
-        case 'historicoSalon':
-            containerId = 'avl-tree-salon-historico';
-            contenido = `
+                    break;
+                case 'historicoSalon':
+                    containerId = 'avl-tree-salon-historico';
+                    contenido = `
                 <h3>Reporte Histórico por Salón</h3>
                 <p>Visualización del árbol AVL con datos históricos por salón (fecha: ${fechaHoy}).</p>
                 <div class="report-options">
@@ -852,10 +864,10 @@ function mostrarReporte(tipo) {
                 <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            break;
-        case 'fechaSalon':
-            containerId = 'avl-tree-salon-fecha';
-            contenido = `
+                    break;
+                case 'fechaSalon':
+                    containerId = 'avl-tree-salon-fecha';
+                    contenido = `
                 <h3>Reporte por Fecha y Salón</h3>
                 <p>Visualización del árbol AVL con datos por fecha y salón.</p>
                 <div class="report-options">
@@ -867,34 +879,34 @@ function mostrarReporte(tipo) {
                 <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
-            break;
-        default:
-            contenido = `<h3>Reporte no encontrado</h3><p>El tipo de reporte solicitado no está disponible.</p>`;
-            break;
-    }
+                    break;
+                default:
+                    contenido = `<h3>Reporte no encontrado</h3><p>El tipo de reporte solicitado no está disponible.</p>`;
+                    break;
+            }
 
-    document.getElementById('info-content').innerHTML = contenido;
+            document.getElementById('info-content').innerHTML = contenido;
 
-    // Cargar las opciones del combo box dinámicamente según el tipo de reporte
-    cargarCombobox(tipo);
+            // Cargar las opciones del combo box dinámicamente según el tipo de reporte
+            cargarCombobox(tipo);
 
-    if (containerId) {
-        cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
-            console.log('Recursos AVL cargados.');
-        });
-    }
-}
+            if (containerId) {
+                cargarRecursosAVL(baseCSSPath, baseJSPath, () => {
+                    console.log('Recursos AVL cargados.');
+                });
+            }
+        }
 
         // Nueva función para manejar el evento del botón "Dibujar"
         function dibujarArbol(containerId, tipo) {
             if (tipo === 'historicoEntrada' && !window.edificioSeleccionado) {
-        alert('Por favor, selecciona un edificio.');
-        return;
-    }
-    const datos = obtenerDatosParaReporte(tipo);
-    const arbol = construirArbolDesdeDatos(datos, tipo);
-    dibujarArbolAVLCompleto(containerId, arbol);
-}
+                alert('Por favor, selecciona un edificio.');
+                return;
+            }
+            const datos = obtenerDatosParaReporte(tipo);
+            const arbol = construirArbolDesdeDatos(datos, tipo);
+            dibujarArbolAVLCompleto(containerId, arbol);
+        }
 
         // Función mejorada para cargar recursos
         function cargarRecursosAVL(cssPath, jsPath, callback) {
@@ -965,26 +977,26 @@ function mostrarReporte(tipo) {
         // Función para construir la estructura del árbol desde los datos
         function construirArbolDesdeDatos(datos, tipo) {
             // Solo para reportes históricos de entrada
-    if (tipo === 'historicoEntrada') {
-        const ubicaciones = datos.ubicaciones || [];
-        const usuarios = datos.usuarios || [];
-        let arbol = cargarUbicacionesArbol(ubicaciones);
-        arbol = agregarUsuariosArbol(arbol, usuarios);
+            if (tipo === 'historicoEntrada') {
+                const ubicaciones = datos.ubicaciones || [];
+                const usuarios = datos.usuarios || [];
+                let arbol = cargarUbicacionesArbol(ubicaciones);
+                arbol = agregarUsuariosArbol(arbol, usuarios);
 
-        // Si hay edificio seleccionado, la raíz es ese edificio
-        if (window.edificioSeleccionado && arbol.hijos) {
-            const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
-            if (edificioNodo) {
-                return edificioNodo; // Solo ese edificio como raíz
+                // Si hay edificio seleccionado, la raíz es ese edificio
+                if (window.edificioSeleccionado && arbol.hijos) {
+                    const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
+                    if (edificioNodo) {
+                        return edificioNodo; // Solo ese edificio como raíz
+                    }
+                }
+                // Si no hay selección, muestra todo
+                return {
+                    valor: "Ubicaciones",
+                    nivel: 0,
+                    hijos: arbol.hijos
+                };
             }
-        }
-        // Si no hay selección, muestra todo
-        return {
-            valor: "Ubicaciones",
-            nivel: 0,
-            hijos: arbol.hijos
-        };
-    }
             const comboBox = document.getElementById('report-options-select');
             const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
 
@@ -1090,7 +1102,9 @@ function mostrarReporte(tipo) {
                             id: item.idSalon,
                             valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
                             nivel: 3,
-                            data: { foto: IMG_PATHS.classroom },
+                            data: {
+                                foto: IMG_PATHS.classroom
+                            },
                             hijos: []
                         };
 
@@ -1133,7 +1147,9 @@ function mostrarReporte(tipo) {
                             id: item.idSalon,
                             valor: item.salon, // <-- Solo el nombre del salón, sin anteponer "Salón"
                             nivel: 3,
-                            data: { foto: IMG_PATHS.classroom },
+                            data: {
+                                foto: IMG_PATHS.classroom
+                            },
                             hijos: []
                         };
 
@@ -1161,138 +1177,160 @@ function mostrarReporte(tipo) {
         }
 
         function cargarUbicacionesArbol(datos) {
-    // Crea el árbol de ubicaciones: Edificio > Puerta > Nivel > Salón
-    const arbol = { hijos: [] };
-    datos.forEach(item => {
-        // Busca o crea el edificio
-        let edificio = arbol.hijos.find(e => e.id === item.idEdificio);
-        if (!edificio) {
-            edificio = {
-                id: item.idEdificio,
-                valor: item.edificio,
-                nivel: 0,
-                data: { foto: IMG_PATHS.edificio },
+            // Crea el árbol de ubicaciones: Edificio > Puerta > Nivel > Salón
+            const arbol = {
                 hijos: []
             };
-            arbol.hijos.push(edificio);
-        }
+            datos.forEach(item => {
+                // Busca o crea el edificio
+                let edificio = arbol.hijos.find(e => e.id === item.idEdificio);
+                if (!edificio) {
+                    edificio = {
+                        id: item.idEdificio,
+                        valor: item.edificio,
+                        nivel: 0,
+                        data: {
+                            foto: IMG_PATHS.edificio
+                        },
+                        hijos: []
+                    };
+                    arbol.hijos.push(edificio);
+                }
 
-        // Si no hay puerta, solo es edificio
-        if (!item.idPuerta || item.idPuerta === 0) return;
+                // Si no hay puerta, solo es edificio
+                if (!item.idPuerta || item.idPuerta === 0) return;
 
-        // Busca o crea la puerta
-        let puerta = edificio.hijos.find(p => p.id === item.idPuerta);
-        if (!puerta) {
-            puerta = {
-                id: item.idPuerta,
-                valor: item.puerta,
-                nivel: 1,
-                data: { foto: IMG_PATHS.door },
-                hijos: []
-            };
-            edificio.hijos.push(puerta);
-        }
+                // Busca o crea la puerta
+                let puerta = edificio.hijos.find(p => p.id === item.idPuerta);
+                if (!puerta) {
+                    puerta = {
+                        id: item.idPuerta,
+                        valor: item.puerta,
+                        nivel: 1,
+                        data: {
+                            foto: IMG_PATHS.door
+                        },
+                        hijos: []
+                    };
+                    edificio.hijos.push(puerta);
+                }
 
-        // Si no hay salón, solo es puerta (no crear nivel ni salón)
-        if (!item.idSalon || item.idSalon === 0) return;
+                // Si no hay salón, solo es puerta (no crear nivel ni salón)
+                if (!item.idSalon || item.idSalon === 0) return;
 
-        // Busca o crea el nivel
-        let nivel = puerta.hijos.find(n => n.id === item.nivel);
-        if (!nivel) {
-            nivel = {
-                id: item.nivel,
-                valor: `Nivel ${item.nivel}`,
-                nivel: 2,
-                data: { foto: IMG_PATHS.nivel(item.nivel) },
-                hijos: []
-            };
-            puerta.hijos.push(nivel);
-        }
+                // Busca o crea el nivel
+                let nivel = puerta.hijos.find(n => n.id === item.nivel);
+                if (!nivel) {
+                    nivel = {
+                        id: item.nivel,
+                        valor: `Nivel ${item.nivel}`,
+                        nivel: 2,
+                        data: {
+                            foto: IMG_PATHS.nivel(item.nivel)
+                        },
+                        hijos: []
+                    };
+                    puerta.hijos.push(nivel);
+                }
 
-        // Crea el salón solo si tiene nombre y id
-        let salon = nivel.hijos.find(s => s.id === item.idSalon);
-        if (!salon && item.salon) {
-            salon = {
-                id: item.idSalon,
-                valor: item.salon, // nombre real del salón
-                nivel: 3,
-                data: { foto: IMG_PATHS.classroom },
-                hijos: []
-            };
-            nivel.hijos.push(salon);
-        }
-    });
-    return arbol;
-}
-
-function agregarUsuariosArbol(arbol, usuarios) {
-    usuarios.forEach(usuario => {
-        // Buscar el edificio
-        const edificio = arbol.hijos.find(e => e.id === usuario.idEdificio);
-        if (!edificio) return;
-
-        // Si el usuario está a nivel de edificio (no tiene puerta)
-        if (!usuario.idPuerta || usuario.idPuerta === 0) {
-            edificio.hijos.push({
-                id: usuario.idUsuario,
-                valor: usuario.nombre,
-                nivel: 1,
-                data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
-                hijos: []
+                // Crea el salón solo si tiene nombre y id
+                let salon = nivel.hijos.find(s => s.id === item.idSalon);
+                if (!salon && item.salon) {
+                    salon = {
+                        id: item.idSalon,
+                        valor: item.salon, // nombre real del salón
+                        nivel: 3,
+                        data: {
+                            foto: IMG_PATHS.classroom
+                        },
+                        hijos: []
+                    };
+                    nivel.hijos.push(salon);
+                }
             });
-            return;
+            return arbol;
         }
 
-        // Buscar la puerta
-        const puerta = edificio.hijos.find(p => p.id === usuario.idPuerta);
-        if (!puerta) return;
+        function agregarUsuariosArbol(arbol, usuarios) {
+            usuarios.forEach(usuario => {
+                // Buscar el edificio
+                const edificio = arbol.hijos.find(e => e.id === usuario.idEdificio);
+                if (!edificio) return;
 
-        // Si el usuario está a nivel de puerta (no tiene salón)
-        if (!usuario.idSalon || usuario.idSalon === 0) {
-            // Si tiene nivel, buscar el nivel
-            if (usuario.nivel && usuario.nivel !== 0) {
-                const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
-                if (nivel) {
-                    nivel.hijos.push({
+                // Si el usuario está a nivel de edificio (no tiene puerta)
+                if (!usuario.idPuerta || usuario.idPuerta === 0) {
+                    edificio.hijos.push({
                         id: usuario.idUsuario,
                         valor: usuario.nombre,
-                        nivel: 3,
-                        data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
+                        nivel: 1,
+                        data: {
+                            ...usuario,
+                            foto: usuario.foto || IMG_PATHS.user
+                        },
                         hijos: []
                     });
                     return;
                 }
-            }
-            // Si no tiene nivel, va en la puerta
-            puerta.hijos.push({
-                id: usuario.idUsuario,
-                valor: usuario.nombre,
-                nivel: 2,
-                data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
-                hijos: []
+
+                // Buscar la puerta
+                const puerta = edificio.hijos.find(p => p.id === usuario.idPuerta);
+                if (!puerta) return;
+
+                // Si el usuario está a nivel de puerta (no tiene salón)
+                if (!usuario.idSalon || usuario.idSalon === 0) {
+                    // Si tiene nivel, buscar el nivel
+                    if (usuario.nivel && usuario.nivel !== 0) {
+                        const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
+                        if (nivel) {
+                            nivel.hijos.push({
+                                id: usuario.idUsuario,
+                                valor: usuario.nombre,
+                                nivel: 3,
+                                data: {
+                                    ...usuario,
+                                    foto: usuario.foto || IMG_PATHS.user
+                                },
+                                hijos: []
+                            });
+                            return;
+                        }
+                    }
+                    // Si no tiene nivel, va en la puerta
+                    puerta.hijos.push({
+                        id: usuario.idUsuario,
+                        valor: usuario.nombre,
+                        nivel: 2,
+                        data: {
+                            ...usuario,
+                            foto: usuario.foto || IMG_PATHS.user
+                        },
+                        hijos: []
+                    });
+                    return;
+                }
+
+                // Buscar el nivel
+                const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
+                if (!nivel) return;
+
+                // Buscar el salón
+                const salon = nivel.hijos.find(s => s.id === usuario.idSalon);
+                if (!salon) return;
+
+                // Usuario en el salón
+                salon.hijos.push({
+                    id: usuario.idUsuario,
+                    valor: usuario.nombre,
+                    nivel: 4,
+                    data: {
+                        ...usuario,
+                        foto: usuario.foto || IMG_PATHS.user
+                    },
+                    hijos: []
+                });
             });
-            return;
+            return arbol;
         }
-
-        // Buscar el nivel
-        const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
-        if (!nivel) return;
-
-        // Buscar el salón
-        const salon = nivel.hijos.find(s => s.id === usuario.idSalon);
-        if (!salon) return;
-
-        // Usuario en el salón
-        salon.hijos.push({
-            id: usuario.idUsuario,
-            valor: usuario.nombre,
-            nivel: 4,
-            data: { ...usuario, foto: usuario.foto || IMG_PATHS.user },
-            hijos: []
-        });
-    });
-    return arbol;
-}
         // Configuración mejorada del árbol
         const TREE_CONFIG = {
             NODE_RADIUS: 35,
@@ -1392,20 +1430,20 @@ function agregarUsuariosArbol(arbol, usuarios) {
             // Función mejorada para manejar imágenes
             async function cargarImagenSegura(ruta) {
                 const rutasPosibles = [
-        ruta,
-        `/${ruta}`,
-        `../${ruta}`,
-        `../../${ruta}`,
-        IMG_PATHS.user,
-        'https://via.placeholder.com/100?text=Usuario'
-    ];
-    for (const posibleRuta of rutasPosibles) {
-        try {
-            const existe = await verificarImagen(posibleRuta);
-            if (existe) return posibleRuta;
-        } catch (e) {}
-    }
-    return IMG_PATHS.user;
+                    ruta,
+                    `/${ruta}`,
+                    `../${ruta}`,
+                    `../../${ruta}`,
+                    IMG_PATHS.user,
+                    'https://via.placeholder.com/100?text=Usuario'
+                ];
+                for (const posibleRuta of rutasPosibles) {
+                    try {
+                        const existe = await verificarImagen(posibleRuta);
+                        if (existe) return posibleRuta;
+                    } catch (e) {}
+                }
+                return IMG_PATHS.user;
             }
 
             async function verificarImagen(url) {
@@ -1517,8 +1555,8 @@ function agregarUsuariosArbol(arbol, usuarios) {
 
                 // Evento para mostrar el recuadro con el nombre del nodo
                 nodeGroup.addEventListener('click', function(e) {
-    mostrarInfoNodoArbol(e, nodo.valor);
-});
+                    mostrarInfoNodoArbol(e, nodo.valor);
+                });
 
                 // Imagen del nodo
                 let imagenUrl = 'imagenes/IMG/users/user1.png';
@@ -1568,8 +1606,8 @@ function agregarUsuariosArbol(arbol, usuarios) {
 
                 // Evento para mostrar el recuadro con el nombre del nodo
                 nodeGroup.addEventListener('click', function(e) {
-    mostrarInfoNodoArbol(e, nodo.valor);
-});
+                    mostrarInfoNodoArbol(e, nodo.valor);
+                });
 
                 // Dibujar hijos recursivamente
                 if (nodo.hijos) {
@@ -1636,7 +1674,7 @@ function agregarUsuariosArbol(arbol, usuarios) {
 
         // Funciones para obtener datos (se mantienen iguales)
         function obtenerDatosHistorico() {
-          return <?php echo json_encode($datosParaJS, JSON_PRETTY_PRINT); ?>;
+            return <?php echo json_encode($datosParaJS, JSON_PRETTY_PRINT); ?>;
         }
 
         function obtenerDatosPorFecha() {
@@ -1758,28 +1796,28 @@ function agregarUsuariosArbol(arbol, usuarios) {
     `;
         }
 
-const IMG_PATHS = {
-    nivel: num => `../../imagenes/IMG/level/nivel${num}.png`,
-    classroom: "../../imagenes/IMG/objetos/classroom.jpg",
-    door: "../../imagenes/IMG/objetos/door.jpg",
-    edificio: "../../imagenes/IMG/objetos/edificio.jpeg",
-    user: "../../imagenes/IMG/users/user1.png"
-};
+        const IMG_PATHS = {
+            nivel: num => `../../imagenes/IMG/level/nivel${num}.png`,
+            classroom: "../../imagenes/IMG/objetos/classroom.jpg",
+            door: "../../imagenes/IMG/objetos/door.jpg",
+            edificio: "../../imagenes/IMG/objetos/edificio.jpeg",
+            user: "../../imagenes/IMG/users/user1.png"
+        };
 
-function gestionarUsuarios(accion) {
-    // Botón adicional según acción
-    let botonExtra = "";
-    if (accion.toLowerCase() === "eliminar") {
-        botonExtra = `
+        function gestionarUsuarios(accion) {
+            // Botón adicional según acción
+            let botonExtra = "";
+            if (accion.toLowerCase() === "eliminar") {
+                botonExtra = `
             <button id="btn-eliminar" class="btn-eliminar" disabled>
                 <i class="fas fa-trash-alt"></i> ELIMINAR
             </button>
         `;
-    } else if (accion.toLowerCase() === "agregar") {
-        botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
-    }
-    
-    document.getElementById('info-content').innerHTML = `
+            } else if (accion.toLowerCase() === "agregar") {
+                botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
+            }
+
+            document.getElementById('info-content').innerHTML = `
         <h3>Administración de Usuarios - ${accion}</h3>
         <p>Realizando acción: ${accion}.</p>
         <div class="usuarios-container">
@@ -1814,48 +1852,48 @@ function gestionarUsuarios(accion) {
         </div>
     `;
 
-    // Configurar evento de eliminación si es la acción correspondiente
-    if (accion.toLowerCase() === "eliminar") {
-        document.getElementById('btn-eliminar').addEventListener('click', eliminarUsuario);
-    }
-}
-
-let usuarioActual = null;
-
-async function buscarUsuario(accion) {
-    const carnet = document.getElementById('carnet').value.trim();
-    const tbody = document.getElementById('usuarios-tbody');
-    const btnEliminar = document.getElementById('btn-eliminar');
-    
-    if (!carnet) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Por favor ingrese un carnet</td></tr>`;
-        if (btnEliminar) btnEliminar.disabled = true;
-        return;
-    }
-    
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Buscando usuario...</td></tr>`;
-    
-    try {
-        const response = await fetch(`../Base de datos/buscar_usuario.php?carnet=${encodeURIComponent(carnet)}`);
-        const data = await response.json();
-        
-        if (data.error) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
-            if (btnEliminar) btnEliminar.disabled = true;
-            return;
+            // Configurar evento de eliminación si es la acción correspondiente
+            if (accion.toLowerCase() === "eliminar") {
+                document.getElementById('btn-eliminar').addEventListener('click', eliminarUsuario);
+            }
         }
-        
-        if (!data.usuarios || data.usuarios.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No se encontraron usuarios con ese carnet</td></tr>`;
-            if (btnEliminar) btnEliminar.disabled = true;
-            return;
-        }
-        
-        // Guardar usuario encontrado para posible eliminación
-        usuarioActual = data.usuarios[0];
-        
-        // Mostrar resultados en la tabla
-        tbody.innerHTML = data.usuarios.map((usuario, index) => `
+
+        let usuarioActual = null;
+
+        async function buscarUsuario(accion) {
+            const carnet = document.getElementById('carnet').value.trim();
+            const tbody = document.getElementById('usuarios-tbody');
+            const btnEliminar = document.getElementById('btn-eliminar');
+
+            if (!carnet) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Por favor ingrese un carnet</td></tr>`;
+                if (btnEliminar) btnEliminar.disabled = true;
+                return;
+            }
+
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Buscando usuario...</td></tr>`;
+
+            try {
+                const response = await fetch(`../Base de datos/buscar_usuario.php?carnet=${encodeURIComponent(carnet)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+                    if (btnEliminar) btnEliminar.disabled = true;
+                    return;
+                }
+
+                if (!data.usuarios || data.usuarios.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No se encontraron usuarios con ese carnet</td></tr>`;
+                    if (btnEliminar) btnEliminar.disabled = true;
+                    return;
+                }
+
+                // Guardar usuario encontrado para posible eliminación
+                usuarioActual = data.usuarios[0];
+
+                // Mostrar resultados en la tabla
+                tbody.innerHTML = data.usuarios.map((usuario, index) => `
             <tr>
                 <td>${index + 1}</td>
                 <td>${usuario.Carnet_Usuario}</td>
@@ -1868,68 +1906,68 @@ async function buscarUsuario(accion) {
                 <td>${usuario.Seccion_Usuario}</td>
             </tr>
         `).join('');
-        
-        // Habilitar botón de eliminar si estamos en esa acción
-        if (btnEliminar) {
-            btnEliminar.disabled = false;
-            btnEliminar.setAttribute('data-carnet', usuarioActual.Carnet_Usuario);
-        }
-        
-    } catch (error) {
-        console.error('Error al buscar usuario:', error);
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
-        if (btnEliminar) btnEliminar.disabled = true;
-    }
-}
 
-async function eliminarUsuario() {
-    const carnet = this.getAttribute('data-carnet');
-    const tbody = document.getElementById('usuarios-tbody');
-    const btnEliminar = document.getElementById('btn-eliminar');
-    
-    if (!carnet || !confirm(`¿Está seguro que desea eliminar al usuario con carnet ${carnet}?`)) {
-        return;
-    }
-    
-    btnEliminar.disabled = true;
-    btnEliminar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Eliminando usuario...</td></tr>`;
-    
-    try {
-        const response = await fetch('../Base de datos/eliminar_usuario.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `carnet=${encodeURIComponent(carnet)}`
-        });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
-            btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
-            return;
+                // Habilitar botón de eliminar si estamos en esa acción
+                if (btnEliminar) {
+                    btnEliminar.disabled = false;
+                    btnEliminar.setAttribute('data-carnet', usuarioActual.Carnet_Usuario);
+                }
+
+            } catch (error) {
+                console.error('Error al buscar usuario:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+                if (btnEliminar) btnEliminar.disabled = true;
+            }
         }
-        
-        // Mostrar mensaje de éxito
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green;">
+
+        async function eliminarUsuario() {
+            const carnet = this.getAttribute('data-carnet');
+            const tbody = document.getElementById('usuarios-tbody');
+            const btnEliminar = document.getElementById('btn-eliminar');
+
+            if (!carnet || !confirm(`¿Está seguro que desea eliminar al usuario con carnet ${carnet}?`)) {
+                return;
+            }
+
+            btnEliminar.disabled = true;
+            btnEliminar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Eliminando usuario...</td></tr>`;
+
+            try {
+                const response = await fetch('../Base de datos/eliminar_usuario.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `carnet=${encodeURIComponent(carnet)}`
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+                    btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                    return;
+                }
+
+                // Mostrar mensaje de éxito
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green;">
             <i class="fas fa-check-circle"></i> Usuario con carnet ${carnet} eliminado correctamente
         </td></tr>`;
-        
-        // Resetear el formulario
-        document.getElementById('carnet').value = '';
-        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
-        btnEliminar.disabled = true;
-        usuarioActual = null;
-        
-    } catch (error) {
-        console.error('Error al eliminar usuario:', error);
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
-        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
-        btnEliminar.disabled = false;
-    }
-}
+
+                // Resetear el formulario
+                document.getElementById('carnet').value = '';
+                btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                btnEliminar.disabled = true;
+                usuarioActual = null;
+
+            } catch (error) {
+                console.error('Error al eliminar usuario:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+                btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                btnEliminar.disabled = false;
+            }
+        }
 
         function abrirRegistroGeneral() {
             // Muestra el registro general
@@ -2070,7 +2108,7 @@ async function eliminarUsuario() {
                         throw new Error(`Error del servidor: ${response.status}`);
                     }
                     return response.json();
-                               })
+                })
                 .then(data => {
                     if (data.error) {
                         throw new Error(data.error);
@@ -2619,157 +2657,157 @@ async function eliminarUsuario() {
 
     <script>
         function mostrarInfoUsuario(event, data, imagenUrl) {
-    event.stopPropagation();
+            event.stopPropagation();
 
-    // Elimina overlay anterior si existe
-    const oldOverlay = document.getElementById('usuario-info-overlay');
-    if (oldOverlay) oldOverlay.remove();
+            // Elimina overlay anterior si existe
+            const oldOverlay = document.getElementById('usuario-info-overlay');
+            if (oldOverlay) oldOverlay.remove();
 
-    // Overlay semitransparente
-    const overlay = document.createElement('div');
-    overlay.id = 'usuario-info-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.4)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = 2000;
+            // Overlay semitransparente
+            const overlay = document.createElement('div');
+            overlay.id = 'usuario-info-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0,0,0,0.4)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = 2000;
 
-    // Cuadro blanco centrado
-    const infoBox = document.createElement('div');
-    infoBox.style.background = '#fff';
-    infoBox.style.borderRadius = '12px';
-    infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
-    infoBox.style.padding = '32px 32px 32px 24px';
-    infoBox.style.width = '350px';
-    infoBox.style.display = 'flex';
-    infoBox.style.flexDirection = 'column';
-    infoBox.style.alignItems = 'center';
-    infoBox.style.position = 'relative';
+            // Cuadro blanco centrado
+            const infoBox = document.createElement('div');
+            infoBox.style.background = '#fff';
+            infoBox.style.borderRadius = '12px';
+            infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+            infoBox.style.padding = '32px 32px 32px 24px';
+            infoBox.style.width = '350px';
+            infoBox.style.display = 'flex';
+            infoBox.style.flexDirection = 'column';
+            infoBox.style.alignItems = 'center';
+            infoBox.style.position = 'relative';
 
-    // Imagen grande
-    const img = document.createElement('img');
-    img.src = imagenUrl;
-    img.alt = 'Foto de perfil';
-    img.style.width = '120px';
-    img.style.height = '120px';
-    img.style.borderRadius = '50%';
-    img.style.objectFit = 'cover';
-    img.style.marginBottom = '18px';
-    infoBox.appendChild(img);
+            // Imagen grande
+            const img = document.createElement('img');
+            img.src = imagenUrl;
+            img.alt = 'Foto de perfil';
+            img.style.width = '120px';
+            img.style.height = '120px';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            img.style.marginBottom = '18px';
+            infoBox.appendChild(img);
 
-    // Nombre y apellidos
-    const nombre = document.createElement('div');
-    nombre.textContent = (data.nombre || '') + (data.apellidos ? ' ' + data.apellidos : '');
-    nombre.style.fontWeight = 'bold';
-    nombre.style.fontSize = '20px';
-    nombre.style.marginBottom = '8px';
-    infoBox.appendChild(nombre);
+            // Nombre y apellidos
+            const nombre = document.createElement('div');
+            nombre.textContent = (data.nombre || '') + (data.apellidos ? ' ' + data.apellidos : '');
+            nombre.style.fontWeight = 'bold';
+            nombre.style.fontSize = '20px';
+            nombre.style.marginBottom = '8px';
+            infoBox.appendChild(nombre);
 
-    // Hora de entrada
-    const hora = document.createElement('div');
-    hora.innerHTML = `<b>Hora de entrada:</b> ${data.hora || ''}`;
-    hora.style.marginBottom = '6px';
-    infoBox.appendChild(hora);
+            // Hora de entrada
+            const hora = document.createElement('div');
+            hora.innerHTML = `<b>Hora de entrada:</b> ${data.hora || ''}`;
+            hora.style.marginBottom = '6px';
+            infoBox.appendChild(hora);
 
-    // Fecha (hoy)
-    const fecha = document.createElement('div');
-    const hoy = new Date().toISOString().slice(0, 10);
-    fecha.innerHTML = `<b>Fecha:</b> ${hoy}`;
-    infoBox.appendChild(fecha);
+            // Fecha (hoy)
+            const fecha = document.createElement('div');
+            const hoy = new Date().toISOString().slice(0, 10);
+            fecha.innerHTML = `<b>Fecha:</b> ${hoy}`;
+            infoBox.appendChild(fecha);
 
-    // Botón cerrar
-    const btnCerrar = document.createElement('button');
-    btnCerrar.textContent = 'Cerrar';
-    btnCerrar.style.marginTop = '24px';
-    btnCerrar.style.padding = '8px 24px';
-    btnCerrar.style.background = '#2196F3';
-    btnCerrar.style.color = '#fff';
-    btnCerrar.style.border = 'none';
-    btnCerrar.style.borderRadius = '6px';
-    btnCerrar.style.cursor = 'pointer';
-    btnCerrar.onclick = () => overlay.remove();
-    infoBox.appendChild(btnCerrar);
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = 'Cerrar';
+            btnCerrar.style.marginTop = '24px';
+            btnCerrar.style.padding = '8px 24px';
+            btnCerrar.style.background = '#2196F3';
+            btnCerrar.style.color = '#fff';
+            btnCerrar.style.border = 'none';
+            btnCerrar.style.borderRadius = '6px';
+            btnCerrar.style.cursor = 'pointer';
+            btnCerrar.onclick = () => overlay.remove();
+            infoBox.appendChild(btnCerrar);
 
-    overlay.appendChild(infoBox);
-    document.body.appendChild(overlay);
+            overlay.appendChild(infoBox);
+            document.body.appendChild(overlay);
 
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
-}
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
 
-function mostrarInfoNodoArbol(event, nombreNodo) {
-    event.stopPropagation();
+        function mostrarInfoNodoArbol(event, nombreNodo) {
+            event.stopPropagation();
 
-    // Elimina overlay anterior si existe
-    const oldOverlay = document.getElementById('info-nodo-arbol-overlay');
-    if (oldOverlay) oldOverlay.remove();
+            // Elimina overlay anterior si existe
+            const oldOverlay = document.getElementById('info-nodo-arbol-overlay');
+            if (oldOverlay) oldOverlay.remove();
 
-    // Overlay semitransparente
-    const overlay = document.createElement('div');
-    overlay.id = 'info-nodo-arbol-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.4)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = 2100;
+            // Overlay semitransparente
+            const overlay = document.createElement('div');
+            overlay.id = 'info-nodo-arbol-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0,0,0,0.4)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = 2100;
 
-    // Cuadro blanco centrado
-    const infoBox = document.createElement('div');
-    infoBox.style.background = '#fff';
-    infoBox.style.borderRadius = '12px';
-    infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
-    infoBox.style.padding = '32px 32px 32px 24px';
-    infoBox.style.width = '350px';
-    infoBox.style.display = 'flex';
-    infoBox.style.flexDirection = 'column';
-    infoBox.style.alignItems = 'center';
-    infoBox.style.position = 'relative';
+            // Cuadro blanco centrado
+            const infoBox = document.createElement('div');
+            infoBox.style.background = '#fff';
+            infoBox.style.borderRadius = '12px';
+            infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+            infoBox.style.padding = '32px 32px 32px 24px';
+            infoBox.style.width = '350px';
+            infoBox.style.display = 'flex';
+            infoBox.style.flexDirection = 'column';
+            infoBox.style.alignItems = 'center';
+            infoBox.style.position = 'relative';
 
-    // Nombre del nodo
-    const nombre = document.createElement('div');
-    nombre.textContent = nombreNodo;
-    nombre.style.fontWeight = 'bold';
-    nombre.style.fontSize = '20px';
-    nombre.style.marginBottom = '8px';
-    nombre.style.textAlign = 'center';
-    infoBox.appendChild(nombre);
+            // Nombre del nodo
+            const nombre = document.createElement('div');
+            nombre.textContent = nombreNodo;
+            nombre.style.fontWeight = 'bold';
+            nombre.style.fontSize = '20px';
+            nombre.style.marginBottom = '8px';
+            nombre.style.textAlign = 'center';
+            infoBox.appendChild(nombre);
 
-    // Botón cerrar
-    const btnCerrar = document.createElement('button');
-    btnCerrar.textContent = 'Cerrar';
-    btnCerrar.style.marginTop = '24px';
-    btnCerrar.style.padding = '8px 24px';
-    btnCerrar.style.background = '#2196F3';
-    btnCerrar.style.color = '#fff';
-    btnCerrar.style.border = 'none';
-    btnCerrar.style.borderRadius = '6px';
-    btnCerrar.style.cursor = 'pointer';
-    btnCerrar.onclick = () => overlay.remove();
-    infoBox.appendChild(btnCerrar);
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = 'Cerrar';
+            btnCerrar.style.marginTop = '24px';
+            btnCerrar.style.padding = '8px 24px';
+            btnCerrar.style.background = '#2196F3';
+            btnCerrar.style.color = '#fff';
+            btnCerrar.style.border = 'none';
+            btnCerrar.style.borderRadius = '6px';
+            btnCerrar.style.cursor = 'pointer';
+            btnCerrar.onclick = () => overlay.remove();
+            infoBox.appendChild(btnCerrar);
 
-    overlay.appendChild(infoBox);
-    document.body.appendChild(overlay);
+            overlay.appendChild(infoBox);
+            document.body.appendChild(overlay);
 
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
-    });
-}
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
 
-// Obtener y mostrar los datos de ubicaciones y usuarios en consola
-const datos = obtenerDatosHistorico();
-console.log("Ubicaciones:", datos.ubicaciones);
-console.log("Usuarios:", datos.usuarios); // Array vacío por ahora
+        // Obtener y mostrar los datos de ubicaciones y usuarios en consola
+        const datos = obtenerDatosHistorico();
+        console.log("Ubicaciones:", datos.ubicaciones);
+        console.log("Usuarios:", datos.usuarios); // Array vacío por ahora
     </script>
 </body>
 
