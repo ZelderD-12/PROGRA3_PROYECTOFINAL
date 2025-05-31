@@ -138,7 +138,7 @@ $datosParaJS = [
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Profesores')">
-                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Profesores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
                                 <i class="fas fa-user-graduate"></i> Vista Estudiantes
@@ -330,13 +330,13 @@ $datosParaJS = [
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
-                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Profesores')">
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Profesores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
                                 <i class="fas fa-user-graduate"></i> Vista Estudiantes
                             </a>
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administrador')">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administradores')">
                                 <i class="fas fa-user-shield"></i> Vista Administradores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Desarrolladores')">
