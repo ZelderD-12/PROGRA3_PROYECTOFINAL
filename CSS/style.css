@@ -1694,5 +1694,218 @@ h2::after {
     transform: none;
   }
 }
+/* ========== FORMULARIO DE REGISTRO NEO-TECH ========== */
+.register-container {
+  background: rgba(26, 29, 43, 0.9);
+  padding: 2.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--light-void);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 420px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
 
+.register-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid transparent;
+  border-image: linear-gradient(135deg, 
+    transparent 20%, 
+    var(--neon-accent) 50%, 
+    transparent 80%) 1;
+  pointer-events: none;
+  animation: borderPulse 6s infinite linear;
+}
+
+.register-title {
+  margin: 0 0 1.8rem 0;
+  font-size: 1.8rem;
+  color: var(--neon-accent);
+  text-align: center;
+  position: relative;
+  animation: slideInDown 0.6s ease-out forwards;
+}
+
+.register-title::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ========== CAMPOS DEL FORMULARIO ========== */
+.register-field {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  width: 100%;
+  border: 1px solid var(--light-void);
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: rgba(26, 29, 43, 0.8);
+  color: var(--text-primary);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.register-field::placeholder {
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.register-field:focus {
+  border-color: var(--neon-accent);
+  outline: none;
+  box-shadow: var(--border-glow);
+}
+
+/* Select personalizado */
+.register-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8d0'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+}
+
+/* ========== BOTONES DE REGISTRO ========== */
+.register-btn {
+  margin: 1.8rem 0 1rem;
+  padding: 1rem;
+  border: none;
+  color: var(--deep-space);
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: var(--transition);
+  background: linear-gradient(135deg, var(--neon-accent), var(--neon-blue));
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.register-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  transition: 0.6s;
+}
+
+.register-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 200, 208, 0.4);
+}
+
+.register-btn:hover::before {
+  left: 100%;
+}
+
+.secondary-btn {
+  background: transparent;
+  color: var(--neon-accent);
+  border: 1px solid var(--neon-accent);
+  margin-top: 0.5rem;
+}
+
+.secondary-btn:hover {
+  background: rgba(0, 200, 208, 0.1);
+}
+
+/* ========== SECCIÓN DE CÁMARA ========== */
+.camera-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px dashed var(--light-void);
+  border-radius: 4px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.camera-section:hover {
+  border-color: var(--neon-accent);
+}
+
+.camera-preview {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background-color: var(--tech-gray);
+  border: 2px solid var(--light-void);
+  overflow: hidden;
+  position: relative;
+}
+
+.camera-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.camera-btn {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--tech-gray);
+  color: var(--neon-accent);
+  border: 1px solid var(--neon-accent);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.camera-btn:hover {
+  background: rgba(0, 200, 208, 0.1);
+  box-shadow: 0 0 10px rgba(0, 200, 208, 0.2);
+}
+
+/* ========== ANIMACIONES ========== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes borderPulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
 

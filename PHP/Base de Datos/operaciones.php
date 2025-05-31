@@ -126,8 +126,11 @@ if (isset($_POST['login'])) {
         exit();
     }
 }
-//REGISTRAR NUEVO USUARIO
+
+
+// REGISTRAR NUEVO USUARIO (updated with new fields)
 if (isset($_POST['registrar'])) {
+    // Basic information
     $carnet = trim($_POST['carnet']);
     $_SESSION['carnetusuario'] = $carnet;
     $nombres = trim($_POST['nombres']);
@@ -135,11 +138,25 @@ if (isset($_POST['registrar'])) {
     $password = trim($_POST['password']);
     $celular = trim($_POST['celular']);
     $email = trim($_POST['email']);
-    $foto = trim($_POST['foto']);
-    $foto = preg_replace('/^data:image\/\w+;base64,/', '', $foto);
     $seccion = trim($_POST['seccion']);
+    
+    // Process photo (handle both base64 and file upload)
+    $foto = '';
+    if (isset($_POST['foto'])) {
+        $foto = trim($_POST['foto']);
+        $foto = preg_replace('/^data:image\/\w+;base64,/', '', $foto);
+    } elseif (isset($_FILES['foto'])) {
+        $foto_tmp = $_FILES['foto']['tmp_name'];
+        $foto = base64_encode(file_get_contents($foto_tmp));
+    }
 
+    // New facial recognition fields (with null checks)
+    $descriptor_facial = isset($_POST['descriptor_facial']) ? json_encode($_POST['descriptor_facial']) : NULL;
+    $puntos_faciales = isset($_POST['puntos_faciales']) ? json_encode($_POST['puntos_faciales']) : NULL;
+    $imagen_referencia = isset($_POST['imagen_referencia']) ? $_POST['imagen_referencia'] : NULL;
+    $angulo_captura = isset($_POST['angulo_captura']) ? $_POST['angulo_captura'] : NULL;
 
+    // Get user type and career
     $tipouser = array_search($_POST['tipouser'], $tipos_usuario);
     $carrera = array_search($_POST['carrera'], $carreras);
 
@@ -150,27 +167,45 @@ if (isset($_POST['registrar'])) {
     $indicetipouser = $idtiposusuario[$tipouser];
     $indicecarrera = $idcarreras[$carrera];
 
-    // Verificar que los campos no estén vacíos
+    // Validate all required fields
     if (
         !empty($carnet) && !empty($nombres) && !empty($apellidos) && !empty($password) &&
         !empty($celular) && !empty($email) && !empty($foto) &&
         isset($indicetipouser) && isset($indicecarrera) && !empty($seccion)
     ) {
-        $stmt = $conexion->prepare("CALL RegistrarUsuarios(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        // Prepare the call to the stored procedure with all new fields
+        $stmt = $conexion->prepare("CALL RegistrarUsuariosCompleto(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         if (!$stmt) {
             die("❌ Error en la preparación de la consulta: " . $conexion->error);
         }
-        $stmt->bind_param("sssssssiis", $carnet, $nombres, $apellidos, $password, $celular, $email, $foto, $indicetipouser, $indicecarrera, $seccion);
+        
+        // Bind all parameters including the new ones
+        $stmt->bind_param("sssssssiisssss", 
+            $carnet, 
+            $nombres, 
+            $apellidos, 
+            $password, 
+            $celular, 
+            $email, 
+            $foto,
+            $indicetipouser,
+            $indicecarrera,
+            $seccion,
+            $descriptor_facial,
+            $puntos_faciales,
+            $imagen_referencia,
+            $angulo_captura
+        );
 
         try {
             if ($stmt->execute()) {
                 echo "✅ Usuario insertado correctamente.";
 
-                // Preparar datos para enviar_pdf.php
+                // Prepare data for PDF (including facial recognition info)
                 $datosPDF = [
                     'email' => $email,
-                    'fotoData' => $_POST['foto'], // La foto base64 desde el formulario
+                    'fotoData' => $_POST['foto'] ?? $foto,
                     'carnet' => $carnet,
                     'nombres' => $nombres,
                     'apellidos' => $apellidos,
@@ -178,11 +213,11 @@ if (isset($_POST['registrar'])) {
                     'tipo' => $_POST['tipouser'],
                     'carrera' => $_POST['carrera'],
                     'seccion' => $seccion,
-                    'fecha_hora_navegador' => $_POST['fecha_hora_navegador'] ?? ''
+                    'fecha_hora_navegador' => $_POST['fecha_hora_navegador'] ?? '',
+                    'facial_registered' => ($descriptor_facial !== NULL) ? 'Sí' : 'No'
                 ];
 
                 include(__DIR__ . '/../Registro/enviar_pdf.php');
-
 
                 $resultado = generarYEnviarPDF($datosPDF);
                 if ($resultado === true) {
@@ -199,27 +234,22 @@ if (isset($_POST['registrar'])) {
             echo "❌ Error al registrar usuario: " . $e->getMessage() . " - Código de error: " . $stmt->errno;
         }
 
-        // Cerrar conexión
         $stmt->close();
     } else {
-        echo "⚠️ Por favor, rellena todos los campos.";
+        echo "⚠️ Por favor, rellena todos los campos obligatorios.";
     }
 }
 
-// Función para mostrar imagen desde base64 usando el SP Obtener64
+// Función para mostrar imagen desde base64 usando el SP Obtener64 (unchanged)
 function mostrarImagenDesdeSP($carnetUsuario)
 {
-    // Requiere acceso a $conexion
     global $conexion;
 
-    // Llamar al procedimiento almacenado con el parámetro IN y OUT
     $conexion->query("CALL Obtener64('$carnetUsuario', @base64)");
-    // Procesar resultados adicionales para liberar el SP anterior
     while ($conexion->more_results()) {
         $conexion->next_result();
     }
 
-    // Obtener el valor OUT
     $resultado = $conexion->query("SELECT @base64 AS imagen_base64");
 
     if ($resultado && $fila = $resultado->fetch_assoc()) {
@@ -232,7 +262,8 @@ function mostrarImagenDesdeSP($carnetUsuario)
     } else {
         echo '❌ Error al obtener la imagen desde el procedimiento almacenado.';
     }
-}
+} 
+
 //******AQUI IMPLEMENTO LOS SP NUEVOS************************************* */
 function obtenerNombreCarrera($idCarrera) {
     // Usar los datos que ya están cargados en sesión
