@@ -59,6 +59,48 @@ $datosParaJS = [
         const edificiosBD = <?php echo json_encode($edificios); ?>;
         const salonesBD = <?php echo json_encode($salones); ?>;
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .datos-usuario-container {
+            font-family: Arial, sans-serif;
+            max-width: 750px;
+            margin: 0 auto;
+            font-size: 12px;
+            line-height: 1.3;
+            padding: 10px;
+        }
+
+        .perfil-usuario {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .foto-perfil img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .info-personal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-dato {
+            margin-bottom: 4px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+
+
+
     <script>
         // Verificar autenticación
         document.addEventListener('DOMContentLoaded', function() {
@@ -82,7 +124,7 @@ $datosParaJS = [
                 const mensajeDiv = document.getElementById('mensaje-tipo');
                 const panelBotones = document.getElementById('panel-botones');
 
-switch (tipoUsuario) {
+                switch (tipoUsuario) {
                     case 1: // Administrador
                         mensajeDiv.innerHTML = "<strong>Eres un Administrador</strong>. Tienes acceso completo al sistema.";
                         panelBotones.innerHTML = `
@@ -540,7 +582,7 @@ switch (tipoUsuario) {
                 if (usuarioData) {
                     // Primero mostramos los datos que ya tenemos
                     infoContent.innerHTML = `
-                <div class="datos-usuario-container">
+                    <div class="datos-usuario-container">
                     <h3>Datos Usuario</h3>
                     
                     <div class="perfil-usuario">
@@ -582,16 +624,20 @@ switch (tipoUsuario) {
                         </div>
                     </div>
                     
-                    <button id="boton-adicional" class="btn-adicional">
+                    
+                </div>
+                <button id="boton-adicional" class="btn-adicional">
                         <i class="fas fa-file-pdf"></i> Generar PDF
                     </button>
-                </div>
             `;
 
                     // Configurar evento para el botón adicional
                     document.getElementById('boton-adicional').addEventListener('click', function() {
                         generarPDFAdmin();
                     });
+
+
+
                 } else {
                     infoContent.innerHTML = `
                 <div class="datos-usuario-container">
@@ -608,8 +654,8 @@ switch (tipoUsuario) {
                         generarPDFAdmin();
                     });
                 }
-        } else if (opcion === 'Contraseñia') {
-    infoContent.innerHTML = `
+            } else if (opcion === 'Contraseñia') {
+                infoContent.innerHTML = `
         <div class="restablecer-password-container">
             <h3>Restablecer contraseña</h3>
             <p>Cambie su contraseña.</p>
@@ -656,66 +702,66 @@ switch (tipoUsuario) {
         </div>
     `;
 
-    // JavaScript para manejar el cambio dinámico de campos
-    const metodoSelect = document.getElementById('metodo-verificacion');
-    const camposDinamicos = document.getElementById('campos-dinamicos');
-    
-    metodoSelect.addEventListener('change', function() {
-        const valor = this.value;
-        let contenido = '';
-        
-        switch(valor) {
-            case 'correo':
-                contenido = `
-                    <div class="campo-password">
-                        <label for="correo">Correo electrónico:</label>
-                        <input type="email" id="correo" name="correo" required>
-                    </div>
-                `;
-                break;
-                
-            case 'telefono':
-                contenido = `
-                    <div class="campo-password">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" required>
-                    </div>
-                `;
-                break;
-                
-            case 'ambos':
-                contenido = `
-                    <div class="campo-password">
-                        <label for="correo">Correo electrónico:</label>
-                        <input type="email" id="correo" name="correo" required>
-                    </div>
-                    <div class="campo-password">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" required>
-                    </div>
-                `;
-                break;
-                
-            default:
-                contenido = '';
-        }
-        
-        camposDinamicos.innerHTML = contenido;
-    });
+                // JavaScript para manejar el cambio dinámico de campos
+                const metodoSelect = document.getElementById('metodo-verificacion');
+                const camposDinamicos = document.getElementById('campos-dinamicos');
 
-    // FUNCIÓN COMÚN para obtener todos los datos del formulario
-    function obtenerDatosFormulario() {
-        const datos = {
-            carnet: document.getElementById('carnet')?.value || '',
-            metodoVerificacion: document.getElementById('metodo-verificacion')?.value || '',
-            correo: document.getElementById('correo')?.value || null,
-            telefono: document.getElementById('telefono')?.value || null,
-            passwordNueva: document.getElementById('password-nueva')?.value || '',
-            passwordConfirmar: document.getElementById('password-confirmar')?.value || ''
-        };
-        
-        return datos;
-    }
+                metodoSelect.addEventListener('change', function() {
+                    const valor = this.value;
+                    let contenido = '';
+
+                    switch (valor) {
+                        case 'correo':
+                            contenido = `
+                    <div class="campo-password">
+                        <label for="correo">Correo electrónico:</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                `;
+                            break;
+
+                        case 'telefono':
+                            contenido = `
+                    <div class="campo-password">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                `;
+                            break;
+
+                        case 'ambos':
+                            contenido = `
+                    <div class="campo-password">
+                        <label for="correo">Correo electrónico:</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                    <div class="campo-password">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                `;
+                            break;
+
+                        default:
+                            contenido = '';
+                    }
+
+                    camposDinamicos.innerHTML = contenido;
+                });
+
+                // FUNCIÓN COMÚN para obtener todos los datos del formulario
+                function obtenerDatosFormulario() {
+                    const datos = {
+                        carnet: document.getElementById('carnet')?.value || '',
+                        metodoVerificacion: document.getElementById('metodo-verificacion')?.value || '',
+                        correo: document.getElementById('correo')?.value || null,
+                        telefono: document.getElementById('telefono')?.value || null,
+                        passwordNueva: document.getElementById('password-nueva')?.value || '',
+                        passwordConfirmar: document.getElementById('password-confirmar')?.value || ''
+                    };
+
+                    return datos;
+                }
 
             }
 
@@ -725,9 +771,32 @@ switch (tipoUsuario) {
 
         // Función para generar PDF
         function generarPDFAdmin() {
-            alert('Generando PDF...');
-            // Aquí iría el código real para generar el PDF
+            const element = document.querySelector('.datos-usuario-container');
+
+            const opt = {
+                margin: 0, // sin márgenes para aprovechar todo el espacio
+                filename: 'datos-usuario.pdf',
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    scrollY: 0 // evita capturar con desplazamiento
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
+            };
+
+
+            // Convertir y descargar
+            html2pdf().set(opt).from(element).save();
         }
+
 
         // Función auxiliar para cerrar dropdowns
         function cerrarDropdowns() {
