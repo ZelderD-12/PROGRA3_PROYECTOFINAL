@@ -769,6 +769,53 @@ $datosParaJS = [
                         console.error("Error al consultar datos:", error);
                     });
 
+                // Capturar el formulario de restablecimiento de contraseña
+                const formRestablecer = document.getElementById('form-restablecer-password');
+
+                formRestablecer.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevenir envío tradicional
+
+                    // Obtener los datos
+                    const carnet = document.getElementById('carnet').value;
+                    const password = document.getElementById('password-nueva').value;
+                    const confirmPassword = document.getElementById('password-confirmar').value;
+
+                    // Validar coincidencia de contraseñas
+                    if (password !== confirmPassword) {
+                        alert("Las contraseñas no coinciden.");
+                        return;
+                    }
+
+                    // Enviar datos vía fetch al archivo PHP
+                    fetch('../Base de Datos/actualizar_password.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `carnet=${encodeURIComponent(carnet)}&password=${encodeURIComponent(password)}&confirm_password=${encodeURIComponent(confirmPassword)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("✅ EXITOSO: " + data.message);
+
+                                // Mostrar mensaje por defecto en el contenedor principal
+                                document.getElementById('info-content').innerHTML = `
+    <div class="info-placeholder">
+        <i class="fas fa-info-circle"></i>
+        <p>Selecciona una opción del panel izquierdo para ver la información</p>
+    </div>
+`;
+
+                            } else {
+                                alert("❌ ERROR: " + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error en la solicitud:', error);
+                            alert("Error en la comunicación con el servidor.");
+                        });
+                });
 
 
             }
@@ -1605,39 +1652,40 @@ $datosParaJS = [
         function obtenerDatosHistorico() {
             // Usar ubicaciones por edificio
             return <?php
-        $idEdificio = 1; // O el que corresponda
-        $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
-        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
-        echo json_encode([
-            'ubicaciones' => $ubicacionesTransformadas,
-            'usuarios' => []
-        ], JSON_PRETTY_PRINT);
-    ?>;
-}
-function obtenerDatosPorFecha() {
-    // Usar ubicaciones por edificio
-    return <?php
-        $idEdificio = 1; // O el que corresponda
-        $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
-        $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
-        echo json_encode([
-            'ubicaciones' => $ubicacionesTransformadas,
-            'usuarios' => []
-        ], JSON_PRETTY_PRINT);
-    ?>;
-}
-async function obtenerDatosSalonHistorico() {
-    const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
-    const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
-    const data = await response.json();
-    console.log("Respuesta de obtenerUbicacionesPorSalon:", data);
-    return data;
-}
-async function obtenerDatosSalonPorFecha() {
-    const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
-    const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
-    return await response.json();
-}
+                    $idEdificio = 1; // O el que corresponda
+                    $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+                    $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+                    echo json_encode([
+                        'ubicaciones' => $ubicacionesTransformadas,
+                        'usuarios' => []
+                    ], JSON_PRETTY_PRINT);
+                    ?>;
+        }
+
+        function obtenerDatosPorFecha() {
+            // Usar ubicaciones por edificio
+            return <?php
+                    $idEdificio = 1; // O el que corresponda
+                    $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+                    $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+                    echo json_encode([
+                        'ubicaciones' => $ubicacionesTransformadas,
+                        'usuarios' => []
+                    ], JSON_PRETTY_PRINT);
+                    ?>;
+        }
+        async function obtenerDatosSalonHistorico() {
+            const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+            const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+            const data = await response.json();
+            console.log("Respuesta de obtenerUbicacionesPorSalon:", data);
+            return data;
+        }
+        async function obtenerDatosSalonPorFecha() {
+            const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+            const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+            return await response.json();
+        }
         //----------------------------------------------------------------------------------------------------------------
         function tomarAsistencia() {
             // Función para tomar asistencia (compartida entre estudiante y servicios)
