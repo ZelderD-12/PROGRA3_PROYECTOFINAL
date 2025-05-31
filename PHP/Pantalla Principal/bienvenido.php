@@ -588,25 +588,39 @@ $datosParaJS = [
                         generarPDFAdmin();
                     });
                 }
-                } else if (opcion === 'Contraseñia') {
-                infoContent.innerHTML = `
+        } else if (opcion === 'Contraseñia') {
+    infoContent.innerHTML = `
         <div class="restablecer-password-container">
             <h3>Restablecer contraseña</h3>
             <p>Cambie su contraseña.</p>
             
             <form id="form-restablecer-password" class="form-password">
                 <div class="campo-password">
-                    <label for="password-actual">Contraseña actual:</label>
-                    <input type="password" id="password-actual" name="password-actual" required>
+                    <label for="carnet">Carnet:</label>
+                    <input type="text" id="carnet" name="carnet" required>
                 </div>
                 
                 <div class="campo-password">
-                    <label for="password-nueva">Nueva contraseña:</label>
+                    <label for="metodo-verificacion">Método de verificación:</label>
+                    <select id="metodo-verificacion" name="metodo-verificacion" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="correo">Por correo electrónico</option>
+                        <option value="telefono">Por teléfono</option>
+                        <option value="ambos">Ambos métodos</option>
+                    </select>
+                </div>
+                
+                <div id="campos-dinamicos">
+                    <!-- Los campos aparecerán aquí dinámicamente -->
+                </div>
+                
+                <div class="campo-password">
+                    <label for="password-nueva">Contraseña:</label>
                     <input type="password" id="password-nueva" name="password-nueva" required>
                 </div>
                 
                 <div class="campo-password">
-                    <label for="password-confirmar">Confirmar nueva contraseña:</label>
+                    <label for="password-confirmar">Confirmar contraseña:</label>
                     <input type="password" id="password-confirmar" name="password-confirmar" required>
                 </div>
                 
@@ -621,6 +635,67 @@ $datosParaJS = [
             </form>
         </div>
     `;
+
+    // JavaScript para manejar el cambio dinámico de campos
+    const metodoSelect = document.getElementById('metodo-verificacion');
+    const camposDinamicos = document.getElementById('campos-dinamicos');
+    
+    metodoSelect.addEventListener('change', function() {
+        const valor = this.value;
+        let contenido = '';
+        
+        switch(valor) {
+            case 'correo':
+                contenido = `
+                    <div class="campo-password">
+                        <label for="correo">Correo electrónico:</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                `;
+                break;
+                
+            case 'telefono':
+                contenido = `
+                    <div class="campo-password">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                `;
+                break;
+                
+            case 'ambos':
+                contenido = `
+                    <div class="campo-password">
+                        <label for="correo">Correo electrónico:</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                    <div class="campo-password">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                `;
+                break;
+                
+            default:
+                contenido = '';
+        }
+        
+        camposDinamicos.innerHTML = contenido;
+    });
+
+    // FUNCIÓN COMÚN para obtener todos los datos del formulario
+    function obtenerDatosFormulario() {
+        const datos = {
+            carnet: document.getElementById('carnet')?.value || '',
+            metodoVerificacion: document.getElementById('metodo-verificacion')?.value || '',
+            correo: document.getElementById('correo')?.value || null,
+            telefono: document.getElementById('telefono')?.value || null,
+            passwordNueva: document.getElementById('password-nueva')?.value || '',
+            passwordConfirmar: document.getElementById('password-confirmar')?.value || ''
+        };
+        
+        return datos;
+    }
 
             }
 
