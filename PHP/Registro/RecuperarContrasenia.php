@@ -166,6 +166,7 @@
                 const carnet = document.querySelector('input[name="carnet"]').value.trim();
                 const password = document.querySelector('input[name="password"]').value;
                 const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+                const email = document.querySelector('input[name="email"]').value;
 
                 if (!carnet || !password || !confirmPassword) {
                     alert("Todos los campos son obligatorios.");
@@ -181,6 +182,7 @@
                 formData.append('carnet', carnet);
                 formData.append('password', password);
                 formData.append('confirm_password', confirmPassword);
+                formData.append('email', email);
 
                 try {
                     const response = await fetch('../Base de Datos/actualizar_password.php', {
