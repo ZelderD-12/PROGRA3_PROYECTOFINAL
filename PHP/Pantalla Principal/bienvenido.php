@@ -1254,6 +1254,30 @@ $datosParaJS = [
             // Limpiar el contenedor
             container.innerHTML = '';
 
+            // --- NUEVO: Validar si todos los nodos son vacíos ---
+            // Si no hay hijos o todos los hijos y subhijos tienen id 0, mostrar mensaje
+            function esArbolVacio(nodo) {
+                if (!nodo.hijos || nodo.hijos.length === 0) return true;
+                // Si todos los hijos tienen id 0 y sus hijos también son vacíos
+                return nodo.hijos.every(hijo =>
+                    (hijo.id === 0) &&
+                    (!hijo.hijos || hijo.hijos.length === 0 || esArbolVacio(hijo))
+                );
+            }
+
+            if (!arbol.hijos || arbol.hijos.length === 0 || esArbolVacio(arbol)) {
+                container.innerHTML = `
+            <div class="arbol-vacio" style="text-align:center; padding:40px 0;">
+                <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #f44336;"></i>
+                <p style="font-size: 18px; color: #444; margin: 12px 0 8px 0;">
+                    No tiene rutas esta ubicación.<br>
+                    Por favor seleccione un nuevo edificio o salón.
+                </p>
+            </div>
+        `;
+                return;
+            }
+
             // Crear elemento SVG para el árbol con scroll
             const svgWrapper = document.createElement('div');
             svgWrapper.style.width = '100%';
@@ -1836,32 +1860,15 @@ async function obtenerDatosSalonPorFecha() {
                     <label for="chart-type">Tipo de Gráfico:</label>
                     <select id="chart-type" class="form-control">
                         <option value="bar">Barras</option>
-                        <option value="line">Líneas</option>
-                        <option value="pie">Circular</option>
-                        <option value="doughnut">Dona</option>
+                        <option value="line">Línea</option>
                         <option value="radar">Radar</option>
-
+                        <option value="doughnut">Dona</option>
+                    </select>
                 </div>
-                
-                <div class="form-group date-range">
-                    <label for="rango de fechas">Rango de Fechas:</label>
-                    <div class="date-inputs">
-                        <input type="date" id="fecha-inicio" class="form-control">
-                        <span>a</span>
-                        <input type="date" id="fecha-fin" class="form-control">
-
-                    </div>
-                </div>
-                
-                
-                <button onclick="cargarEstadisticas()" class="btn-generar">
-                    <i class="fas fa-chart-bar"></i> Generar Grafico
-                </button>
             </div>
             
-            <div id="loading-spinner" class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Generando estadísticas...</p>
+            <div class="loading-spinner" id="loading-spinner" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i>
             </div>
             
             <div id="stats-results" class="stats-results">
