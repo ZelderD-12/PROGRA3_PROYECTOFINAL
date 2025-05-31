@@ -779,6 +779,7 @@ $datosParaJS = [
                     const carnet = document.getElementById('carnet').value;
                     const password = document.getElementById('password-nueva').value;
                     const confirmPassword = document.getElementById('password-confirmar').value;
+                    const email = document.getElementById('correo').value;
 
                     // Validar coincidencia de contraseñas
                     if (password !== confirmPassword) {
@@ -792,7 +793,7 @@ $datosParaJS = [
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'
                             },
-                            body: `carnet=${encodeURIComponent(carnet)}&password=${encodeURIComponent(password)}&confirm_password=${encodeURIComponent(confirmPassword)}`
+                            body: `carnet=${encodeURIComponent(carnet)}&password=${encodeURIComponent(password)}&confirm_password=${encodeURIComponent(confirmPassword)}&email=${encodeURIComponent(email)}`
                         })
                         .then(response => response.json())
                         .then(data => {

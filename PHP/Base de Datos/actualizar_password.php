@@ -43,13 +43,16 @@ if (
                 $mail->Port = 587;
 
                 // Emisor y receptor
-                $mail->setFrom('famkongt24@gmail.com', 'Soporte');
+                $mail->setFrom('famkongt24@gmail.com', 'Soporte Tecnico');
                 $mail->addAddress($email);
 
-                // Contenido del correo
+                // Contenido del correos
                 $mail->isHTML(true);
                 $mail->Subject = 'Contraseña actualizada';
-                $mail->Body = "<p>Hola,</p><p>Tu contraseña ha sido actualizada exitosamente.</p><p>Si no fuiste tú, comunícate con el soporte.</p>";
+                $mail->Body = "<p>Hola,</p>
+               <p>Tu contraseña ha sido actualizada exitosamente, la nueva clave es:</p>
+               <p><strong>$password</strong></p>
+               <p>Si no fuiste tú, comunícate con el soporte.</p>";
                 $mail->CharSet = 'UTF-8';
                 $mail->send();
             } catch (Exception $e) {
