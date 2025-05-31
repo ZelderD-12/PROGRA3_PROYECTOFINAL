@@ -137,7 +137,7 @@ $datosParaJS = [
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Profesores')">
                                 <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
