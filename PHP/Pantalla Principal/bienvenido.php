@@ -330,7 +330,7 @@ $datosParaJS = [
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Profesores')">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Profesores')">
                                 <i class="fas fa-chalkboard-teacher"></i> Vista Profesores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
