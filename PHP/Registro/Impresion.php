@@ -25,7 +25,7 @@ if (isset($_SESSION['datos_pdf'])) {
 </head>
 
 <body>
-    <button id="return-login" class="tech-button">Login</button>
+    <button id="return-login" class="tech-button">Pagina Pricipal</button>
 
     <div class="carnet-container">
         <div class="carnet-header-logos">
@@ -63,7 +63,7 @@ if (isset($_SESSION['datos_pdf'])) {
     <script>
         // Redirigir al login
         document.getElementById("return-login").addEventListener("click", function() {
-            window.location.href = "../../index.php";
+            window.location.href = "../Pantalla Principal/bienvenido.php";
         });
 
         //Fecha y Hora Actual del Navegador del Usuario

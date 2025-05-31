@@ -165,7 +165,7 @@ $datosParaJS = [
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
                                 <i class="fas fa-trash-alt"></i> Eliminar
                             </a>
-                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                            <a href="../Registro/IngresoDatos.php" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
                                 <i class="fas fa-user-plus"></i> Agregar
                             </a>
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
@@ -358,7 +358,7 @@ $datosParaJS = [
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
                                 <i class="fas fa-trash-alt"></i> Eliminar
                             </a>
-                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                            <a href="../Registro/IngresoDatos.php" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
                                 <i class="fas fa-user-plus"></i> Agregar
                             </a>
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
