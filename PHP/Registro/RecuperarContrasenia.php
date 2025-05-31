@@ -162,7 +162,6 @@
 
 
             /*-------- Actualizar Contraseña ------*/
-
             btnRecuperar.addEventListener('click', async () => {
                 const carnet = document.querySelector('input[name="carnet"]').value.trim();
                 const password = document.querySelector('input[name="password"]').value;
@@ -202,6 +201,10 @@
                     alert("Error inesperado al actualizar la contraseña.");
                 }
             });
+
+
+
+
 
         });
     </script>
