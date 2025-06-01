@@ -1,3 +1,51 @@
+<?php
+include '../Base de Datos/operaciones.php';
+$edificios = saberEdificios();
+$salones = saberSalones();
+
+function transformarUbicaciones($ubicacionesBD)
+{
+    $ubicacionesPlanas = [];
+
+    if (isset($ubicacionesBD['ubicaciones'])) {
+        foreach ($ubicacionesBD['ubicaciones'] as $ubicacion) {
+            // Normaliza los valores vacíos a 0 o ""
+            $idEdificio = !empty($ubicacion['idEdificio']) ? (int)$ubicacion['idEdificio'] : 0;
+            $edificio   = !empty($ubicacion['edificio']) ? $ubicacion['edificio'] : '';
+            $idPuerta   = !empty($ubicacion['idPuerta']) ? (int)$ubicacion['idPuerta'] : 0;
+            $puerta     = !empty($ubicacion['puerta']) ? $ubicacion['puerta'] : '';
+            $nivel      = !empty($ubicacion['nivel']) ? (int)$ubicacion['nivel'] : 0;
+            $idSalon    = !empty($ubicacion['idSalon']) ? (int)$ubicacion['idSalon'] : 0;
+            $salon      = !empty($ubicacion['salon']) ? $ubicacion['salon'] : '';
+
+            $ubicacionesPlanas[] = [
+                'idEdificio' => $idEdificio,
+                'edificio'   => $edificio,
+                'idPuerta'   => $idPuerta,
+                'puerta'     => $puerta,
+                'nivel'      => $nivel,
+                'idSalon'    => $idSalon,
+                'salon'      => $salon
+            ];
+        }
+    }
+
+    return $ubicacionesPlanas;
+}
+
+// Obtener datos del edificio (ejemplo con ID 1)
+$idEdificio = 1;
+$ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+$ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+
+// Preparar los datos para JavaScript
+$datosParaJS = [
+    'ubicaciones' => $ubicacionesTransformadas,
+    'usuarios' => [] // Array vacío por ahora
+];
+
+
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -7,6 +55,52 @@
     <title>Bienvenido</title>
     <link rel="stylesheet" href="../../CSS/style2.css">
     <link rel="stylesheet" href="../../CSS/tabla.css">
+    <script>
+        const edificiosBD = <?php echo json_encode($edificios); ?>;
+        const salonesBD = <?php echo json_encode($salones); ?>;
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .datos-usuario-container {
+            font-family: Arial, sans-serif;
+            max-width: 750px;
+            margin: 0 auto;
+            font-size: 12px;
+            line-height: 1.3;
+            padding: 10px;
+        }
+
+        .perfil-usuario {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .foto-perfil img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .info-personal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo-dato {
+            margin-bottom: 4px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+
+
+
     <script>
         // Verificar autenticación
         document.addEventListener('DOMContentLoaded', function() {
@@ -43,8 +137,8 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
-                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Profesores')">
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Profesores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
                                 <i class="fas fa-user-graduate"></i> Vista Estudiantes
@@ -71,7 +165,7 @@
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
                                 <i class="fas fa-trash-alt"></i> Eliminar
                             </a>
-                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                            <a href="../Registro/IngresoDatos.php" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
                                 <i class="fas fa-user-plus"></i> Agregar
                             </a>
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
@@ -103,16 +197,18 @@
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
@@ -164,16 +260,18 @@
                         </button>
                         <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
@@ -232,13 +330,13 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div id="gestorUsuarios" class="dropdown-content">
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Vista Catedráticos')">
-                                <i class="fas fa-chalkboard-teacher"></i> Vista Catedráticos
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Profesores')">
+                                <i class="fas fa-chalkboard-teacher"></i> Vista Profesores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Estudiantes')">
                                 <i class="fas fa-user-graduate"></i> Vista Estudiantes
                             </a>
-                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administrador')">
+                            <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Administradores')">
                                 <i class="fas fa-user-shield"></i> Vista Administradores
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarInformacionAdmin('Desarrolladores')">
@@ -260,7 +358,7 @@
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('eliminar')">
                                 <i class="fas fa-trash-alt"></i> Eliminar
                             </a>
-                            <a href="#" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
+                            <a href="../Registro/IngresoDatos.php" class="dropdown-item" onclick="gestionarUsuarios('agregar')">
                                 <i class="fas fa-user-plus"></i> Agregar
                             </a>
                             <a href="#" class="dropdown-item" onclick="gestionarUsuarios('buscar')">
@@ -275,18 +373,20 @@
                             <span><i class="fas fa-chart-line"></i> Reportes</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
-                        <div id="generadorReportes" class="dropdown-content">
+                       <div id="generadorReportes" class="dropdown-content">
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoEntrada')">
-                                <i class="fas fa-history"></i> Reporte histórico de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-history"></i> Reporte Histodico
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaEntrada')">
-                                <i class="fas fa-calendar-alt"></i> Reporte por fecha de ingresos a instalaciones por puerta de entrada
+                                <i class="fas fa-calendar-alt"></i>  Reporte Historico por Fecha
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('historicoSalon')">
-                                <i class="fas fa-door-open"></i> Reporte histórico de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-door-open"></i> Reporte por salón
+
                             </a>
                             <a href="#" class="dropdown-item" onclick="mostrarReporte('fechaSalon')">
-                                <i class="fas fa-clipboard-list"></i> Reporte por fecha de ingreso a instalaciones por salón de clase
+                                <i class="fas fa-clipboard-list"></i> Reporte por salón por Fecha
                             </a>
                         </div>
                     </div>
@@ -385,7 +485,7 @@
         // Función para la configuración (nueva)
         function cambiarConfiguracion(tipo) {
             switch (tipo) {
-                 case 'Contraseñia':
+                case 'Contraseñia':
                     document.getElementById('info-content').innerHTML = `
                 <h3>Restablecer contraseñia</h3>
                 <p>Cambie su contraseñia.</p>
@@ -425,13 +525,46 @@
         }
 
 
-
+        //Mostrar Tablas
         function mostrarInformacionAdmin(tipo) {
             // Muestra información específica para administradores
             document.getElementById('info-content').innerHTML = `
         <h3>Información de ${tipo}</h3>
         <p>Aquí se mostraría la información específica para ${tipo}.</p>
+        <div class="usuarios-container">
+            <table class="usuarios-tabla">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Carnet</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Celular</th>
+                        <th>Tipo</th>
+                        <th>Carrera</th>
+                        <th>Seccion</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body">
+                    <tr>
+                        <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     `;
+
+            // Hacer la petición al archivo PHP
+            fetch('../Base de Datos/obtener_usuarios.php?tipo=' + encodeURIComponent(tipo))
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('tabla-usuarios-body').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
+                    document.getElementById('tabla-usuarios-body').innerHTML = "<tr><td colspan='9' style='text-align:center;'>Error al cargar datos</td></tr>";
+                });
         }
         /*----------------------AQUI SE MUESTRA LO DE OPERACIONES----------------------------------------------- */
         // Función para cambiar configuración
@@ -449,7 +582,7 @@
                 if (usuarioData) {
                     // Primero mostramos los datos que ya tenemos
                     infoContent.innerHTML = `
-                <div class="datos-usuario-container">
+                    <div class="datos-usuario-container">
                     <h3>Datos Usuario</h3>
                     
                     <div class="perfil-usuario">
@@ -491,16 +624,20 @@
                         </div>
                     </div>
                     
-                    <button id="boton-adicional" class="btn-adicional">
+                    
+                </div>
+                <button id="boton-adicional" class="btn-adicional">
                         <i class="fas fa-file-pdf"></i> Generar PDF
                     </button>
-                </div>
             `;
 
                     // Configurar evento para el botón adicional
                     document.getElementById('boton-adicional').addEventListener('click', function() {
                         generarPDFAdmin();
                     });
+
+
+
                 } else {
                     infoContent.innerHTML = `
                 <div class="datos-usuario-container">
@@ -517,25 +654,43 @@
                         generarPDFAdmin();
                     });
                 }
-                } else if (opcion === 'Contraseñia') {
-                infoContent.innerHTML = `
+            } else if (opcion === 'Contraseñia') {
+
+                // Recuperar los datos del usuario desde sessionStorage
+                const usuarioData = JSON.parse(sessionStorage.getItem('usuario'));
+                if (usuarioData) {
+                    infoContent.innerHTML = `
         <div class="restablecer-password-container">
             <h3>Restablecer contraseña</h3>
             <p>Cambie su contraseña.</p>
             
             <form id="form-restablecer-password" class="form-password">
                 <div class="campo-password">
-                    <label for="password-actual">Contraseña actual:</label>
-                    <input type="password" id="password-actual" name="password-actual" required>
+                    <label for="carnet">Carnet:</label>
+                    <input type="text" id="carnet" name="carnet" required value="${usuarioData.Carnet_Usuario}" disabled>
                 </div>
                 
                 <div class="campo-password">
-                    <label for="password-nueva">Nueva contraseña:</label>
+                    <label for="metodo-verificacion">Método de verificación:</label>
+                    <select id="metodo-verificacion" name="metodo-verificacion" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="correo">Por correo electrónico</option>
+                        <option value="telefono">Por teléfono</option>
+                        <option value="ambos">Ambos métodos</option>
+                    </select>
+                </div>
+                
+                <div id="campos-dinamicos">
+                    <!-- Los campos aparecerán aquí dinámicamente -->
+                </div>
+                
+                <div class="campo-password">
+                    <label for="password-nueva">Contraseña:</label>
                     <input type="password" id="password-nueva" name="password-nueva" required>
                 </div>
                 
                 <div class="campo-password">
-                    <label for="password-confirmar">Confirmar nueva contraseña:</label>
+                    <label for="password-confirmar">Confirmar contraseña:</label>
                     <input type="password" id="password-confirmar" name="password-confirmar" required>
                 </div>
                 
@@ -549,7 +704,120 @@
                 </div>
             </form>
         </div>
-    `;
+    `
+                };
+
+
+                // Selección de elementos del DOM
+                const metodoSelect = document.getElementById('metodo-verificacion');
+                const camposDinamicos = document.getElementById('campos-dinamicos');
+
+                // Variable global para almacenar datos del SP
+                let datosUsuarioSP = null;
+
+                // Función para renderizar campos dinámicos con valores precargados
+                function renderizarCampos(valor) {
+                    let contenido = '';
+
+                    if (valor === 'correo' || valor === 'ambos') {
+                        const correoValor = datosUsuarioSP?.correo || '';
+                        contenido += `
+            <div class="campo-password">
+                <label for="correo">Correo electrónico:</label>
+                <input type="email" id="correo" name="correo" required value="${correoValor}" readonly>
+            </div>
+        `;
+                    }
+
+                    if (valor === 'telefono' || valor === 'ambos') {
+                        const telefonoValor = datosUsuarioSP?.celular || '';
+                        contenido += `
+            <div class="campo-password">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" required value="${telefonoValor}" readonly>
+            </div>
+        `;
+                    }
+
+                    camposDinamicos.innerHTML = contenido;
+                }
+
+                // ✅ Paso 4: Listener para el select
+                metodoSelect.addEventListener('change', function() {
+                    const valor = this.value;
+                    renderizarCampos(valor);
+                });
+
+
+                fetch(`../Base de Datos/buscar_datos_carnet.php?carnet=${encodeURIComponent(usuarioData.Carnet_Usuario)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.correo || data.celular) {
+                            datosUsuarioSP = data;
+                            console.log("Datos encontrados:", datosUsuarioSP);
+
+                            // Si ya hay una opción seleccionada, forzar renderizado
+                            const selectedValue = metodoSelect.value;
+                            if (selectedValue) {
+                                renderizarCampos(selectedValue);
+                            }
+                        } else {
+                            console.warn("No se encontró información para este carnet.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al consultar datos:", error);
+                    });
+
+                // Capturar el formulario de restablecimiento de contraseña
+                const formRestablecer = document.getElementById('form-restablecer-password');
+
+                formRestablecer.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevenir envío tradicional
+
+                    // Obtener los datos
+                    const carnet = document.getElementById('carnet').value;
+                    const password = document.getElementById('password-nueva').value;
+                    const confirmPassword = document.getElementById('password-confirmar').value;
+                    const email = document.getElementById('correo').value;
+
+                    // Validar coincidencia de contraseñas
+                    if (password !== confirmPassword) {
+                        alert("Las contraseñas no coinciden.");
+                        return;
+                    }
+
+                    // Enviar datos vía fetch al archivo PHP
+                    fetch('../Base de Datos/actualizar_password.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `carnet=${encodeURIComponent(carnet)}&password=${encodeURIComponent(password)}&confirm_password=${encodeURIComponent(confirmPassword)}&email=${encodeURIComponent(email)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("✅ EXITOSO: " + data.message);
+
+                                // Mostrar mensaje por defecto en el contenedor principal
+                                document.getElementById('info-content').innerHTML = `
+    <div class="info-placeholder">
+        <i class="fas fa-info-circle"></i>
+        <p>Selecciona una opción del panel izquierdo para ver la información</p>
+    </div>
+`;
+
+                            } else {
+                                alert("❌ ERROR: " + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error en la solicitud:', error);
+                            alert("Error en la comunicación con el servidor.");
+                        });
+                });
+
 
             }
 
@@ -559,9 +827,32 @@
 
         // Función para generar PDF
         function generarPDFAdmin() {
-            alert('Generando PDF...');
-            // Aquí iría el código real para generar el PDF
+            const element = document.querySelector('.datos-usuario-container');
+
+            const opt = {
+                margin: 0, // sin márgenes para aprovechar todo el espacio
+                filename: 'datos-usuario.pdf',
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    scrollY: 0 // evita capturar con desplazamiento
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
+            };
+
+
+            // Convertir y descargar
+            html2pdf().set(opt).from(element).save();
         }
+
 
         // Función auxiliar para cerrar dropdowns
         function cerrarDropdowns() {
@@ -585,89 +876,27 @@
         }
         //----------------------------------------------------------------------------------------------------------------
         function cargarCombobox(tipoReporte) {
-            // Lista de opciones según el tipo de reporte
             let opciones = [];
-            switch (tipoReporte) {
-                case 'historicoEntrada': // Mostrar edificios (Nivel I) y puertas (Nivel II)
-                    opciones = [{
-                            id: 'edificioA',
-                            nombre: "Edificio A - Nivel I"
-                        },
-                        {
-                            id: 'edificioB',
-                            nombre: "Edificio B - Nivel I"
-                        },
-                        {
-                            id: 'puertaPrincipal',
-                            nombre: "Puerta Principal - Nivel II"
-                        },
-                        {
-                            id: 'puertaSecundaria',
-                            nombre: "Puerta Secundaria - Nivel II"
-                        }
-                    ];
-                    break;
 
-                case 'fechaEntrada': // Mostrar solo edificios
-                    opciones = [{
-                            id: 'edificioA',
-                            nombre: "Edificio A - Nivel I"
-                        },
-                        {
-                            id: 'edificioB',
-                            nombre: "Edificio B - Nivel I"
-                        },
-                        {
-                            id: 'edificioC',
-                            nombre: "Edificio C - Nivel I"
-                        }
-                    ];
-                    break;
-
-                case 'historicoSalon': // Mostrar salones y puertas según el nivel
-                    opciones = [{
-                            id: 'salon101',
-                            nombre: "Salón 101 - Nivel I"
-                        },
-                        {
-                            id: 'salon202',
-                            nombre: "Salón 202 - Nivel II"
-                        },
-                        {
-                            id: 'puertaPrincipal',
-                            nombre: "Puerta Principal - Nivel II"
-                        },
-                        {
-                            id: 'puertaEmergencia',
-                            nombre: "Puerta Emergencia - Nivel I"
-                        }
-                    ];
-                    break;
-
-                case 'fechaSalon': // Mostrar solo salones de un nivel específico
-                    opciones = [{
-                            id: 'salon101',
-                            nombre: "Salón 101 - Nivel I"
-                        },
-                        {
-                            id: 'salon202',
-                            nombre: "Salón 202 - Nivel II"
-                        }
-                    ];
-                    break;
-
-                default:
-                    console.error('Tipo de reporte no reconocido:', tipoReporte);
-                    return;
+            if (tipoReporte === 'historicoEntrada' || tipoReporte === 'fechaEntrada') {
+                opciones = edificiosBD.map(edificio => ({
+                    id: edificio.idEdificio, // <-- nombre correcto
+                    nombre: edificio.Edificio // <-- nombre correcto
+                }));
+            } else if (tipoReporte === 'historicoSalon' || tipoReporte === 'fechaSalon') {
+                opciones = salonesBD.map(salon => ({
+                    id: salon.idSalon,
+                    nombre: salon.Area
+                }));
+            } else {
+                return;
             }
 
-            // Obtener el combo box por su ID
             const comboBox = document.getElementById('report-options-select');
+            if (!comboBox) return;
 
-            // Limpiar las opciones existentes
             comboBox.innerHTML = '';
 
-            // Agregar una opción por defecto
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = 'Seleccione una opción';
@@ -675,37 +904,62 @@
             defaultOption.selected = true;
             comboBox.appendChild(defaultOption);
 
-            // Agregar las opciones dinámicamente
             opciones.forEach(opcion => {
                 const option = document.createElement('option');
                 option.value = opcion.id;
                 option.textContent = opcion.nombre;
                 comboBox.appendChild(option);
             });
+
+            comboBox.onchange = function() {
+                window.selectedCombo = {
+                    id: this.value,
+                    nombre: this.options[this.selectedIndex].text
+                };
+                // Guardar el edificio seleccionado globalmente
+                window.edificioSeleccionado = {
+                    id: parseInt(this.value),
+                    nombre: this.options[this.selectedIndex].text
+                };
+                console.log('Edificio seleccionado:', window.edificioSeleccionado);
+            };
         }
 
         // Función principal para mostrar reportes
+        let fechaSeleccionada = ""; // Variable global para la fecha
+
         function mostrarReporte(tipo) {
             const baseCSSPath = '../../CSS/avl-tree.css';
             const baseJSPath = '../../Javascript/avl-tree.js';
 
             let contenido = '';
             let containerId = '';
+            let fechaSelector = '';
+            let fechaHoy = new Date().toISOString().slice(0, 10);
+
+            // Solo los reportes por fecha muestran el selector
+            if (tipo === 'fechaEntrada' || tipo === 'fechaSalon') {
+                fechaSelector = `
+            <label for="fecha-reporte">Fecha:</label>
+            <input type="date" id="fecha-reporte" onchange="fechaSeleccionada = this.value;" value="${fechaHoy}">
+        `;
+            } else {
+                // Para los históricos, la fecha es la de hoy automáticamente
+                fechaSeleccionada = fechaHoy;
+            }
 
             switch (tipo) {
                 case 'historicoEntrada':
                     containerId = 'avl-tree-historico';
                     contenido = `
                 <h3>Reporte Histórico de Ingresos</h3>
-                <p>Visualización del árbol AVL con datos históricos de ingresos.</p>
+                <p>Visualización del árbol AVL con datos históricos de ingresos (fecha: ${fechaHoy}).</p>
                 <div class="report-options">
                     <label for="report-options-select">Selecciona una opción:</label>
-                    <select id="report-options-select">
-                        <!-- Las opciones se cargarán dinámicamente -->
-                    </select>
+                    <select id="report-options-select"></select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
-                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
+                <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
                     break;
@@ -715,13 +969,12 @@
                 <h3>Reporte por Fecha de Ingresos</h3>
                 <p>Visualización del árbol AVL con datos por fecha de ingresos.</p>
                 <div class="report-options">
+                    ${fechaSelector}
                     <label for="report-options-select">Selecciona una opción:</label>
-                    <select id="report-options-select">
-                        <!-- Las opciones se cargarán dinámicamente -->
-                    </select>
+                    <select id="report-options-select"></select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
-                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
+                <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
                     break;
@@ -729,15 +982,13 @@
                     containerId = 'avl-tree-salon-historico';
                     contenido = `
                 <h3>Reporte Histórico por Salón</h3>
-                <p>Visualización del árbol AVL con datos históricos por salón.</p>
+                <p>Visualización del árbol AVL con datos históricos por salón (fecha: ${fechaHoy}).</p>
                 <div class="report-options">
                     <label for="report-options-select">Selecciona una opción:</label>
-                    <select id="report-options-select">
-                        <!-- Las opciones se cargarán dinámicamente -->
-                    </select>
+                    <select id="report-options-select"></select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
-                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
+                <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
                     break;
@@ -747,13 +998,12 @@
                 <h3>Reporte por Fecha y Salón</h3>
                 <p>Visualización del árbol AVL con datos por fecha y salón.</p>
                 <div class="report-options">
+                    ${fechaSelector}
                     <label for="report-options-select">Selecciona una opción:</label>
-                    <select id="report-options-select">
-                        <!-- Las opciones se cargarán dinámicamente -->
-                    </select>
+                    <select id="report-options-select"></select>
                     <button id="draw-tree-btn" onclick="dibujarArbol('${containerId}', '${tipo}')">Dibujar</button>
                 </div>
-                <div style="height: 24px;"></div> <!-- Espacio entre combo y árbol -->
+                <div style="height: 24px;"></div>
                 <div id="${containerId}" class="avl-tree-container"></div>
             `;
                     break;
@@ -775,8 +1025,18 @@
         }
 
         // Nueva función para manejar el evento del botón "Dibujar"
-        function dibujarArbol(containerId, tipo) {
-            const datos = obtenerDatosParaReporte(tipo);
+        async function dibujarArbol(containerId, tipo) {
+            if (tipo === 'historicoEntrada' && !window.edificioSeleccionado) {
+                alert('Por favor, selecciona un edificio.');
+                return;
+            }
+            // Espera los datos si la función es async
+            let datos;
+            if (tipo === 'historicoSalon' || tipo === 'fechaSalon') {
+                datos = await obtenerDatosParaReporte(tipo);
+            } else {
+                datos = obtenerDatosParaReporte(tipo);
+            }
             const arbol = construirArbolDesdeDatos(datos, tipo);
             dibujarArbolAVLCompleto(containerId, arbol);
         }
@@ -849,183 +1109,181 @@
 
         // Función para construir la estructura del árbol desde los datos
         function construirArbolDesdeDatos(datos, tipo) {
-            const comboBox = document.getElementById('report-options-select');
-            const valorRaiz = comboBox.options[comboBox.selectedIndex]?.text || "Sin selección";
+            const ubicaciones = datos.ubicaciones || [];
+            const usuarios = datos.usuarios || [];
+            let arbol = cargarUbicacionesArbol(ubicaciones);
+            arbol = agregarUsuariosArbol(arbol, usuarios);
 
-            const nodoRaiz = {
-                valor: valorRaiz,
+            // Solo filtra por edificio si es reporte por edificio
+            if ((tipo === 'historicoEntrada' || tipo === 'fechaEntrada') && window.edificioSeleccionado && arbol.hijos) {
+                const edificioNodo = arbol.hijos.find(e => e.id == window.edificioSeleccionado.id);
+                if (edificioNodo) {
+                    return edificioNodo;
+                }
+            }
+            // Para reportes por salón, retorna el árbol completo
+            return {
+                valor: "Ubicaciones",
                 nivel: 0,
+                hijos: arbol.hijos
+            };
+        }
+
+        function cargarUbicacionesArbol(datos) {
+            // Crea el árbol de ubicaciones: Edificio > Puerta > Nivel > Salón
+            const arbol = {
                 hijos: []
             };
+            datos.forEach(item => {
+                // Busca o crea el edificio
+                let edificio = arbol.hijos.find(e => e.id === item.idEdificio);
+                if (!edificio) {
+                    edificio = {
+                        id: item.idEdificio,
+                        valor: item.edificio,
+                        nivel: 0,
+                        data: {
+                            foto: IMG_PATHS.edificio
+                        },
+                        hijos: []
+                    };
+                    arbol.hijos.push(edificio);
+                }
 
-            switch (tipo) {
-                case 'historicoEntrada':
-                    datos.forEach(entrada => {
-                        // Determinar la imagen según si es edificio o puerta
-                        const esEdificio = entrada.instalacion.includes("Edificio");
-                        const imagen = esEdificio ? "imagenes/IMG/objetos/edificio.jpeg" : "imagenes/IMG/objetos/door.jpg";
+                // Si no hay puerta, solo es edificio
+                if (!item.idPuerta || item.idPuerta === 0) return;
 
-                        const nodoInstalacion = {
-                            valor: entrada.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: imagen
-                            },
-                            hijos: []
-                        };
+                // Busca o crea la puerta
+                let puerta = edificio.hijos.find(p => p.id === item.idPuerta);
+                if (!puerta) {
+                    puerta = {
+                        id: item.idPuerta,
+                        valor: item.puerta,
+                        nivel: 1,
+                        data: {
+                            foto: IMG_PATHS.door
+                        },
+                        hijos: []
+                    };
+                    edificio.hijos.push(puerta);
+                }
 
-                        const nodoPuerta = {
-                            valor: entrada.puerta,
-                            nivel: 2,
-                            data: {
-                                foto: "imagenes/IMG/objetos/door.jpg"
-                            },
-                            hijos: []
-                        };
+                // Si no hay salón, solo es puerta (no crear nivel ni salón)
+                if (!item.idSalon || item.idSalon === 0) return;
 
-                        entrada.fechas.forEach(fecha => {
-                            nodoPuerta.hijos.push({
-                                valor: fecha,
-                                nivel: 3,
-                                hijos: []
-                            });
-                        });
+                // Busca o crea el nivel
+                let nivel = puerta.hijos.find(n => n.id === item.nivel);
+                if (!nivel) {
+                    nivel = {
+                        id: item.nivel,
+                        valor: `Nivel ${item.nivel}`,
+                        nivel: 2,
+                        data: {
+                            foto: IMG_PATHS.nivel(item.nivel)
+                        },
+                        hijos: []
+                    };
+                    puerta.hijos.push(nivel);
+                }
 
-                        nodoInstalacion.hijos.push(nodoPuerta);
-                        nodoRaiz.hijos.push(nodoInstalacion);
+                // Crea el salón solo si tiene nombre y id
+                let salon = nivel.hijos.find(s => s.id === item.idSalon);
+                if (!salon && item.salon) {
+                    salon = {
+                        id: item.idSalon,
+                        valor: item.salon, // nombre real del salón
+                        nivel: 3,
+                        data: {
+                            foto: IMG_PATHS.classroom
+                        },
+                        hijos: []
+                    };
+                    nivel.hijos.push(salon);
+                }
+            });
+            return arbol;
+        }
+
+        function agregarUsuariosArbol(arbol, usuarios) {
+            usuarios.forEach(usuario => {
+                // Buscar el edificio
+                const edificio = arbol.hijos.find(e => e.id === usuario.idEdificio);
+                if (!edificio) return;
+
+                // Si el usuario está a nivel de edificio (no tiene puerta)
+                if (!usuario.idPuerta || usuario.idPuerta === 0) {
+                    edificio.hijos.push({
+                        id: usuario.idUsuario,
+                        valor: usuario.nombre,
+                        nivel: 1,
+                        data: {
+                            ...usuario,
+                            foto: usuario.foto || IMG_PATHS.user
+                        },
+                        hijos: []
                     });
-                    break;
+                    return;
+                }
 
-                case 'fechaEntrada':
-                    datos.forEach(entrada => {
-                        const nodoInstalacion = {
-                            valor: entrada.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
+                // Buscar la puerta
+                const puerta = edificio.hijos.find(p => p.id === usuario.idPuerta);
+                if (!puerta) return;
 
-                        const nodoFecha = {
-                            valor: entrada.fecha,
-                            nivel: 2,
-                            hijos: []
-                        };
-
-                        entrada.registros.forEach(registro => {
-                            nodoFecha.hijos.push({
-                                valor: registro.nombre,
-                                nivel: 5,
+                // Si el usuario está a nivel de puerta (no tiene salón)
+                if (!usuario.idSalon || usuario.idSalon === 0) {
+                    // Si tiene nivel, buscar el nivel
+                    if (usuario.nivel && usuario.nivel !== 0) {
+                        const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
+                        if (nivel) {
+                            nivel.hijos.push({
+                                id: usuario.idUsuario,
+                                valor: usuario.nombre,
+                                nivel: 3,
                                 data: {
-                                    ...registro,
-                                    foto: registro.foto
+                                    ...usuario,
+                                    foto: usuario.foto || IMG_PATHS.user
                                 },
                                 hijos: []
                             });
-                        });
-
-                        nodoInstalacion.hijos.push(nodoFecha);
-                        nodoRaiz.hijos.push(nodoInstalacion);
+                            return;
+                        }
+                    }
+                    // Si no tiene nivel, va en la puerta
+                    puerta.hijos.push({
+                        id: usuario.idUsuario,
+                        valor: usuario.nombre,
+                        nivel: 2,
+                        data: {
+                            ...usuario,
+                            foto: usuario.foto || IMG_PATHS.user
+                        },
+                        hijos: []
                     });
-                    break;
+                    return;
+                }
 
-                case 'historicoSalon':
-                    datos.forEach(salon => {
-                        const nodoInstalacion = {
-                            valor: salon.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
+                // Buscar el nivel
+                const nivel = puerta.hijos.find(n => n.id === usuario.nivel);
+                if (!nivel) return;
 
-                        const nodoNivel = {
-                            valor: `Nivel ${salon.nivel}`,
-                            nivel: 2,
-                            data: {
-                                foto: `imagenes/IMG/level/nivel${salon.nivel}.png`
-                            }, // Imagen de nivel
-                            hijos: []
-                        };
+                // Buscar el salón
+                const salon = nivel.hijos.find(s => s.id === usuario.idSalon);
+                if (!salon) return;
 
-                        const nodoSalon = {
-                            valor: `Salón ${salon.salon}`,
-                            nivel: 3,
-                            data: {
-                                foto: "imagenes/IMG/objetos/classroom.png"
-                            }, // Imagen de salón
-                            hijos: []
-                        };
-
-                        salon.estudiantes.forEach(est => {
-                            nodoSalon.hijos.push({
-                                valor: `${est.nombre} (${est.tipo})`,
-                                nivel: 4,
-                                data: est,
-                                hijos: []
-                            });
-                        });
-
-                        nodoNivel.hijos.push(nodoSalon);
-                        nodoInstalacion.hijos.push(nodoNivel);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                case 'fechaSalon':
-                    datos.forEach(salon => {
-                        const nodoInstalacion = {
-                            valor: salon.instalacion,
-                            nivel: 1,
-                            data: {
-                                foto: "imagenes/IMG/objetos/edificio.jpeg"
-                            },
-                            hijos: []
-                        };
-
-                        const nodoNivel = {
-                            valor: `Nivel ${salon.nivel}`,
-                            nivel: 2,
-                            data: {
-                                foto: `imagenes/IMG/level/nivel${salon.nivel}.png`
-                            }, // Imagen de nivel
-                            hijos: []
-                        };
-
-                        const nodoSalon = {
-                            valor: `Salón ${salon.salon}`,
-                            nivel: 3,
-                            data: {
-                                foto: "imagenes/IMG/objetos/classroom.png"
-                            }, // Imagen de salón
-                            hijos: []
-                        };
-
-                        salon.registros.forEach(reg => {
-                            nodoSalon.hijos.push({
-                                valor: `${reg.nombre} (${reg.tipo}) - ${salon.fecha}`,
-                                nivel: 4,
-                                data: reg,
-                                hijos: []
-                            });
-                        });
-
-                        nodoNivel.hijos.push(nodoSalon);
-                        nodoInstalacion.hijos.push(nodoNivel);
-                        nodoRaiz.hijos.push(nodoInstalacion);
-                    });
-                    break;
-
-                default:
-                    console.error('Tipo de reporte no reconocido:', tipo);
-                    break;
-            }
-
-            return nodoRaiz;
+                // Usuario en el salón
+                salon.hijos.push({
+                    id: usuario.idUsuario,
+                    valor: usuario.nombre,
+                    nivel: 4,
+                    data: {
+                        ...usuario,
+                        foto: usuario.foto || IMG_PATHS.user
+                    },
+                    hijos: []
+                });
+            });
+            return arbol;
         }
-
         // Configuración mejorada del árbol
         const TREE_CONFIG = {
             NODE_RADIUS: 35,
@@ -1052,22 +1310,43 @@
             // Limpiar el contenedor
             container.innerHTML = '';
 
+            // --- NUEVO: Validar si todos los nodos son vacíos ---
+            // Si no hay hijos o todos los hijos y subhijos tienen id 0, mostrar mensaje
+            function esArbolVacio(nodo) {
+                if (!nodo.hijos || nodo.hijos.length === 0) return true;
+                // Si todos los hijos tienen id 0 y sus hijos también son vacíos
+                return nodo.hijos.every(hijo =>
+                    (hijo.id === 0) &&
+                    (!hijo.hijos || hijo.hijos.length === 0 || esArbolVacio(hijo))
+                );
+            }
+
+            if (!arbol.hijos || arbol.hijos.length === 0 || esArbolVacio(arbol)) {
+                container.innerHTML = `
+            <div class="arbol-vacio" style="text-align:center; padding:40px 0;">
+                <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #f44336;"></i>
+                <p style="font-size: 18px; color: #444; margin: 12px 0 8px 0;">
+                    No tiene rutas esta ubicación.<br>
+                    Por favor seleccione un nuevo edificio o salón.
+                </p>
+            </div>
+        `;
+                return;
+            }
+
             // Crear elemento SVG para el árbol con scroll
             const svgWrapper = document.createElement('div');
             svgWrapper.style.width = '100%';
-            svgWrapper.style.height = '600px';
+            svgWrapper.style.height = '100%';
             svgWrapper.style.overflow = 'auto';
-            svgWrapper.style.border = '1px solid #ddd';
-            svgWrapper.style.borderRadius = '8px';
-            svgWrapper.style.padding = '10px';
             svgWrapper.style.backgroundColor = '#f9f9f9';
 
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('width', '100%');
-            svg.setAttribute('height', '800');
+            svg.setAttribute('height', '100%');
             svg.style.display = 'block';
-            svg.style.margin = '0 auto';
-            svg.style.minWidth = '1000px'; // Ancho mínimo para asegurar el scroll horizontal
+            svg.style.minWidth = '1000px';
+            svg.style.minHeight = '600px';
 
             // Grupo principal
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -1076,7 +1355,7 @@
             svgWrapper.appendChild(svg);
             container.appendChild(svgWrapper);
 
-            // Calcular posiciones con más espacio
+            // Calcular posiciones with more space
             function calcularPosiciones(nodo, nivel, posX, espacioDisponible) {
                 if (!nodo) return;
 
@@ -1132,21 +1411,16 @@
                     `/${ruta}`,
                     `../${ruta}`,
                     `../../${ruta}`,
-                    `imagenes/IMG/objetos/${ruta.split('/').pop()}`,
-                    'imagenes/IMG/users/user.png',
+                    IMG_PATHS.user,
                     'https://via.placeholder.com/100?text=Usuario'
                 ];
-
                 for (const posibleRuta of rutasPosibles) {
                     try {
                         const existe = await verificarImagen(posibleRuta);
                         if (existe) return posibleRuta;
-                    } catch (e) {
-                        console.warn(`Error al verificar imagen: ${posibleRuta}`, e);
-                    }
+                    } catch (e) {}
                 }
-
-                return 'https://via.placeholder.com/100?text=Usuario';
+                return IMG_PATHS.user;
             }
 
             async function verificarImagen(url) {
@@ -1186,66 +1460,20 @@
                 nodeGroup.setAttribute('class', 'avl-node-group');
                 nodeGroup.setAttribute('transform', `translate(${nodo.x}, ${nodo.y})`);
 
-                // Detectar si es un nodo de nivel (ejemplo: "Nivel 1", "Nivel 2", ...)
-                const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
-                let esNivel = false;
-                let nivelNumero = 0;
-                if (nivelMatch) {
-                    esNivel = true;
-                    nivelNumero = parseInt(nivelMatch[1]);
-                }
-
-                // Crear el círculo base para todos los nodos
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
-                circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
-                circle.setAttribute('stroke-width', '2');
-                circle.setAttribute('class', 'node-circle');
-
-                if (esNivel && nivelNumero >= 1 && nivelNumero <= 5) {
-                    // Imagen de nivel correspondiente
-                    const imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelNumero}.png`);
-                    const imageSize = TREE_CONFIG.IMAGE_SIZE;
-                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    image.setAttribute('href', imagenUrl);
-                    image.setAttribute('width', imageSize);
-                    image.setAttribute('height', imageSize);
-                    image.setAttribute('x', -imageSize / 2);
-                    image.setAttribute('y', -imageSize / 2);
-                    image.setAttribute('class', 'node-image');
-                    image.style.cursor = 'pointer';
-                    nodeGroup.appendChild(circle);
-                    nodeGroup.appendChild(image);
-
-                    // Texto del nivel debajo de la imagen
-                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('dominant-baseline', 'hanging');
-                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
-                    text.setAttribute('fill', '#333');
-                    text.setAttribute('font-size', '12px');
-                    text.setAttribute('font-weight', 'bold');
-                    text.textContent = nodo.valor;
-                    nodeGroup.appendChild(text);
-                } else {
-                    // Configuración para otros nodos (edificios, puertas, personas)
-                    circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default);
+                // --- NODO DE USUARIO ---
+                if (nodo.data && nodo.data.idUsuario) {
+                    // Círculo base
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
+                    circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
+                    circle.setAttribute('stroke-width', '2');
+                    circle.setAttribute('class', 'node-circle');
+                    circle.setAttribute('fill', '#2196F3'); // Color azul para nodos de usuario
                     nodeGroup.appendChild(circle);
 
-                    // Determinar la imagen a mostrar
-                    let imagenUrl = 'imagenes/IMG/users/user.png';
-                    if (nodo.data && nodo.data.foto) {
-                        imagenUrl = await cargarImagenSegura(nodo.data.foto);
-                    } else if (nodo.valor.includes("Edificio")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
-                    } else if (nodo.valor.includes("Puerta")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
-                    } else if (nodo.valor.includes("Salón")) {
-                        imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
-                    }
-
-                    // Crear elemento de imagen
+                    // Imagen de usuario
                     const imageSize = TREE_CONFIG.IMAGE_SIZE;
+                    const imagenUrl = await cargarImagenSegura(nodo.data.foto);
                     const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
                     image.setAttribute('href', imagenUrl);
                     image.setAttribute('width', imageSize);
@@ -1255,27 +1483,108 @@
                     image.setAttribute('class', 'node-image');
                     image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
                     image.style.cursor = 'pointer';
-                    image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+                    image.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        mostrarInfoUsuario(e, nodo.data, imagenUrl);
+                    });
                     nodeGroup.appendChild(image);
 
-                    // Texto del nodo (debajo de la imagen)
+                    // Nombre debajo (solo nombres, sin apellidos)
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     text.setAttribute('text-anchor', 'middle');
                     text.setAttribute('dominant-baseline', 'hanging');
-                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+                    text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 5);
                     text.setAttribute('fill', '#333');
                     text.setAttribute('font-size', '12px');
                     text.setAttribute('font-weight', 'bold');
-
-                    // Acortar texto largo
-                    const textoMostrar = nodo.valor.length > 15 ?
-                        nodo.valor.substring(0, 12) + '...' : nodo.valor;
-                    text.textContent = textoMostrar;
-
+                    text.textContent = nodo.data.nombre || nodo.valor; // Solo nombres
                     nodeGroup.appendChild(text);
+
+                    // Hora debajo del nombre
+                    const horaText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    horaText.setAttribute('text-anchor', 'middle');
+                    horaText.setAttribute('dominant-baseline', 'hanging');
+                    horaText.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 22);
+                    horaText.setAttribute('fill', '#666');
+                    horaText.setAttribute('font-size', '11px');
+                    horaText.textContent = nodo.data.hora || '';
+                    nodeGroup.appendChild(horaText);
+
+                    g.appendChild(nodeGroup);
+
+                    // Dibujar hijos recursivamente
+                    if (nodo.hijos) {
+                        for (const hijo of nodo.hijos) {
+                            await dibujarNodos(hijo, g);
+                        }
+                    }
+                    return; // IMPORTANTE: no sigas con el bloque general
                 }
 
+                // --- NODOS NORMALES (edificio, puerta, nivel, salón, etc) ---
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', TREE_CONFIG.NODE_RADIUS);
+                circle.setAttribute('stroke', TREE_CONFIG.NODE_COLORS.stroke);
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('class', 'node-circle');
+                circle.setAttribute('fill', TREE_CONFIG.NODE_COLORS.default); // Fondo verde
+                nodeGroup.appendChild(circle);
+
+                // Evento para mostrar el recuadro con el nombre del nodo
+                nodeGroup.addEventListener('click', function(e) {
+                    mostrarInfoNodoArbol(e, nodo.valor);
+                });
+
+                // Imagen del nodo
+                let imagenUrl = 'imagenes/IMG/users/user1.png';
+                if (nodo.data && nodo.data.foto) {
+                    imagenUrl = await cargarImagenSegura(nodo.data.foto);
+                } else if (nodo.valor.includes("Edificio")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/edificio.jpeg");
+                } else if (nodo.valor.includes("Puerta")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/door.jpg");
+                } else if (nodo.valor.includes("Salón")) {
+                    imagenUrl = await cargarImagenSegura("imagenes/IMG/objetos/classroom.jpg");
+                } else if (/^Nivel\s*\d+/i.test(nodo.valor)) {
+                    // Si es un nodo de nivel
+                    const nivelMatch = nodo.valor.match(/^Nivel\s*(\d+)/i);
+                    if (nivelMatch) {
+                        imagenUrl = await cargarImagenSegura(`imagenes/IMG/level/nivel${nivelMatch[1]}.png`);
+                    }
+                }
+
+                const imageSize = TREE_CONFIG.IMAGE_SIZE;
+                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('href', imagenUrl);
+                image.setAttribute('width', imageSize);
+                image.setAttribute('height', imageSize);
+                image.setAttribute('x', -imageSize / 2);
+                image.setAttribute('y', -imageSize / 2);
+                image.setAttribute('class', 'node-image');
+                image.setAttribute('clip-path', `circle(${imageSize/2}px at ${imageSize/2}px ${imageSize/2}px)`);
+                image.style.cursor = 'pointer';
+                image.addEventListener('click', (e) => expandirImagen(e, imagenUrl));
+                nodeGroup.appendChild(image);
+
+                // Texto del nodo (debajo de la imagen)
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'hanging');
+                text.setAttribute('y', TREE_CONFIG.NODE_RADIUS + 10);
+                text.setAttribute('fill', '#333');
+                text.setAttribute('font-size', '12px');
+                text.setAttribute('font-weight', 'bold');
+                const textoMostrar = nodo.valor.length > 15 ?
+                    nodo.valor.substring(0, 12) + '...' : nodo.valor;
+                text.textContent = textoMostrar;
+                nodeGroup.appendChild(text);
+
                 g.appendChild(nodeGroup);
+
+                // Evento para mostrar el recuadro con el nombre del nodo
+                nodeGroup.addEventListener('click', function(e) {
+                    mostrarInfoNodoArbol(e, nodo.valor);
+                });
 
                 // Dibujar hijos recursivamente
                 if (nodo.hijos) {
@@ -1342,128 +1651,41 @@
 
         // Funciones para obtener datos (se mantienen iguales)
         function obtenerDatosHistorico() {
-            return [{
-                    instalacion: "Edificio A",
-                    puerta: "Puerta Principal",
-                    fechas: ["2023-05-01", "2023-05-02", "2023-05-03"]
-                },
-                {
-                    instalacion: "Edificio B",
-                    puerta: "Puerta Secundaria",
-                    fechas: ["2023-05-01", "2023-05-04"]
-                },
-                {
-                    instalacion: "Edificio C",
-                    puerta: "Puerta Emergencia",
-                    fechas: ["2023-05-02", "2023-05-03"]
-                }
-            ];
+            // Usar ubicaciones por edificio
+            return <?php
+                    $idEdificio = 1; // O el que corresponda
+                    $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+                    $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+                    echo json_encode([
+                        'ubicaciones' => $ubicacionesTransformadas,
+                        'usuarios' => []
+                    ], JSON_PRETTY_PRINT);
+                    ?>;
         }
 
         function obtenerDatosPorFecha() {
-            return [{
-                    instalacion: "Edificio A",
-                    puerta: "Puerta Principal",
-                    fecha: "2023-05-01",
-                    registros: [{
-                            id: 1,
-                            nombre: "Juan Pérez",
-                            correo: "juan@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        },
-                        {
-                            id: 2,
-                            nombre: "María García",
-                            correo: "maria@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: false
-                        }
-                    ]
-                },
-                {
-                    instalacion: "Edificio B",
-                    puerta: "Puerta Secundaria",
-                    fecha: "2023-05-02",
-                    registros: [{
-                            id: 3,
-                            nombre: "Carlos López",
-                            correo: "carlos@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        },
-                        {
-                            id: 4,
-                            nombre: "Ana Torres",
-                            correo: "ana@example.com",
-                            foto: "imagenes/IMG/users/user.avif",
-                            asistencia: true
-                        }
-                    ]
-                }
-            ];
+            // Usar ubicaciones por edificio
+            return <?php
+                    $idEdificio = 1; // O el que corresponda
+                    $ubicacionesBD = obtenerUbicacionesPorEdificio($idEdificio);
+                    $ubicacionesTransformadas = transformarUbicaciones($ubicacionesBD);
+                    echo json_encode([
+                        'ubicaciones' => $ubicacionesTransformadas,
+                        'usuarios' => []
+                    ], JSON_PRETTY_PRINT);
+                    ?>;
         }
-
-        function obtenerDatosSalonHistorico() {
-            return [{
-                    instalacion: "Edificio A",
-                    nivel: "1",
-                    salon: "101",
-                    estudiantes: [{
-                            id: 1,
-                            nombre: "Juan Pérez",
-                            tipo: "estudiante",
-                            foto: "imagenes/IMG/users/user.avif"
-                        },
-                        {
-                            id: 2,
-                            nombre: "Prof. Rodríguez",
-                            tipo: "catedrático",
-                            foto: "imagenes/IMG/users/user.avif"
-                        }
-                    ]
-                },
-                {
-                    instalacion: "Edificio B",
-                    nivel: "2",
-                    salon: "202",
-                    estudiantes: [{
-                            id: 3,
-                            nombre: "Carlos López",
-                            tipo: "estudiante",
-                            foto: "imagenes/IMG/users/user.avif"
-                        },
-                        {
-                            id: 4,
-                            nombre: "Prof. García",
-                            tipo: "catedrático",
-                            foto: "imagenes/IMG/users/user.avif"
-                        }
-                    ]
-                }
-            ];
+        async function obtenerDatosSalonHistorico() {
+            const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+            const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+            const data = await response.json();
+            console.log("Respuesta de obtenerUbicacionesPorSalon:", data);
+            return data;
         }
-
-        function obtenerDatosSalonPorFecha() {
-            return [{
-                instalacion: "Edificio A",
-                nivel: "1",
-                salon: "101",
-                fecha: "2023-05-01",
-                registros: [{
-                        id: 1,
-                        nombre: "Juan Pérez",
-                        tipo: "estudiante",
-                        foto: "imagenes/IMG/users/user.avif"
-                    },
-                    {
-                        id: 2,
-                        nombre: "Prof. Rodríguez",
-                        tipo: "catedrático",
-                        foto: "imagenes/IMG/users/user.avif"
-                    }
-                ]
-            }];
+        async function obtenerDatosSalonPorFecha() {
+            const idSalon = window.selectedCombo ? parseInt(window.selectedCombo.id) : 1;
+            const response = await fetch(`../Base de Datos/get_ubicaciones_salon.php?idSalon=${idSalon}`);
+            return await response.json();
         }
         //----------------------------------------------------------------------------------------------------------------
         function tomarAsistencia() {
@@ -1479,22 +1701,37 @@
     `;
         }
 
+        const IMG_PATHS = {
+            nivel: num => `../../imagenes/IMG/level/nivel${num}.png`,
+            classroom: "../../imagenes/IMG/objetos/classroom.jpg",
+            door: "../../imagenes/IMG/objetos/door.jpg",
+            edificio: "../../imagenes/IMG/objetos/edificio.jpeg",
+            user: "../../imagenes/IMG/users/user1.png"
+        };
+
         function gestionarUsuarios(accion) {
             // Botón adicional según acción
             let botonExtra = "";
             if (accion.toLowerCase() === "eliminar") {
-                botonExtra = `<button id="btn-eliminar">ELIMINAR</button>`;
+                botonExtra = `
+            <button id="btn-eliminar" class="btn-eliminar" disabled>
+                <i class="fas fa-trash-alt"></i> ELIMINAR
+            </button>
+        `;
             } else if (accion.toLowerCase() === "agregar") {
                 botonExtra = `<button id="btn-agregar">AGREGAR</button>`;
             }
+
             document.getElementById('info-content').innerHTML = `
         <h3>Administración de Usuarios - ${accion}</h3>
         <p>Realizando acción: ${accion}.</p>
         <div class="usuarios-container">
             <div class="usuarios-busqueda">
                 <label for="carnet">CARNET:</label>
-                <input type="number" id="carnet">
-                <button>BUSCAR</button>
+                <input type="text" id="carnet" placeholder="Ingrese el carnet">
+                <button onclick="buscarUsuario('${accion}')">
+                    <i class="fas fa-search"></i> BUSCAR
+                </button>
                 ${botonExtra}
             </div>
             <table class="usuarios-tabla">
@@ -1508,19 +1745,135 @@
                         <th>Celular</th>
                         <th>Tipo</th>
                         <th>Carrera</th>
-                        <th>Seccion</th>
+                        <th>Sección</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="usuarios-tbody">
                     <tr>
-                        <td colspan="9" style="text-align:center;">(Datos aquí...)</td>
+                        <td colspan="9" style="text-align:center;">Ingrese un carnet y haga clic en BUSCAR</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     `;
+
+            // Configurar evento de eliminación si es la acción correspondiente
+            if (accion.toLowerCase() === "eliminar") {
+                document.getElementById('btn-eliminar').addEventListener('click', eliminarUsuario);
+            }
         }
 
+        let usuarioActual = null;
+
+        async function buscarUsuario(accion) {
+            const carnet = document.getElementById('carnet').value.trim();
+            const tbody = document.getElementById('usuarios-tbody');
+            const btnEliminar = document.getElementById('btn-eliminar');
+
+            if (!carnet) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Por favor ingrese un carnet</td></tr>`;
+                if (btnEliminar) btnEliminar.disabled = true;
+                return;
+            }
+
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Buscando usuario...</td></tr>`;
+
+            try {
+                const response = await fetch(`../Base de datos/buscar_usuario.php?carnet=${encodeURIComponent(carnet)}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+                    if (btnEliminar) btnEliminar.disabled = true;
+                    return;
+                }
+
+                if (!data.usuarios || data.usuarios.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No se encontraron usuarios con ese carnet</td></tr>`;
+                    if (btnEliminar) btnEliminar.disabled = true;
+                    return;
+                }
+
+                // Guardar usuario encontrado para posible eliminación
+                usuarioActual = data.usuarios[0];
+
+                // Mostrar resultados en la tabla
+                tbody.innerHTML = data.usuarios.map((usuario, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${usuario.Carnet_Usuario}</td>
+                <td>${usuario.Nombres_Usuario}</td>
+                <td>${usuario.Apellidos_Usuario}</td>
+                <td>${usuario.Correo_Electronico_Usuario}</td>
+                <td>${usuario.Numero_De_Telefono_Usuario}</td>
+                <td>${usuario.Tipo_De_Usuario}</td>
+                <td>${usuario.Nombre_Carrera}</td>
+                <td>${usuario.Seccion_Usuario}</td>
+            </tr>
+        `).join('');
+
+                // Habilitar botón de eliminar si estamos en esa acción
+                if (btnEliminar) {
+                    btnEliminar.disabled = false;
+                    btnEliminar.setAttribute('data-carnet', usuarioActual.Carnet_Usuario);
+                }
+
+            } catch (error) {
+                console.error('Error al buscar usuario:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+                if (btnEliminar) btnEliminar.disabled = true;
+            }
+        }
+
+        async function eliminarUsuario() {
+            const carnet = this.getAttribute('data-carnet');
+            const tbody = document.getElementById('usuarios-tbody');
+            const btnEliminar = document.getElementById('btn-eliminar');
+
+            if (!carnet || !confirm(`¿Está seguro que desea eliminar al usuario con carnet ${carnet}?`)) {
+                return;
+            }
+
+            btnEliminar.disabled = true;
+            btnEliminar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Eliminando usuario...</td></tr>`;
+
+            try {
+                const response = await fetch('../Base de datos/eliminar_usuario.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `carnet=${encodeURIComponent(carnet)}`
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">${data.error}</td></tr>`;
+                    btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                    return;
+                }
+
+                // Mostrar mensaje de éxito
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:green">
+            <i class="fas fa-check-circle"></i> Usuario con carnet ${carnet} eliminado correctamente
+        </td></tr>`;
+
+                // Resetear el formulario
+                document.getElementById('carnet').value = '';
+                btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                btnEliminar.disabled = true;
+                usuarioActual = null;
+
+
+            } catch (error) {
+                console.error('Error al eliminar usuario:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:red;">Error al conectar con el servidor</td></tr>`;
+                btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i> ELIMINAR';
+                btnEliminar.disabled = false;
+            }
+        }
 
         function abrirRegistroGeneral() {
             // Muestra el registro general
@@ -1531,7 +1884,7 @@
         }
 
 
-        // Función para mostrar estadísticas con gráficos
+        // Función para mostrar estadísticas with gráficos
         function abrirEstadisticas() {
             document.getElementById('info-content').innerHTML = `
         <div class="stats-container">
@@ -1539,6 +1892,9 @@
             
             <div class="stats-controls">
                 <div class="form-group">
+
+
+
                     <label for="report-type">Tipo de Reporte:</label>
                     <select id="report-type" class="form-control" onchange="cambiarTipoReporte()">
                         <option value="asistencia">Asistencia por Salón</option>
@@ -1561,47 +1917,41 @@
                     <label for="chart-type">Tipo de Gráfico:</label>
                     <select id="chart-type" class="form-control">
                         <option value="bar">Barras</option>
-                        <option value="line">Líneas</option>
-                        <option value="pie">Circular</option>
-                        <option value="doughnut">Dona</option>
+                        <option value="line">Línea</option>
                         <option value="radar">Radar</option>
+                        <option value="doughnut">Dona</option>
                     </select>
                 </div>
-                
-                <div class="form-group date-range">
-                    <label for="rango-fechas">Rango de Fechas:</label>
-                    <div class="date-inputs">
-                        <input type="date" id="fecha-inicio" class="form-control">
-                        <span>a</span>
-                        <input type="date" id="fecha-fin" class="form-control">
-                    </div>
-                </div>
-                
-                <button onclick="cargarEstadisticas()" class="btn-generar">
-                    <i class="fas fa-chart-bar"></i> Generar Grafico
-                </button>
             </div>
             
-            <div id="loading-spinner" class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Generando estadísticas...</p>
+            <div class="loading-spinner" id="loading-spinner" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i>
             </div>
             
             <div id="stats-results" class="stats-results">
                 <div class="placeholder-message">
+
                     <i class="fas fa-chart-pie"></i>
                     <p>Seleccione los parámetros para generar el reporte estadístico</p>
                 </div>
             </div>
             
-            <div id="stats-error" class="stats-error"></div>
+            <div id="stats-error" class="stats-error">
+                <!-- Aquí se mostrarán los mensajes de error -->
+            </div>
         </div>
     `;
 
-            // Establecer fechas por defecto (últimos 7 días)
+            // Inicializar select2 para los selects
+            $('#salon-select').select2({
+                placeholder: '-- Seleccione --',
+                allowClear: true
+            });
+
+            // Rango de fechas: últimos 7 días
             const hoy = new Date();
             const hace7Dias = new Date();
-            hace7Dias.setDate(hoy.getDate() - 7);
+            hace7Dias.setDate(hoy.getDate() - 6); // Desde hace 6 días hasta hoy
 
             document.getElementById('fecha-inicio').valueAsDate = hace7Dias;
             document.getElementById('fecha-fin').valueAsDate = hoy;
@@ -2060,7 +2410,7 @@
     padding: 15px;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 100%;
     overflow: hidden;
@@ -2154,7 +2504,6 @@
         });
 
 
-
         // Inicializar cuando Chart.js esté cargado
         if (typeof Chart !== 'undefined') {
             initEstadisticasButton();
@@ -2197,6 +2546,166 @@
             </div>
         </div>
     </div>
+
+    <div id="dashboard-arbol" class="dashboard-arbol">
+        <!-- Aquí se dibuja el árbol -->
+    </div>
+    <button onclick="expandirDashboardArbol()" class="btn-expandir-arbol">Expandir árbol</button>
+
+    <script>
+        function mostrarInfoUsuario(event, data, imagenUrl) {
+            event.stopPropagation();
+
+            // Elimina overlay anterior si existe
+            const oldOverlay = document.getElementById('usuario-info-overlay');
+            if (oldOverlay) oldOverlay.remove();
+
+            // Overlay semitransparente
+            const overlay = document.createElement('div');
+            overlay.id = 'usuario-info-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0,0,0,0.4)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = 2000;
+
+            // Cuadro blanco centrado
+            const infoBox = document.createElement('div');
+            infoBox.style.background = '#fff';
+            infoBox.style.borderRadius = '12px';
+            infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+            infoBox.style.padding = '32px 32px 32px 24px';
+            infoBox.style.width = '350px';
+            infoBox.style.display = 'flex';
+            infoBox.style.flexDirection = 'column';
+            infoBox.style.alignItems = 'center';
+            infoBox.style.position = 'relative';
+
+            // Imagen grande
+            const img = document.createElement('img');
+            img.src = imagenUrl;
+            img.alt = 'Foto de perfil';
+            img.style.width = '120px';
+            img.style.height = '120px';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            img.style.marginBottom = '18px';
+            infoBox.appendChild(img);
+
+            // Nombre y apellidos
+            const nombre = document.createElement('div');
+            nombre.textContent = (data.nombre || '') + (data.apellidos ? ' ' + data.apellidos : '');
+            nombre.style.fontWeight = 'bold';
+            nombre.style.fontSize = '20px';
+            nombre.style.marginBottom = '8px';
+            infoBox.appendChild(nombre);
+
+            // Hora de entrada
+            const hora = document.createElement('div');
+            hora.innerHTML = `<b>Hora de entrada:</b> ${data.hora || ''}`;
+            hora.style.marginBottom = '6px';
+            infoBox.appendChild(hora);
+
+            // Fecha (hoy)
+            const fecha = document.createElement('div');
+            const hoy = new Date().toISOString().slice(0, 10);
+            fecha.innerHTML = `<b>Fecha:</b> ${hoy}`;
+            infoBox.appendChild(fecha);
+
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = 'Cerrar';
+            btnCerrar.style.marginTop = '24px';
+            btnCerrar.style.padding = '8px 24px';
+            btnCerrar.style.background = '#2196F3';
+            btnCerrar.style.color = '#fff';
+            btnCerrar.style.border = 'none';
+            btnCerrar.style.borderRadius = '6px';
+            btnCerrar.style.cursor = 'pointer';
+            btnCerrar.onclick = () => overlay.remove();
+            infoBox.appendChild(btnCerrar);
+
+            overlay.appendChild(infoBox);
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
+        function mostrarInfoNodoArbol(event, nombreNodo) {
+            event.stopPropagation();
+
+            // Elimina overlay anterior si existe
+            const oldOverlay = document.getElementById('info-nodo-arbol-overlay');
+            if (oldOverlay) oldOverlay.remove();
+
+            // Overlay semitransparente
+            const overlay = document.createElement('div');
+            overlay.id = 'info-nodo-arbol-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0,0,0,0.4)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = 2100;
+
+            // Cuadro blanco centrado
+            const infoBox = document.createElement('div');
+            infoBox.style.background = '#fff';
+            infoBox.style.borderRadius = '12px';
+            infoBox.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+            infoBox.style.padding = '32px 32px 32px 24px';
+            infoBox.style.width = '350px';
+            infoBox.style.display = 'flex';
+            infoBox.style.flexDirection = 'column';
+            infoBox.style.alignItems = 'center';
+            infoBox.style.position = 'relative';
+
+            // Nombre del nodo
+            const nombre = document.createElement('div');
+            nombre.textContent = nombreNodo;
+            nombre.style.fontWeight = 'bold';
+            nombre.style.fontSize = '20px';
+            nombre.style.marginBottom = '8px';
+            nombre.style.textAlign = 'center';
+            infoBox.appendChild(nombre);
+
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = 'Cerrar';
+            btnCerrar.style.marginTop = '24px';
+            btnCerrar.style.padding = '8px 24px';
+            btnCerrar.style.background = '#2196F3';
+            btnCerrar.style.color = '#fff';
+            btnCerrar.style.border = 'none';
+            btnCerrar.style.borderRadius = '6px';
+            btnCerrar.style.cursor = 'pointer';
+            btnCerrar.onclick = () => overlay.remove();
+            infoBox.appendChild(btnCerrar);
+
+            overlay.appendChild(infoBox);
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
+        // Obtener y mostrar los datos de ubicaciones y usuarios en consola
+        const datos = obtenerDatosHistorico();
+        console.log("Ubicaciones:", datos.ubicaciones);
+        console.log("Usuarios:", datos.usuarios); // Array vacío por ahora
+    </script>
 </body>
 
 </html>

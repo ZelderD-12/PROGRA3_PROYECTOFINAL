@@ -37,7 +37,7 @@
             <img src="../../imagenes/logo.png" alt="Logo de proyecto" class="logo">
         </div>
         
-        <a href="../../index.php" class="back-link">← Volver al login</a>
+        <a href="../Pantalla Principal/bienvenido.php" class="back-link">← Volver a la pantalla principal</a>
                 
         <h2><span id="register-title">Registro</span></h2>
                 
@@ -51,7 +51,7 @@
                 <input type="password" name="password" placeholder="Contraseña" required class="input-field" maxlength="50">
                 <input type="text" name="celular" placeholder="Celular" required class="input-field" maxlength="8">
                 <input type="email" name="email" placeholder="Email" required class="input-field" maxlength="50">
-                <select name="tipouser" required class="input-field" >
+                <select name="tipouser" id="tipouser"required class="input-field" >
                     <option value="" disabled selected>Seleccione un tipo de usuario</option>
                     <?php
                     if (!empty($tipos_usuario)) {
@@ -64,7 +64,7 @@
                     ?>
         </select>
 
-        <select name="carrera" required class="input-field" >
+        <select name="carrera" id="carrera" required class="input-field" >
                     <option value="" disabled selected>Seleccione una carrera</option>
                     <?php
                     if (!empty($carreras)) {

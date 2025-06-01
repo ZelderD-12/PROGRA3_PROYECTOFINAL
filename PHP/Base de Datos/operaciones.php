@@ -316,5 +316,143 @@ function obtenerTipoUsuario($idTipoUsuario) {
     
     return $tipoUsuario;
 }
- 
+
+// Función para obtener todos los edificios (id y nombre)
+function saberEdificios() {
+    global $conexion;
+    $edificios = [];
+
+    $query = "SELECT idEdificio, Edificio FROM Edificios";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $edificios[] = [
+                'idEdificio' => $row['idEdificio'],
+                'Edificio' => $row['Edificio']
+            ];
+        }
+        $result->free();
+    }
+    return $edificios;
+}
+
+// Función para obtener todos los salones (id y área)
+function saberSalones() {
+    global $conexion;
+    $salones = [];
+
+    $query = "SELECT idSalon, Area FROM Salones";
+    $result = $conexion->query($query);
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $salones[] = [
+                'idSalon' => $row['idSalon'],
+                'Area' => $row['Area']
+            ];
+        }
+        $result->free();
+    }
+    return $salones;
+}
+
+
+function obtenerUbicacionesPorEdificio($idEdificio) {
+    global $conexion;
+
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+
+    $ubicaciones = [];
+
+    // Consulta para obtener todas las rutas de un edificio específico
+    $query = "SELECT 
+                COALESCE(e.idEdificio, 0) AS idEdificio,
+                COALESCE(e.Edificio, '') AS edificio,
+                COALESCE(p.idPuerta, 0) AS idPuerta,
+                COALESCE(p.Puerta, '') AS puerta,
+                COALESCE(b.Nivel, 0) AS nivel,
+                COALESCE(s.idSalon, 0) AS idSalon,
+                COALESCE(s.Area, '') AS salon
+            FROM Busqueda b
+            LEFT JOIN Edificios e ON b.idEdificio = e.idEdificio
+            LEFT JOIN Puertas p ON b.idPuerta = p.idPuerta
+            LEFT JOIN Salones s ON b.idSalon = s.idSalon
+            WHERE b.idEdificio = ?";
+
+    $stmt = $conexion->prepare($query);
+    if ($stmt) {
+        $stmt->bind_param("i", $idEdificio);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $ubicaciones[] = [
+                'idEdificio' => (int)$row['idEdificio'],
+                'edificio'   => $row['edificio'],
+                'idPuerta'   => (int)$row['idPuerta'],
+                'puerta'     => $row['puerta'],
+                'nivel'      => (int)$row['nivel'],
+                'idSalon'    => (int)$row['idSalon'],
+                'salon'      => $row['salon']
+            ];
+        }
+        $stmt->close();
+    }
+
+    return [
+        'ubicaciones' => $ubicaciones
+    ];
+}
+
+function obtenerUbicacionesPorSalon($idSalon) {
+    global $conexion;
+
+    // Limpiar resultados pendientes
+    while ($conexion->more_results()) {
+        $conexion->next_result();
+    }
+
+    $ubicaciones = [];
+
+    // Consulta mejorada: une con Edificios y Puertas para obtener toda la información
+    $query = "SELECT 
+                COALESCE(e.idEdificio, 0) AS idEdificio,
+                COALESCE(e.Edificio, '') AS edificio,
+                COALESCE(p.idPuerta, 0) AS idPuerta,
+                COALESCE(p.Puerta, '') AS puerta,
+                COALESCE(b.Nivel, 0) AS nivel,
+                COALESCE(s.idSalon, 0) AS idSalon,
+                COALESCE(s.Area, '') AS salon
+            FROM Busqueda b
+            LEFT JOIN Edificios e ON b.idEdificio = e.idEdificio
+            LEFT JOIN Puertas p ON b.idPuerta = p.idPuerta
+            LEFT JOIN Salones s ON b.idSalon = s.idSalon
+            WHERE b.idSalon = ?";
+
+    $stmt = $conexion->prepare($query);
+    $stmt->bind_param("i", $idSalon);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $ubicaciones[] = [
+            'idEdificio' => (int)$row['idEdificio'],
+            'edificio'   => $row['edificio'],
+            'idPuerta'   => (int)$row['idPuerta'],
+            'puerta'     => $row['puerta'],
+            'nivel'      => (int)$row['nivel'],
+            'idSalon'    => (int)$row['idSalon'],
+            'salon'      => $row['salon']
+        ];
+    }
+    $stmt->close();
+
+    return [
+        'ubicaciones' => $ubicaciones
+    ];
+}
 ?>

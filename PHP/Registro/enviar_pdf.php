@@ -163,7 +163,7 @@ function generarYEnviarPDF($datos)
             <p>Saludos,<br>Equipo de Registro</p>
         ";
         $mail->addAttachment($pdfFilePath);
-
+        $mail->CharSet = 'UTF-8';
         $mail->send();
 
         // Limpiar archivos temporales
